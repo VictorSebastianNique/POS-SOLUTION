@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { MongoClient } = require('mongodb');
 
 const PORT = process.env.PORT || 3000;
 const DIST_DIR = path.resolve(__dirname, 'dist');
@@ -17,7 +18,122 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon',
 };
 
-const server = http.createServer((req, res) => {
+// MongoDB Setup
+let db = null;
+let mongoClient = null;
+const mongoUri = process.env.MONGODB_URI;
+
+async function initMongo() {
+  if (!mongoUri) {
+    console.log('No MONGODB_URI environment variable found. Falling back to local JSON database files.');
+    return null;
+  }
+  try {
+    console.log('Connecting to MongoDB Atlas...');
+    mongoClient = new MongoClient(mongoUri);
+    await mongoClient.connect();
+    db = mongoClient.db('cafeteria_pos');
+    console.log('Connected successfully to MongoDB Atlas database ("cafeteria_pos").');
+    return db;
+  } catch (err) {
+    console.error('Failed to connect to MongoDB Atlas, falling back to local files:', err);
+    return null;
+  }
+}
+
+async function seedMongo() {
+  if (!db) return;
+  try {
+    const globalExists = await db.collection('store').findOne({ _id: 'global' });
+    if (!globalExists) {
+      console.log('MongoDB database is empty. Seeding initial data from JSON files...');
+      
+      // Seed global
+      const globalPath = path.resolve(__dirname, 'db_global.json');
+      if (fs.existsSync(globalPath)) {
+        const globalData = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
+        await db.collection('store').insertOne({ _id: 'global', ...globalData });
+        console.log('Seeded global database successfully.');
+      }
+
+      // Seed local files
+      const files = fs.readdirSync(__dirname);
+      for (const file of files) {
+        if (file.startsWith('db_local_') && file.endsWith('.json')) {
+          const locId = file.substring('db_local_'.length, file.length - '.json'.length);
+          const localPath = path.resolve(__dirname, file);
+          const localData = JSON.parse(fs.readFileSync(localPath, 'utf-8'));
+          await db.collection('store').insertOne({ _id: `local_${locId}`, ...localData });
+          console.log(`Seeded local database for "${locId}" successfully.`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error seeding MongoDB database:', err);
+  }
+}
+
+async function getGlobalData() {
+  if (db) {
+    const doc = await db.collection('store').findOne({ _id: 'global' });
+    if (doc) {
+      const { _id, ...rest } = doc;
+      return rest;
+    }
+    return {};
+  } else {
+    const dbPath = path.resolve(__dirname, 'db_global.json');
+    return fs.existsSync(dbPath) ? JSON.parse(fs.readFileSync(dbPath, 'utf-8')) : {};
+  }
+}
+
+async function writeGlobalData(key, value) {
+  if (db) {
+    await db.collection('store').updateOne(
+      { _id: 'global' },
+      { $set: { [key]: value } },
+      { upsert: true }
+    );
+  } else {
+    const dbPath = path.resolve(__dirname, 'db_global.json');
+    let localDb = {};
+    if (fs.existsSync(dbPath)) localDb = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+    localDb[key] = value;
+    fs.writeFileSync(dbPath, JSON.stringify(localDb, null, 2));
+  }
+}
+
+async function getLocalData(locId) {
+  if (db) {
+    const doc = await db.collection('store').findOne({ _id: `local_${locId}` });
+    if (doc) {
+      const { _id, ...rest } = doc;
+      return rest;
+    }
+    return {};
+  } else {
+    const dbPath = path.resolve(__dirname, `db_local_${locId}.json`);
+    return fs.existsSync(dbPath) ? JSON.parse(fs.readFileSync(dbPath, 'utf-8')) : {};
+  }
+}
+
+async function writeLocalData(locId, key, value) {
+  if (db) {
+    await db.collection('store').updateOne(
+      { _id: `local_${locId}` },
+      { $set: { [key]: value } },
+      { upsert: true }
+    );
+  } else {
+    const dbPath = path.resolve(__dirname, `db_local_${locId}.json`);
+    let localDb = {};
+    if (fs.existsSync(dbPath)) localDb = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+    localDb[key] = value;
+    fs.writeFileSync(dbPath, JSON.stringify(localDb, null, 2));
+  }
+}
+
+const server = http.createServer(async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -34,13 +150,13 @@ const server = http.createServer((req, res) => {
   // --- API ROUTING ---
   // GET GLOBAL
   if (cleanUrl === '/api/store/global' && req.method === 'GET') {
-    const dbPath = path.resolve(__dirname, 'db_global.json');
     res.setHeader('Content-Type', 'application/json');
-    if (fs.existsSync(dbPath)) {
-      res.end(fs.readFileSync(dbPath, 'utf-8'));
-    } else {
-      res.statusCode = 404;
-      res.end(JSON.stringify({ error: 'db_global.json not found' }));
+    try {
+      const data = await getGlobalData();
+      res.end(JSON.stringify(data));
+    } catch (e) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: e.message }));
     }
     return;
   }
@@ -48,13 +164,13 @@ const server = http.createServer((req, res) => {
   // GET LOCAL
   if (cleanUrl.startsWith('/api/store/local/') && req.method === 'GET') {
     const locId = cleanUrl.split('/api/store/local/')[1];
-    const dbPath = path.resolve(__dirname, `db_local_${locId}.json`);
     res.setHeader('Content-Type', 'application/json');
-    if (fs.existsSync(dbPath)) {
-      res.end(fs.readFileSync(dbPath, 'utf-8'));
-    } else {
-      res.statusCode = 404;
-      res.end(JSON.stringify({ error: `db_local_${locId}.json not found` }));
+    try {
+      const data = await getLocalData(locId);
+      res.end(JSON.stringify(data));
+    } catch (e) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: e.message }));
     }
     return;
   }
@@ -64,14 +180,10 @@ const server = http.createServer((req, res) => {
     const key = cleanUrl.split('/api/store/global/')[1];
     let body = '';
     req.on('data', chunk => body += chunk.toString());
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
-        const dbPath = path.resolve(__dirname, 'db_global.json');
         const data = JSON.parse(body);
-        let db = {};
-        if (fs.existsSync(dbPath)) db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-        db[key] = data;
-        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+        await writeGlobalData(key, data);
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ success: true }));
       } catch (e) {
@@ -91,14 +203,10 @@ const server = http.createServer((req, res) => {
     const key = matches[2];
     let body = '';
     req.on('data', chunk => body += chunk.toString());
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
-        const dbPath = path.resolve(__dirname, `db_local_${locId}.json`);
         const data = JSON.parse(body);
-        let db = {};
-        if (fs.existsSync(dbPath)) db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-        db[key] = data;
-        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+        await writeLocalData(locId, key, data);
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ success: true }));
       } catch (e) {
@@ -142,6 +250,12 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Initialization
+initMongo().then(async () => {
+  if (db) {
+    await seedMongo();
+  }
+  server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 });
