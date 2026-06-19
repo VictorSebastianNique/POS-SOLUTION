@@ -1,0 +1,17 @@
+{
+  "users": [],
+  "zones": [],
+  "orders": [],
+  "isBarActive": true,
+  "businessDay": {
+    "isOpen": false,
+    "startTime": null,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "pastDays": [],
+  "activeTables": {},
+  "companies": [],
+  "menuStatus": {}
+}

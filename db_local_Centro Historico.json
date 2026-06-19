@@ -1,0 +1,64 @@
+{
+  "users": [
+    {
+      "username": "admin-ch",
+      "password": "1234",
+      "role": "admin",
+      "name": "Administrador-CH",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "5fccc567-1ef0-4ac6-9992-be5489801d10",
+      "active": true
+    },
+    {
+      "username": "cocina-ch",
+      "password": "123",
+      "role": "cocina",
+      "name": "Cocina",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "1a390af7-86b7-41b5-aca0-41e8d9b7bc2f",
+      "active": true
+    },
+    {
+      "username": "cajera-ch",
+      "password": "123",
+      "role": "cajera",
+      "name": "Cajera",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "0ed2b065-2fe2-46f0-b3b3-cd6fb8401763",
+      "active": true
+    },
+    {
+      "username": "bar-ch",
+      "password": "123",
+      "role": "bar",
+      "name": "Bar",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "cad1cdfd-18eb-4c49-98a2-f4f2e7022e3a",
+      "active": true
+    },
+    {
+      "username": "castro",
+      "password": "1234",
+      "role": "mozo",
+      "name": "Juan Castro",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "31877389-f963-471c-b3b4-951f26912fba",
+      "active": true
+    }
+  ],
+  "zones": [],
+  "orders": [],
+  "isBarActive": true,
+  "businessDay": {
+    "id": "4e3ae835-7708-43a1-b926-3ad451b373c9",
+    "isOpen": true,
+    "startTime": 1779505288015,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "pastDays": [],
+  "activeTables": {},
+  "companies": [],
+  "menuStatus": {}
+}

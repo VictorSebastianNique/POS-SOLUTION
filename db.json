@@ -1,0 +1,690 @@
+{
+  "currentUser": {
+    "id": "u1",
+    "username": "admin",
+    "password": "150801",
+    "role": "superadmin",
+    "name": "Administrador",
+    "active": true,
+    "locationId": "all"
+  },
+  "users": [
+    {
+      "id": "u1",
+      "username": "admin",
+      "password": "150801",
+      "role": "superadmin",
+      "name": "Administrador",
+      "active": true,
+      "locationId": "all"
+    },
+    {
+      "id": "u2",
+      "username": "cocina",
+      "password": "123",
+      "role": "cocina",
+      "name": "Cocina Principal",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u3",
+      "username": "bar",
+      "password": "123",
+      "role": "bar",
+      "name": "Barra",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u4",
+      "username": "mozo1",
+      "password": "123",
+      "role": "mozo",
+      "name": "Terminal Pública",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u5",
+      "username": "juan",
+      "password": "111",
+      "role": "mozo",
+      "name": "Juan ",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u6",
+      "username": "maria",
+      "password": "222",
+      "role": "mozo",
+      "name": "Maria",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "username": "cajera",
+      "password": "1234",
+      "role": "cajera",
+      "name": "Caja",
+      "id": "97a33c21-ed20-40f1-a380-b7176dfa859d",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "username": "admin-lm",
+      "password": "12345",
+      "role": "admin",
+      "name": "admin-lm",
+      "locationId": "0e779fd8-0a00-45a8-a67d-d365cfc9fb00",
+      "id": "57ba9ed8-fd6e-4821-81f0-4cd77a0d8447",
+      "active": true
+    },
+    {
+      "username": "admin-ch",
+      "password": "1234",
+      "role": "admin",
+      "name": "admin-ch",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "5fccc567-1ef0-4ac6-9992-be5489801d10",
+      "active": true
+    },
+    {
+      "username": "cocina-lm",
+      "password": "123",
+      "role": "cocina",
+      "name": "Cocina",
+      "locationId": "0e779fd8-0a00-45a8-a67d-d365cfc9fb00",
+      "id": "a888871e-6c21-4104-9dbd-1d7f264ecfea",
+      "active": true
+    },
+    {
+      "username": "cocina-lm",
+      "password": "123",
+      "role": "cocina",
+      "name": "Cocina",
+      "locationId": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "id": "1a390af7-86b7-41b5-aca0-41e8d9b7bc2f",
+      "active": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "c1",
+      "name": "Bebidas",
+      "station": "bar",
+      "active": true
+    },
+    {
+      "id": "c2",
+      "name": "Postres",
+      "station": "bar",
+      "active": true
+    },
+    {
+      "id": "c3",
+      "name": "Comida",
+      "station": "cocina",
+      "active": true
+    }
+  ],
+  "menu": [
+    {
+      "name": "CARNE DE CERDO ADOBADA",
+      "price": 30,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "efb90f1d-92a4-4206-9009-aa1416f4e1c0",
+      "active": false
+    },
+    {
+      "name": "PATITA EN FIAMBRE",
+      "price": 26,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "be0a1250-a332-4fc3-bb5a-6be44fd89540",
+      "active": true
+    },
+    {
+      "name": "1/2 PATITA EN FIAMBRE",
+      "price": 17,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "ef6445db-2aea-47a7-8e4e-8fc6f7c00e51",
+      "active": true
+    },
+    {
+      "name": "SANGRECITA",
+      "price": 26,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "2026de7c-24a3-4c95-8621-64fd48fd31d4",
+      "active": true
+    },
+    {
+      "name": "CECINAS DE LOMO",
+      "price": 35,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "4a222dad-583f-4f52-99f3-25111e7936ca",
+      "active": true
+    },
+    {
+      "name": "AJÍ DE GALLINA",
+      "price": 26,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "7c763501-8278-40ed-bb31-72371ccf0a1c",
+      "active": true
+    },
+    {
+      "name": "PAPA A LA HUANCAINA",
+      "price": 20,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "1c886031-cb0f-43c5-8539-44eaa610e4fd",
+      "active": true
+    },
+    {
+      "name": "MOLLEJITAS GUISADAS",
+      "price": 24,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "ba7457d9-af2c-45d9-b915-ab9629ab4f47",
+      "active": true
+    },
+    {
+      "name": "HUMITA DOÑA FRESIA",
+      "price": 14,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "9921c25e-0804-4feb-88d1-b1a23a6ec124",
+      "active": true
+    },
+    {
+      "name": "PAPA RELLENA",
+      "price": 12,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "b5458984-1a57-4576-94b8-ae8f0c8efbda",
+      "active": true
+    },
+    {
+      "name": "ENSALADA MIXTA PERSONAL",
+      "price": 19,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "7d99c6da-ff9a-4e9a-ac8a-c645f6ba7767",
+      "active": true
+    },
+    {
+      "name": "ENSALDA DOÑA FRESIA",
+      "price": 35,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "4678fd1e-7044-4a15-a296-8aa76c47e4da",
+      "active": true
+    },
+    {
+      "name": "ENSALADA CESAR",
+      "price": 29,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "3133f40e-5eb8-40d8-ac1a-f724d65acb4f",
+      "active": true
+    },
+    {
+      "name": "CEVICHE DE LENGUADO",
+      "price": 48,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "c12fc419-09c9-4f27-816b-ef84f411b3c4",
+      "active": true
+    },
+    {
+      "name": "CEVICHE DE PESCA DEL DIA",
+      "price": 32,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "8b667037-4421-4f45-8e8f-93f510f1409f",
+      "active": true
+    },
+    {
+      "name": "CEVICHE DE MARISCOS",
+      "price": 46,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "fa6026e1-5c1d-446d-906d-f347d44573c6",
+      "active": true
+    },
+    {
+      "name": "LECHE DE TIGRE",
+      "price": 29,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "826d58ff-15b3-4f84-88d9-1408e34ce3b5",
+      "active": true
+    },
+    {
+      "name": "1/2 LECHE DE TIGRE",
+      "price": 22,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "6eb10564-b4cb-4fb7-b116-20fa985c1d27",
+      "active": true
+    },
+    {
+      "name": "TRILOGIA DE LECHES DE TIGRE",
+      "price": 32,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "d9e07eb2-f50a-42c0-9cc5-0f9ee5ed9529",
+      "active": true
+    },
+    {
+      "name": "TIRADITO A LAS 2 CREMAS",
+      "price": 49,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "2fd6a42f-50da-42fc-a935-62bb301d259b",
+      "active": true
+    },
+    {
+      "name": "TIRADITO A LAS 3 CREMAS",
+      "price": 55,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "69269bea-cee1-4dcc-9adf-5bf1f1285ebf",
+      "active": true
+    },
+    {
+      "name": "CAUSA DE LANGOSTINOS",
+      "price": 39,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "f6273e33-6496-45a4-9fb0-cf6a68e7b100",
+      "active": true
+    },
+    {
+      "name": "CAUSA DE POLLO",
+      "price": 32,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "77b5701a-aea2-4e11-8a45-12a4e66a52ab",
+      "active": true
+    },
+    {
+      "name": "CAUSA DE PULPO AL OLIVO",
+      "price": 39,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "ec08e4e0-04f1-41d8-9829-23c837c9370c",
+      "active": true
+    },
+    {
+      "name": "CAUSA DE LA CASA",
+      "price": 39,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "87a7bb70-d1b4-4fb0-94d7-b6b9ca6186c1",
+      "active": true
+    },
+    {
+      "name": "CAUSA DE LOMO FINO",
+      "price": 42,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "c279da77-f165-4ce4-be19-33f4905cc484",
+      "active": true
+    },
+    {
+      "name": "TRIO DE CAUSAS",
+      "price": 37,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "3d90e7ed-a2ff-44b3-a651-cdda47ea686f",
+      "active": true
+    },
+    {
+      "name": "CAUSA CRIOLLA",
+      "price": 42,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "b7e3c9d4-abaf-4893-a5fd-fbf46943ce69",
+      "active": true
+    },
+    {
+      "name": "ARROZ C/N MARISCOS",
+      "price": 47,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "00c908ff-b403-4af9-830b-e5e8f2cc47ec",
+      "active": true
+    },
+    {
+      "name": "ARROZ C/N LANGOSTINOS",
+      "price": 52,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "84898a4a-7543-42d9-91e9-8a6006992814",
+      "active": true
+    },
+    {
+      "name": "CHAUFS DE MARISCOS",
+      "price": 49,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "c012b978-4ae4-4078-99cf-398d9cb4e784",
+      "active": true
+    },
+    {
+      "name": "CHICHARRON PESCA DEL DIA",
+      "price": 32,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "1577fe66-465e-4d97-9dd7-e85720cc4d96",
+      "active": true
+    },
+    {
+      "name": "CHICHARRON DE LANGOSTINOS",
+      "price": 52,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "db619020-a5ea-4a84-88ff-8fe4a53cba8b",
+      "active": true
+    },
+    {
+      "name": "CHICHARRON DE LENGUADO",
+      "price": 46,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "0c3034e5-ddaa-4501-b274-498c3fd31c56",
+      "active": true
+    },
+    {
+      "name": "LENGUADO A LA PLANCHA",
+      "price": 46,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "1c60b397-ade4-4841-861e-f38b33c86f2c",
+      "active": true
+    },
+    {
+      "name": "LENGUADO APANADO",
+      "price": 49,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "0cb712b8-7707-4543-8762-774f22e3da8e",
+      "active": true
+    },
+    {
+      "name": "LENGUADO A LO MACHO",
+      "price": 59,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "2ecb60ed-2d79-4255-9952-d2aacc4d89c1",
+      "active": true
+    },
+    {
+      "name": "LENGUADO ESCABECHADO",
+      "price": 49,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "da8ff63d-8f54-4e12-b8c3-3ff98df9fc5c",
+      "active": true
+    },
+    {
+      "name": "LENGUADO AL AJO",
+      "price": 49,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "6d909ce5-b235-4790-aa31-f15e74ced3a3",
+      "active": true
+    },
+    {
+      "name": "LENGUADO A LA MEUNIERE",
+      "price": 49,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "a0138f4f-91c9-4a67-b656-8dda4267a7a2",
+      "active": true
+    },
+    {
+      "name": "JALEA MIXTA",
+      "price": 69,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "8c45cfaa-f55b-42e1-8567-166b20689b4a",
+      "active": true
+    },
+    {
+      "name": "PIQUEO FRUTOS DEL MAR",
+      "price": 135,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "c14ad95a-278e-4d82-90c3-cdea9b53d20a",
+      "active": true
+    },
+    {
+      "name": "PIQUEO DOÑA FRESIA",
+      "price": 129,
+      "categoryId": "c3",
+      "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "id": "d943ca5d-6b4c-48a2-82fb-b31e40adb37a",
+      "active": true
+    },
+    {
+      "name": "LOMO A LAS 3 PIMIENTAS",
+      "price": 72,
+      "categoryId": "c3",
+      "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+      "id": "7c3b15c3-bb6f-4427-83d4-77fc3bd5fa3d",
+      "active": true
+    },
+    {
+      "name": "LOMO EN SALSA DE CHAMPIÑPONES",
+      "price": 72,
+      "categoryId": "c3",
+      "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+      "id": "474b3661-25e1-4104-ab93-aca54c2099a4",
+      "active": true
+    },
+    {
+      "name": "SALTADO MAR Y TIERRA",
+      "price": 62,
+      "categoryId": "c3",
+      "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+      "id": "14b41901-e7b6-4785-8e72-75103ce8fd8b",
+      "active": true
+    },
+    {
+      "name": "PULPO AL OLIVO",
+      "price": 45,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "58b9ce4f-8400-496d-ac40-6664d959a0f7",
+      "active": true
+    },
+    {
+      "name": "PULPO ANTICUCHERO",
+      "price": 54,
+      "categoryId": "c3",
+      "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "id": "302144aa-731b-4596-9fee-acf0b313638e",
+      "active": true
+    },
+    {
+      "name": "COCTEL DE LANGOSTINOS",
+      "price": 39,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "79189eb6-2da3-4e5c-a73e-6e5afae78d34",
+      "active": true
+    },
+    {
+      "name": "CORIVNA SUDADA",
+      "price": 52,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "145d0e47-23ba-47e0-a1e6-75a0f750f0ee",
+      "active": true
+    },
+    {
+      "name": "R. FRUTOS DEL MAR",
+      "price": 62,
+      "categoryId": "c3",
+      "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "id": "882492b5-9372-465f-8c2c-cf3f69bffd40",
+      "active": true
+    },
+    {
+      "name": "R. H. C/N ASADO",
+      "price": 52,
+      "categoryId": "c3",
+      "subcategoryId": "",
+      "id": "c70d450b-9c9b-42b7-8632-48c01493add0",
+      "active": true
+    },
+    {
+      "name": "R. P. C/N ASADO",
+      "price": 52,
+      "categoryId": "c3",
+      "subcategoryId": "",
+      "id": "f7251feb-49c8-43ee-ab8e-2a6caca354a4",
+      "active": true
+    }
+  ],
+  "zones": [],
+  "orders": [],
+  "isBarActive": true,
+  "businessDay": {
+    "isOpen": false,
+    "startTime": null,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "pastDays": [],
+  "activeTables": {},
+  "subcategories": [
+    {
+      "name": "Entradas",
+      "categoryId": "c3",
+      "id": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+      "active": true
+    },
+    {
+      "name": "Sopas",
+      "categoryId": "c3",
+      "id": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+      "active": true
+    },
+    {
+      "name": "Frituras",
+      "categoryId": "c3",
+      "id": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+      "active": true
+    },
+    {
+      "name": "Ceviches",
+      "categoryId": "c3",
+      "id": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+      "active": true
+    },
+    {
+      "name": "Criollos",
+      "categoryId": "c3",
+      "id": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+      "active": true
+    },
+    {
+      "name": "Mariscos",
+      "categoryId": "c3",
+      "id": "057af192-255f-4fe6-b4ee-05d369d3372f",
+      "active": true
+    },
+    {
+      "name": "Refrescos",
+      "categoryId": "c1",
+      "id": "1fea3989-5ac1-457b-b31b-804523898cce",
+      "active": true
+    },
+    {
+      "name": "Gaseosas",
+      "categoryId": "c1",
+      "id": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+      "active": true
+    },
+    {
+      "name": "Cervezas",
+      "categoryId": "c1",
+      "id": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+      "active": true
+    },
+    {
+      "name": "Cocteles",
+      "categoryId": "c1",
+      "id": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+      "active": true
+    }
+  ],
+  "companies": [],
+  "locations": [
+    {
+      "id": "sede-principal",
+      "name": "Sede Principal"
+    },
+    {
+      "name": "La Merced",
+      "id": "0e779fd8-0a00-45a8-a67d-d365cfc9fb00",
+      "active": true
+    },
+    {
+      "name": "Centro Historico",
+      "id": "6b70c361-e9a2-400b-badc-8d4725402980",
+      "active": true
+    }
+  ],
+  "loc_sede-principal_zones": [],
+  "loc_sede-principal_orders": [],
+  "loc_sede-principal_companies": [],
+  "loc_sede-principal_businessDay": {
+    "id": "86295430-7ed7-408e-8688-13909a256805",
+    "isOpen": true,
+    "startTime": 1779505152302,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "loc_sede-principal_pastDays": [],
+  "loc_sede-principal_activeTables": {},
+  "loc_sede-principal_isBarActive": true,
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_zones": [],
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_orders": [],
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_isBarActive": true,
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_businessDay": {
+    "isOpen": false,
+    "startTime": null,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_pastDays": [],
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_activeTables": {},
+  "loc_0e779fd8-0a00-45a8-a67d-d365cfc9fb00_companies": [],
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_zones": [],
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_orders": [],
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_isBarActive": true,
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_businessDay": {
+    "id": "4e3ae835-7708-43a1-b926-3ad451b373c9",
+    "isOpen": true,
+    "startTime": 1779505288015,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_pastDays": [],
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_activeTables": {},
+  "loc_6b70c361-e9a2-400b-badc-8d4725402980_companies": []
+}

@@ -1,0 +1,37 @@
+{
+  "users": [
+    {
+      "username": "admin-lm",
+      "password": "12345",
+      "role": "admin",
+      "name": "admin-lm",
+      "locationId": "0e779fd8-0a00-45a8-a67d-d365cfc9fb00",
+      "id": "57ba9ed8-fd6e-4821-81f0-4cd77a0d8447",
+      "active": true
+    },
+    {
+      "username": "cocina-lm",
+      "password": "123",
+      "role": "cocina",
+      "name": "Cocina",
+      "locationId": "0e779fd8-0a00-45a8-a67d-d365cfc9fb00",
+      "id": "a888871e-6c21-4104-9dbd-1d7f264ecfea",
+      "active": true
+    }
+  ],
+  "zones": [],
+  "orders": [],
+  "isBarActive": true,
+  "businessDay": {
+    "id": "eb07d6ad-f8f6-45f9-9050-b3291d4e2ac8",
+    "isOpen": true,
+    "startTime": 1779514195814,
+    "totalSales": 0,
+    "voids": [],
+    "sales": []
+  },
+  "pastDays": [],
+  "activeTables": {},
+  "companies": [],
+  "menuStatus": {}
+}

@@ -1,0 +1,522 @@
+{
+  "users": [
+    {
+      "id": "u2",
+      "username": "cocina",
+      "password": "123",
+      "role": "cocina",
+      "name": "Cocina Principal",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u3",
+      "username": "bar",
+      "password": "123",
+      "role": "bar",
+      "name": "Barra",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u4",
+      "username": "mozo1",
+      "password": "123",
+      "role": "mozo",
+      "name": "Terminal Pública",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u5",
+      "username": "juan",
+      "password": "111",
+      "role": "mozo",
+      "name": "Juan ",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "id": "u6",
+      "username": "maria",
+      "password": "222",
+      "role": "mozo",
+      "name": "Maria",
+      "active": true,
+      "locationId": "sede-principal"
+    },
+    {
+      "username": "cajera",
+      "password": "1234",
+      "role": "cajera",
+      "name": "Caja",
+      "id": "97a33c21-ed20-40f1-a380-b7176dfa859d",
+      "active": true,
+      "locationId": "sede-principal"
+    }
+  ],
+  "zones": [
+    {
+      "name": "EVENTOS",
+      "tables": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E8",
+        "E9",
+        "E10",
+        "E11",
+        "E12",
+        "E13",
+        "E14",
+        "E15",
+        "E16",
+        "E17",
+        "E18",
+        "E19",
+        "E20",
+        "E21",
+        "E22",
+        "E23",
+        "E24",
+        "E25",
+        "E26",
+        "E27",
+        "E28",
+        "E29",
+        "E30",
+        "E31",
+        "E32",
+        "E33",
+        "E34",
+        "E35"
+      ],
+      "id": "7e740b6d-7c62-450c-877b-f83c61834c0a",
+      "active": true
+    },
+    {
+      "name": "TERRAZA",
+      "tables": [
+        "T1",
+        "T2",
+        "T3",
+        "T4",
+        "T5"
+      ],
+      "id": "533e0bbc-6772-440d-a065-50d0a0e43637",
+      "active": true
+    },
+    {
+      "name": "MOCHICA",
+      "tables": [
+        "MC1",
+        "MC2",
+        "MC3",
+        "MC4",
+        "MC5",
+        "MC6",
+        "MC7",
+        "MC8",
+        "MC9",
+        "MC10"
+      ],
+      "id": "357950a4-ee87-4888-80fb-93b45a849649",
+      "active": true
+    },
+    {
+      "name": "PRIVADOS",
+      "tables": [
+        "SAN MARTIN",
+        "DAMA DE CAO",
+        "SOL Y LUNA",
+        "DOÑA FRESIA"
+      ],
+      "id": "319975a3-9a2b-409e-8221-810d060ba791",
+      "active": true
+    },
+    {
+      "name": "MEZZANINE",
+      "tables": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M14",
+        "M15"
+      ],
+      "id": "b6fb2842-503b-4624-a31f-2c7a533647a6",
+      "active": true
+    },
+    {
+      "name": "ARTE",
+      "tables": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "A15",
+        "A16",
+        "A17",
+        "A18",
+        "A19",
+        "A20"
+      ],
+      "id": "79e33ae8-c3d7-424b-bc34-1ebc056e996f",
+      "active": true
+    }
+  ],
+  "orders": [
+    {
+      "id": "d99d10b2-a9c3-447f-9572-ddb04df47774",
+      "zone": "EVENTOS",
+      "table": "E1",
+      "waiter": "Juan ",
+      "items": [
+        {
+          "id": "f88cd39f-3a96-4238-ac61-595d69f5a310",
+          "item": {
+            "name": "CARNE DE CERDO ADOBADA",
+            "price": 30,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "efb90f1d-92a4-4206-9009-aa1416f4e1c0",
+            "active": true
+          },
+          "quantity": 2,
+          "details": "Sin papa",
+          "status": "ready",
+          "timestamp": 1779510665301
+        },
+        {
+          "id": "b26dccc2-1e92-48cd-9241-f18376585db0",
+          "item": {
+            "name": "1/2 PATITA EN FIAMBRE",
+            "price": 17,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "ef6445db-2aea-47a7-8e4e-8fc6f7c00e51",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1779510971178
+        },
+        {
+          "id": "932ec579-b14f-430c-8450-7c3bf899f8d1",
+          "item": {
+            "name": "LOMO EN SALSA DE CHAMPIÑPONES",
+            "price": 72,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "474b3661-25e1-4104-ab93-aca54c2099a4",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1779510973643
+        },
+        {
+          "id": "a42d61a8-8862-404d-871a-e2a4ee97dc96",
+          "item": {
+            "name": "CEVICHE DE LENGUADO",
+            "price": 48,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "c12fc419-09c9-4f27-816b-ef84f411b3c4",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1779510977139
+        },
+        {
+          "id": "f32944d9-6644-4643-b0b7-b9a89051bf3d",
+          "item": {
+            "name": "PATO ESTOFADO",
+            "price": 47,
+            "categoryId": "c3",
+            "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+            "id": "ac4645a5-da23-4e0f-92b3-316c7ff63f0b",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1779510980624
+        }
+      ],
+      "station": "cocina",
+      "status": "ready",
+      "timestamp": 1779510669290
+    },
+    {
+      "id": "c9d11a14-e9f1-4a1f-be27-0afc2bf782e2",
+      "zone": "TERRAZA",
+      "table": "T1",
+      "waiter": "Juan ",
+      "items": [
+        {
+          "id": "880a2a7f-7bed-490f-a202-8096d98372d6",
+          "item": {
+            "name": "PATITA EN FIAMBRE",
+            "price": 26,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "be0a1250-a332-4fc3-bb5a-6be44fd89540",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1779511273273
+        },
+        {
+          "id": "50025dda-b884-4346-8791-8b2feb9cec6e",
+          "item": {
+            "name": "AJÍ DE GALLINA",
+            "price": 26,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "7c763501-8278-40ed-bb31-72371ccf0a1c",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1779511277323
+        }
+      ],
+      "station": "cocina",
+      "status": "ready",
+      "timestamp": 1779511279156
+    }
+  ],
+  "isBarActive": true,
+  "businessDay": {
+    "isOpen": false,
+    "lastClosedTotal": 0,
+    "sales": [],
+    "voids": [],
+    "incomes": [],
+    "expenses": []
+  },
+  "pastDays": [
+    {
+      "id": "b062b2da-cffb-401d-b685-b4a4f5870056",
+      "isOpen": true,
+      "startTime": 1779735060297,
+      "totalSales": 0,
+      "voids": [],
+      "sales": [],
+      "incomes": [],
+      "expenses": [],
+      "endTime": 1780588444861
+    },
+    {
+      "id": "86295430-7ed7-408e-8688-13909a256805",
+      "isOpen": true,
+      "startTime": 1779505152302,
+      "totalSales": 540,
+      "voids": [],
+      "sales": [
+        {
+          "tableKey": "7e740b6d-7c62-450c-877b-f83c61834c0a-E1",
+          "waiter": "Mozo Desconocido",
+          "zone": "",
+          "table": "7c62-450c-877b-f83c61834c0a-E1",
+          "total": 120,
+          "timestamp": 1779511214126,
+          "items": [
+            {
+              "item": "LOMO EN SALSA DE CHAMPIÑPONES",
+              "quantity": 1,
+              "price": 72
+            },
+            {
+              "item": "CEVICHE DE LENGUADO",
+              "quantity": 1,
+              "price": 48
+            }
+          ],
+          "documentType": "boleta",
+          "documentNumber": "B001-00000001",
+          "companyId": "43399f73-f956-4800-a8cf-a99e277fcbd6",
+          "companyName": "FRESIA FLC E. I. E. L. ",
+          "companyRuc": "20609873290",
+          "customerDni": "75533456",
+          "customerRuc": "",
+          "customerName": "",
+          "customerAddress": "",
+          "valorVenta": 101.69,
+          "igv": 18.31,
+          "totalPagar": 120,
+          "paymentMethod": "tarjeta"
+        },
+        {
+          "tableKey": "7e740b6d-7c62-450c-877b-f83c61834c0a-E1",
+          "waiter": "Mozo Desconocido",
+          "zone": "",
+          "table": "7c62-450c-877b-f83c61834c0a-E1",
+          "total": 124,
+          "timestamp": 1779511244120,
+          "items": [
+            {
+              "item": "CARNE DE CERDO ADOBADA",
+              "quantity": 2,
+              "price": 30
+            },
+            {
+              "item": "1/2 PATITA EN FIAMBRE",
+              "quantity": 1,
+              "price": 17
+            },
+            {
+              "item": "PATO ESTOFADO",
+              "quantity": 1,
+              "price": 47
+            }
+          ],
+          "documentType": "factura",
+          "documentNumber": "F001-00000001",
+          "companyId": "43399f73-f956-4800-a8cf-a99e277fcbd6",
+          "companyName": "FRESIA FLC E. I. E. L. ",
+          "companyRuc": "20609873290",
+          "customerDni": "",
+          "customerRuc": "10755334567",
+          "customerName": "André ñique",
+          "customerAddress": "Moche",
+          "valorVenta": 105.08,
+          "igv": 18.92,
+          "totalPagar": 124,
+          "paymentMethod": "efectivo"
+        },
+        {
+          "tableKey": "533e0bbc-6772-440d-a065-50d0a0e43637-T1",
+          "waiter": "Mozo Desconocido",
+          "zone": "",
+          "table": "6772-440d-a065-50d0a0e43637-T1",
+          "total": 52,
+          "timestamp": 1779511348564,
+          "items": [
+            {
+              "item": "PATITA EN FIAMBRE",
+              "quantity": 1,
+              "price": 26
+            },
+            {
+              "item": "AJÍ DE GALLINA",
+              "quantity": 1,
+              "price": 26
+            }
+          ],
+          "documentType": "boleta",
+          "documentNumber": "B001-00000002",
+          "companyId": "43399f73-f956-4800-a8cf-a99e277fcbd6",
+          "companyName": "FRESIA FLC E. I. E. L. ",
+          "companyRuc": "20609873290",
+          "customerDni": "",
+          "customerRuc": "",
+          "customerName": "",
+          "customerAddress": "",
+          "valorVenta": 44.07,
+          "igv": 7.93,
+          "totalPagar": 52,
+          "paymentMethod": "efectivo"
+        },
+        {
+          "tableKey": "7e740b6d-7c62-450c-877b-f83c61834c0a-E1",
+          "waiter": "Mozo Desconocido",
+          "zone": "",
+          "table": "7c62-450c-877b-f83c61834c0a-E1",
+          "total": 244,
+          "timestamp": 1779511371036,
+          "items": [
+            {
+              "item": "CARNE DE CERDO ADOBADA",
+              "quantity": 2,
+              "price": 30
+            },
+            {
+              "item": "1/2 PATITA EN FIAMBRE",
+              "quantity": 1,
+              "price": 17
+            },
+            {
+              "item": "LOMO EN SALSA DE CHAMPIÑPONES",
+              "quantity": 1,
+              "price": 72
+            },
+            {
+              "item": "CEVICHE DE LENGUADO",
+              "quantity": 1,
+              "price": 48
+            },
+            {
+              "item": "PATO ESTOFADO",
+              "quantity": 1,
+              "price": 47
+            }
+          ],
+          "documentType": "boleta",
+          "documentNumber": "B001-00000003",
+          "companyId": "43399f73-f956-4800-a8cf-a99e277fcbd6",
+          "companyName": "FRESIA FLC E. I. E. L. ",
+          "companyRuc": "20609873290",
+          "customerDni": "",
+          "customerRuc": "",
+          "customerName": "",
+          "customerAddress": "",
+          "valorVenta": 206.78,
+          "igv": 37.22,
+          "totalPagar": 244,
+          "paymentMethod": "efectivo"
+        }
+      ],
+      "endTime": 1779514501508
+    }
+  ],
+  "activeTables": {},
+  "companies": [
+    {
+      "name": "FRESIA FLC E. I. E. L. ",
+      "ruc": "20609873290",
+      "address": "José Gálvez_Lima",
+      "boletaSeries": "B001",
+      "boletaNumber": 3,
+      "facturaSeries": "F001",
+      "facturaNumber": 1,
+      "active": true,
+      "id": "43399f73-f956-4800-a8cf-a99e277fcbd6"
+    }
+  ],
+  "menuStatus": {
+    "efb90f1d-92a4-4206-9009-aa1416f4e1c0": true,
+    "9108af89-f401-401f-981a-b47f6d5b78a8": true
+  }
+}
