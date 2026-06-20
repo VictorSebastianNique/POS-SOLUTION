@@ -422,13 +422,13 @@ export default function Mozo() {
                     return m.active && menuStatus[m.id] !== false && m.categoryId === activeCategory && (activeSubcategory === '' || m.subcategoryId === activeSubcategory);
                   })
                   .map(item => (
-                    <div key={item.id} className="card card-interactive flex justify-between items-center" onClick={() => openItemModal(item)}>
-                      <div>
-                        <h3 style={{ fontWeight: 500 }}>{item.name}</h3>
-                        <p className="subtitle" style={{ color: 'var(--primary-color)' }}>S/{item.price.toFixed(2)}</p>
+                    <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1rem' }} onClick={() => openItemModal(item)}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <h3 style={{ fontWeight: 500, fontSize: '0.95rem', wordBreak: 'break-word' }}>{item.name}</h3>
+                        <p className="subtitle" style={{ color: 'var(--primary-color)', marginTop: '0.2rem' }}>S/{item.price.toFixed(2)}</p>
                       </div>
-                      <div style={{ backgroundColor: 'var(--surface-hover)', padding: '0.5rem', borderRadius: '50%' }}>
-                        <Plus size={20} className="text-primary-color" />
+                      <div style={{ backgroundColor: 'var(--surface-hover)', padding: '0.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Plus size={18} className="text-primary-color" />
                       </div>
                     </div>
                   ))}
@@ -593,7 +593,7 @@ export default function Mozo() {
               <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => setPendingItem(null)}><X size={16}/></button>
             </div>
             
-            <div className="flex gap-6">
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.25rem' }}>
               <div style={{ flex: 1 }}>
                 <label className="subtitle" style={{ fontSize: '0.875rem' }}>Cantidad</label>
                 <div className="input mt-1 w-full text-center" style={{ fontSize: '2rem', padding: '1rem', fontWeight: 'bold' }}>
@@ -619,8 +619,8 @@ export default function Mozo() {
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <label className="subtitle" style={{ fontSize: '0.875rem' }}>Detalles / Notas</label>
                 <textarea 
-                  className="input mt-1 w-full flex-1" 
-                  style={{ resize: 'none' }}
+                  className="input mt-1 w-full" 
+                  style={{ resize: 'none', minHeight: isMobile ? '80px' : '150px' }}
                   placeholder="Ej. Sin cebolla, bien cocido..."
                   value={itemDetails}
                   onChange={e => setItemDetails(e.target.value)}

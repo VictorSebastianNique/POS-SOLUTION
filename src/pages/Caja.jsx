@@ -503,7 +503,7 @@ export default function Caja() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
                     <div>
                       <label style={labelStyle}>Documento a Emitir</label>
                       <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
@@ -547,12 +547,12 @@ export default function Caja() {
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gap: '0.5rem' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                         <div>
                           <label style={labelStyle}>Razón Social <span style={{ color: 'var(--danger-color)' }}>*</span></label>
                           <input style={inputStyle} placeholder="EMPRESA S.A.C." value={customerName} onChange={e => setCustomerName(e.target.value)} />
                         </div>
-                        <div style={{ minWidth: '130px' }}>
+                        <div style={{ width: '100%', minWidth: isMobile ? undefined : '130px' }}>
                           <label style={labelStyle}>Nº RUC <span style={{ color: 'var(--danger-color)' }}>*</span></label>
                           <input style={inputStyle} placeholder="20XXXXXXXXX" maxLength={11} value={customerRuc} onChange={e => setCustomerRuc(e.target.value.replace(/\D/g, ''))} />
                         </div>
