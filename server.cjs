@@ -163,7 +163,7 @@ const server = http.createServer(async (req, res) => {
 
   // GET LOCAL
   if (cleanUrl.startsWith('/api/store/local/') && req.method === 'GET') {
-    const locId = cleanUrl.split('/api/store/local/')[1];
+    const locId = decodeURIComponent(cleanUrl.split('/api/store/local/')[1]);
     res.setHeader('Content-Type', 'application/json');
     try {
       const data = await getLocalData(locId);
@@ -199,7 +199,7 @@ const server = http.createServer(async (req, res) => {
   const localPostRegex = /^\/api\/store\/local\/([^\/]+)\/(.+)$/;
   if (localPostRegex.test(cleanUrl) && req.method === 'POST') {
     const matches = cleanUrl.match(localPostRegex);
-    const locId = matches[1];
+    const locId = decodeURIComponent(matches[1]);
     const key = matches[2];
     let body = '';
     req.on('data', chunk => body += chunk.toString());
