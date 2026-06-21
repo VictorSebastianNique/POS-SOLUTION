@@ -875,7 +875,7 @@ export default function Admin() {
                         <div className="flex gap-2 justify-end mt-2">
                           <button className="btn btn-outline" onClick={() => setEditLocation(null)}>Cancelar</button>
                           <button className="btn btn-primary" onClick={() => {
-                            updateLocation(editLocation);
+                            updateLocation(editLocation.id, editLocation);
                             setEditLocation(null);
                           }}>Guardar Cambios</button>
                         </div>
