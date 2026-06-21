@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { Receipt, X, AlertTriangle, User, Eye } from 'lucide-react';
 
 const SalesHistory = ({ onViewReceipt }) => {
-  const { businessDay, voidSaleAndReopenTable, users, currentUser, activeTables, locations } = useStore();
+  const { businessDay, voidSaleAndReopenTable, users, currentUser, activeTables, locations, zones } = useStore();
   const [showVoidModal, setShowVoidModal] = useState(false);
   const [saleToVoid, setSaleToVoid] = useState(null);
   const [voidReason, setVoidReason] = useState('');
@@ -25,12 +25,11 @@ const SalesHistory = ({ onViewReceipt }) => {
   const isOriginalTableOccupied = saleToVoid ? (activeTables[saleToVoid.tableKey]?.length > 0) : false;
 
   const currentLocId = localStorage.getItem('currentLocationId') || currentUser?.locationId;
-  const location = locations?.find(l => l.id === currentLocId);
   const freeTables = [];
   if (isOriginalTableOccupied) {
-    location?.zones?.forEach(z => {
-      z.tables.forEach(t => {
-        const tKey = `${z.name}-${t}`;
+    (zones || []).forEach(z => {
+      (z.tables || []).forEach(t => {
+        const tKey = `${z.id}-${t}`;
         if (!activeTables[tKey] || activeTables[tKey].length === 0) {
           freeTables.push({ zone: z.name, table: t, key: tKey });
         }
