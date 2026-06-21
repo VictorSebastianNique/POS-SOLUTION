@@ -539,20 +539,24 @@ export default function Caja() {
                 <Receipt size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
                 <p>No hay mesas con cuentas pendientes</p>
               </div>
-            ) : filteredTables.map(t => (
+            ) : filteredTables.map(t => {
+              const isLocked = t.cart?.some(item => item.isRecovered);
+              const borderColor = isLocked ? '#f59e0b' : (t.hasNew ? 'var(--warning-color)' : 'var(--danger-color)');
+              return (
               <div key={t.key} onClick={() => handleOpenTable(t.key)}
-                style={{ backgroundColor: 'var(--surface-color)', border: `2px solid ${t.hasNew ? 'var(--warning-color)' : 'var(--danger-color)'}`, borderRadius: 'var(--border-radius)', padding: '1rem', cursor: 'pointer', position: 'relative', transition: 'transform 0.15s, box-shadow 0.15s' }}
+                style={{ backgroundColor: 'var(--surface-color)', border: `2px solid ${borderColor}`, borderRadius: 'var(--border-radius)', padding: '1rem', cursor: 'pointer', position: 'relative', transition: 'transform 0.15s, box-shadow 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
               >
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: t.hasNew ? 'var(--warning-color)' : 'var(--danger-color)', borderRadius: '8px 8px 0 0' }} />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: borderColor, borderRadius: '8px 8px 0 0' }} />
                 <p className="subtitle" style={{ fontSize: '0.7rem' }}>{t.zone}</p>
                 <h3 className="title" style={{ fontSize: '1.1rem', margin: '0.15rem 0 0.5rem' }}>Mesa {t.table}</h3>
                 <p style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--primary-color)', marginBottom: '0.25rem' }}>S/{t.total.toFixed(2)}</p>
                 <p className="subtitle" style={{ fontSize: '0.75rem' }}>{t.cart.length} producto{t.cart.length !== 1 ? 's' : ''} • ⏱️ {getOccupiedTime(t.cart)}</p>
-                {t.hasNew && <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: 'var(--warning-color)', color: '#000', fontSize: '0.6rem', padding: '0.1rem 0.4rem', borderRadius: '10px', fontWeight: 700 }}>PENDIENTE</span>}
+                {t.hasNew && !isLocked && <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: 'var(--warning-color)', color: '#000', fontSize: '0.6rem', padding: '0.1rem 0.4rem', borderRadius: '10px', fontWeight: 700 }}>PENDIENTE</span>}
+                {isLocked && <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: '#f59e0b', color: '#fff', fontSize: '0.6rem', padding: '0.1rem 0.4rem', borderRadius: '10px', fontWeight: 700 }}>RE-FACTURACIÓN</span>}
               </div>
-            ))}
+            )})}
           </div>
         </div>
 

@@ -347,19 +347,26 @@ export default function Mozo() {
                 {selectedZone.tables.map((tableName, i) => {
                   const tKey = `${selectedZone.id}-${tableName}`;
                   const hasAccount = activeTables[tKey] && activeTables[tKey].length > 0;
-                  const borderColor = hasAccount ? 'var(--danger-color)' : 'var(--success-color)';
-                  const bgColor = hasAccount ? 'var(--danger-bg)' : 'var(--success-subtle)';
+                  const isLocked = activeTables[tKey]?.some(item => item.isRecovered);
+                  const borderColor = hasAccount ? (isLocked ? '#f59e0b' : 'var(--danger-color)') : 'var(--success-color)';
+                  const bgColor = hasAccount ? (isLocked ? 'rgba(245, 158, 11, 0.1)' : 'var(--danger-bg)') : 'var(--success-subtle)';
 
                   return (
                     <div 
                       key={i} 
                       className="card card-interactive flex items-center justify-center flex-col" 
-                      style={{ aspectRatio: '1', position: 'relative', border: `2px solid ${borderColor}`, backgroundColor: bgColor, padding: '1rem' }}
-                      onClick={() => openTableAuth(tableName)}
+                      style={{ aspectRatio: '1', position: 'relative', border: `2px solid ${borderColor}`, backgroundColor: bgColor, padding: '1rem', opacity: isLocked ? 0.7 : 1, cursor: isLocked ? 'not-allowed' : 'pointer' }}
+                      onClick={() => {
+                        if (isLocked) {
+                          alert("Esta mesa ha sido recuperada para re-facturación y está bloqueada por Caja. No se pueden tomar nuevos pedidos aquí.");
+                          return;
+                        }
+                        openTableAuth(tableName);
+                      }}
                     >
                       <span className="title text-center" style={{ fontSize: tableName.length > 3 ? '1.2rem' : '2rem', wordBreak: 'break-word', lineHeight: 1.2 }}>{tableName}</span>
                       <span style={{ position: 'absolute', bottom: '10px', fontSize: '0.75rem', color: borderColor, fontWeight: 600 }}>
-                        {hasAccount ? `OCUPADA • ${getOccupiedTime(activeTables[tKey])}` : 'LIBRE'}
+                        {hasAccount ? (isLocked ? 'BLOQUEADA (CAJA)' : `OCUPADA • ${getOccupiedTime(activeTables[tKey])}`) : 'LIBRE'}
                       </span>
                     </div>
                   );

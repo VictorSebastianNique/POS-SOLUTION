@@ -389,7 +389,8 @@ if (barCart.length > 0) {
       const restoredCartItems = (saleToVoid.cartItems || []).map(c => ({
         ...c,
         id: uuidv4(),
-        status: 'sent'
+        status: 'sent',
+        isRecovered: true
       }));
 
       next[finalTableKey] = [...currentCart, ...restoredCartItems];
