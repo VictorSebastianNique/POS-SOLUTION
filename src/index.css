@@ -641,6 +641,10 @@ select option:focus {
    ============================================================ */
 .print-receipt-container { display: none; }
 
+@page {
+  margin: 0; /* Elimina los headers y footers del navegador */
+}
+
 @media print {
   body * { visibility: hidden; }
   .print-receipt-container,
@@ -655,7 +659,9 @@ select option:focus {
     font-size: 13px;
     line-height: 1.4;
     color: #000;
-    margin: 0; padding: 0;
+    margin: 0 auto; 
+    padding: 2mm 4mm;
+    box-sizing: border-box;
   }
   .receipt-divider {
     border-top: 1px dashed #000;

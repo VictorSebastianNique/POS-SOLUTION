@@ -115,6 +115,7 @@ export default function Admin() {
   // Companies state
   const [newCompany, setNewCompany] = useState({ name: '', ruc: '', address: '', boletaSeries: 'B001', boletaNumber: 0, facturaSeries: 'F001', facturaNumber: 0 });
   const [editCompany, setEditCompany] = useState(null);
+  const [editLocation, setEditLocation] = useState(null);
   const handleAddCompany = (e) => {
     e.preventDefault();
     if (!newCompany.name || !newCompany.ruc) return;
@@ -827,32 +828,73 @@ export default function Admin() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     const name = e.target.elements.name.value;
+                    const brandName = e.target.elements.brandName.value;
+                    const address = e.target.elements.address.value;
+                    const phone = e.target.elements.phone.value;
                     if (!name) return;
-                    addLocation({ name, id: name });
+                    addLocation({ name, brandName, address, phone, id: name });
                     e.target.reset();
                   }} 
-                  className="flex gap-4 items-end"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
                 >
-                  <div style={{ flex: 1 }}>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre del Local / Sede</label>
+                  <div>
+                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre Interno (Sede)</label>
                     <input name="name" className="input mt-1 w-full" placeholder="Ej. Local Norte" required />
                   </div>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
+                  <div>
+                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Marca (Para Ticket)</label>
+                    <input name="brandName" className="input mt-1 w-full" placeholder="Ej. MI CAFE" />
+                  </div>
+                  <div>
+                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Dirección de la Sede</label>
+                    <input name="address" className="input mt-1 w-full" placeholder="Ej. Av. Sol 123" />
+                  </div>
+                  <div>
+                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Teléfono de la Sede</label>
+                    <input name="phone" className="input mt-1 w-full" placeholder="Ej. 987654321" />
+                  </div>
+                  <button type="submit" className="btn btn-primary h-full"><Plus size={20}/> Agregar Sede</button>
                 </form>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {locations.map(loc => {
                   const locSlug = (loc.id || loc.name).replace(/\s+/g, '');
                   const loginLink = `${window.location.origin}/login/${encodeURIComponent(locSlug)}`;
+                  
+                  if (editLocation?.id === loc.id) {
+                    return (
+                      <div key={loc.id} className="card flex flex-col justify-between gap-4" style={{ border: '1px solid var(--primary-color)' }}>
+                        <h3 className="title">Editar Sede</h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input className="input" placeholder="Nombre Interno" value={editLocation.name} onChange={e => setEditLocation({...editLocation, name: e.target.value})} />
+                          <input className="input" placeholder="Marca (Ticket)" value={editLocation.brandName || ''} onChange={e => setEditLocation({...editLocation, brandName: e.target.value})} />
+                          <input className="input" placeholder="Dirección" value={editLocation.address || ''} onChange={e => setEditLocation({...editLocation, address: e.target.value})} />
+                          <input className="input" placeholder="Teléfono" value={editLocation.phone || ''} onChange={e => setEditLocation({...editLocation, phone: e.target.value})} />
+                        </div>
+                        <div className="flex gap-2 justify-end mt-2">
+                          <button className="btn btn-outline" onClick={() => setEditLocation(null)}>Cancelar</button>
+                          <button className="btn btn-primary" onClick={() => {
+                            updateLocation(editLocation);
+                            setEditLocation(null);
+                          }}>Guardar Cambios</button>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                   <div key={loc.id} className="card flex flex-col justify-between gap-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="title" style={{ fontSize: '1.1rem' }}>{loc.name}</h3>
                         <p className="subtitle" style={{ fontSize: '0.8rem' }}>ID Interno: {loc.id}</p>
+                        <p className="subtitle mt-2" style={{ fontSize: '0.85rem' }}><strong>Marca:</strong> {loc.brandName || loc.name}</p>
+                        <p className="subtitle" style={{ fontSize: '0.85rem' }}><strong>Dirección:</strong> {loc.address || 'No definida'}</p>
+                        <p className="subtitle" style={{ fontSize: '0.85rem' }}><strong>Teléfono:</strong> {loc.phone || 'No definido'}</p>
                       </div>
                       <div className="flex items-center gap-2">
+                        <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--primary-color)' }} onClick={() => setEditLocation(loc)}><Edit2 size={16}/></button>
                         <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--danger-color)' }} onClick={() => deleteLocation(loc.id)}><Trash2 size={16}/></button>
                       </div>
                     </div>

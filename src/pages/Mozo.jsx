@@ -8,7 +8,7 @@ import PrintReceipt from '../components/PrintReceipt';
 
 export default function Mozo() {
   const navigate = useNavigate();
-  const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts } = useStore();
+  const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts, locations } = useStore();
   
   const [showItemNotes, setShowItemNotes] = useState(false);
   const [activeItemForNotes, setActiveItemForNotes] = useState(null);
@@ -18,13 +18,17 @@ export default function Mozo() {
   const handlePrintPrecuenta = () => {
     if (!selectedTable || cart.length === 0) return;
     const totalPagar = cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0);
+    const currentLocation = locations?.find(l => l.id === currentUser.locationId) || {};
     setDocToPrint({
       documentType: 'precuenta',
       docNumber: '-',
       totalPagar,
       waiterName: currentUser.name,
       tableNum: `${selectedZone.name} - ${selectedTable}`,
-      items: cart
+      items: cart,
+      brandName: currentLocation.brandName || currentLocation.name,
+      locationAddress: currentLocation.address,
+      locationPhone: currentLocation.phone
     });
     setTimeout(() => {
       window.print();

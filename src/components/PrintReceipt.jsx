@@ -13,19 +13,23 @@ const PrintReceipt = ({ doc }) => {
 
   return (
     <div className="print-receipt-container">
-      <div className="receipt-header">
-        <h2>{doc.companyName || 'NUESTRO LOCAL'}</h2>
-        <p>RUC: {doc.companyRuc || '20000000000'}</p>
-        <p>{doc.companyAddress || 'Av. Principal 123, Ciudad'}</p>
-        <p>Tel: {doc.companyPhone || '01-2345678'}</p>
-      </div>
+      {doc.documentType !== 'precuenta' && (
+        <>
+          <div className="receipt-header">
+            <h2 style={{ marginBottom: '2px' }}>{doc.brandName || 'NUESTRO LOCAL'}</h2>
+            {doc.companyName && <p style={{ fontWeight: 'bold', fontSize: '12px' }}>{doc.companyName}</p>}
+            <p>RUC: {doc.companyRuc || '20000000000'}</p>
+            <p>{doc.locationAddress || 'Av. Principal 123, Ciudad'}</p>
+            {doc.locationPhone && <p>Tel: {doc.locationPhone}</p>}
+          </div>
+          <div className="receipt-divider"></div>
+        </>
+      )}
 
-      <div className="receipt-divider"></div>
-
-      <div className="receipt-header" style={{ marginBottom: '5px', position: 'relative' }}>
+      <div className="receipt-header" style={{ marginBottom: '5px' }}>
         {doc.documentType === 'precuenta' && (
-          <div style={{ position: 'absolute', top: '-10px', right: 0, fontSize: '12px', fontWeight: 'bold' }}>
-            <span>( &nbsp; ) B &nbsp;&nbsp; ( &nbsp; ) F</span>
+          <div style={{ textAlign: 'right', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', marginTop: '15px' }}>
+            <span>(....) .............</span>
           </div>
         )}
         <h3 style={{ margin: '5px 0', fontSize: '15px' }}>{documentTitle}</h3>
@@ -74,14 +78,18 @@ const PrintReceipt = ({ doc }) => {
       </table>
 
       <div className="receipt-totals">
-        <div className="row">
-          <span>OP. GRAVADA:</span>
-          <span>S/ {subtotal.toFixed(2)}</span>
-        </div>
-        <div className="row">
-          <span>I.G.V. (18%):</span>
-          <span>S/ {igv.toFixed(2)}</span>
-        </div>
+        {doc.documentType !== 'precuenta' && (
+          <>
+            <div className="row">
+              <span>OP. GRAVADA:</span>
+              <span>S/ {subtotal.toFixed(2)}</span>
+            </div>
+            <div className="row">
+              <span>I.G.V. (18%):</span>
+              <span>S/ {igv.toFixed(2)}</span>
+            </div>
+          </>
+        )}
         <div className="row total">
           <span>TOTAL A PAGAR:</span>
           <span>S/ {doc.totalPagar.toFixed(2)}</span>
@@ -103,9 +111,9 @@ const PrintReceipt = ({ doc }) => {
       <div className="receipt-divider" style={{ marginTop: '15px' }}></div>
       <div className="receipt-footer">
         {doc.documentType === 'precuenta' ? (
-          <div style={{ textAlign: 'left', marginTop: '10px', marginBottom: '15px', fontSize: '12px', lineHeight: '2.5' }}>
-            <p style={{ borderBottom: '1px dashed #000', paddingBottom: '2px', margin: 0 }}>DNI / RUC: </p>
-            <p style={{ borderBottom: '1px dashed #000', paddingBottom: '2px', margin: '15px 0 0 0' }}>RAZÓN SOCIAL / NOMBRES: </p>
+          <div style={{ textAlign: 'left', marginTop: '25px', marginBottom: '25px', fontSize: '12px' }}>
+            <p style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', margin: 0 }}>DNI / RUC: </p>
+            <p style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', margin: '35px 0 0 0' }}>RAZÓN SOCIAL / NOMBRES: </p>
           </div>
         ) : (
           <p>Representación impresa de la {documentTitle}</p>

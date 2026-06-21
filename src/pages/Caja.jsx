@@ -11,7 +11,7 @@ const IGV_RATE = 0.18;
 
 export default function Caja() {
   const navigate = useNavigate();
-  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings, users, logAudit } = useStore();
+  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings, users, logAudit, locations } = useStore();
 
   const [selectedZone, setSelectedZone] = useState('all');
   
@@ -343,7 +343,16 @@ export default function Caja() {
     const waiterName = tableOrders.length > 0 ? tableOrders[0].waiter : (selectedTable.cart[0]?.waiter || 'Mozo Desconocido');
 
     payTable(selectedTable.key, totalPagar, itemsToPay, waiterName, zone?.name || 'Desconocida', tableNum, billingInfo);
-    setPaidDoc({ docNumber, change, totalPagar, documentType, customerName, companyName: selectedCompany?.name, items: itemsToPay, tableNum, waiterName });
+    
+    const currentLocation = locations?.find(l => l.id === currentUser.locationId) || {};
+    setPaidDoc({ 
+      docNumber, change, totalPagar, documentType, customerName, 
+      companyName: selectedCompany?.name, companyRuc: selectedCompany?.ruc, 
+      items: itemsToPay, tableNum, waiterName,
+      brandName: currentLocation.brandName || currentLocation.name,
+      locationAddress: currentLocation.address,
+      locationPhone: currentLocation.phone
+    });
     setPaid(true);
   };
 
