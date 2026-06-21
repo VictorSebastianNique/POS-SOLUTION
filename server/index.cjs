@@ -11,7 +11,7 @@ const app = express();
 
 // Middlewares globales
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '10mb', strict: false }));
 
 // Montar rutas de API
 app.use('/api/store', storeRoutes);
