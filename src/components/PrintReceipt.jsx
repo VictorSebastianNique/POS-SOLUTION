@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PrintReceipt = ({ doc }) => {
+const PrintReceipt = ({ doc, captureMode = false }) => {
   if (!doc) return null;
 
   const documentTitle = doc.documentType === 'boleta' ? 'BOLETA DE VENTA ELECTRÓNICA' : 
@@ -12,7 +12,7 @@ const PrintReceipt = ({ doc }) => {
   const igv = doc.totalPagar - subtotal;
 
   return (
-    <div className="print-receipt-container">
+    <div className={`print-receipt-container ${captureMode ? 'capture-mode' : ''}`}>
       {doc.documentType !== 'precuenta' && (
         <>
           <div className="receipt-header">

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2 } from 'lucide-react';
+import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2 } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import PrintReceipt from '../components/PrintReceipt';
 import PageHeader from '../components/PageHeader';
 import SalesHistory from '../components/SalesHistory';
+import html2canvas from 'html2canvas';
 
 const IGV_RATE = 0.18;
 
@@ -33,6 +34,57 @@ export default function Caja() {
   const [customerName, setCustomerName] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [internalReason, setInternalReason] = useState('');
+
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  const handleShareWhatsApp = async () => {
+    try {
+      setIsCapturing(true);
+      // Dar tiempo a React para que aplique la clase capture-mode
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const element = document.querySelector('.print-receipt-container');
+      if (!element) return;
+      
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#ffffff'
+      });
+      
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], 'comprobante.png', { type: 'image/png' });
+        
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Comprobante de Pago',
+              text: 'Adjunto su comprobante de pago. ¡Gracias por su preferencia!'
+            });
+          } catch (e) {
+            console.log('Error sharing:', e);
+          }
+        } else {
+          // Fallback PC
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `comprobante_${paidDoc?.docNumber || 'pago'}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          alert('El comprobante ha sido descargado. Puedes adjuntarlo en WhatsApp Web.');
+        }
+      }, 'image/png');
+    } catch (e) {
+      console.error('Error al generar imagen:', e);
+      alert('Hubo un error al generar la imagen del comprobante.');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
 
   const [isSearchingDni, setIsSearchingDni] = useState(false);
   const [isSearchingRuc, setIsSearchingRuc] = useState(false);
@@ -442,7 +494,7 @@ export default function Caja() {
       {viewMode === 'ventas' && <SalesHistory />}
 
       {/* PRINT RECEIPT COMPONENT (HIDDEN BY DEFAULT, VISIBLE ON PRINT) */}
-      <PrintReceipt doc={paidDoc} />
+      <PrintReceipt doc={paidDoc} captureMode={isCapturing} />
 
       {/* MAIN */}
       {viewMode === 'mesas' && (
@@ -940,6 +992,10 @@ export default function Caja() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => window.print()}>
                 <Receipt size={20} style={{ display: 'inline', marginRight: '0.5rem' }} /> Imprimir Comprobante
+              </button>
+              <button className="btn" style={{ padding: '0.8rem', fontSize: '1rem', backgroundColor: '#25D366', color: '#fff' }} onClick={handleShareWhatsApp} disabled={isCapturing}>
+                {isCapturing ? <Loader2 size={20} className="spin" style={{ display: 'inline', marginRight: '0.5rem' }} /> : <Share2 size={20} style={{ display: 'inline', marginRight: '0.5rem' }} />}
+                Compartir en WhatsApp
               </button>
               <button className="btn btn-outline" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => {
                 setPaid(false);

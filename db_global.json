@@ -2,7 +2,10 @@
   "locations": [
     {
       "id": "San Andres",
-      "name": "San Andres"
+      "name": "San Andres",
+      "brandName": "MOCHICA DE DOÑA FRESIA - SA",
+      "address": "San Martin de Porres 154 Urb. San Andres",
+      "phone": "954721679"
     },
     {
       "name": "La Merced",

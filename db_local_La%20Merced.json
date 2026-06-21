@@ -294,8 +294,18 @@
     "id": "3c3b36dc-4ba1-4b6f-bb22-2408dfccf136",
     "isOpen": true,
     "startTime": 1782010292283,
-    "totalSales": 405,
-    "voids": [],
+    "totalSales": 410,
+    "voids": [
+      {
+        "item": "Comprobante B-B001-00000002",
+        "quantity": 1,
+        "reason": "admin",
+        "admin": "Jefe",
+        "timestamp": 1782020740799,
+        "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
+        "amount": 5
+      }
+    ],
     "sales": [
       {
         "id": "f3155cd3-5dbe-4139-a8b1-df19a2224339",
@@ -549,42 +559,70 @@
         "igv": 61.78,
         "totalPagar": 405,
         "paymentMethod": "tarjeta"
+      },
+      {
+        "id": "03458e53-fc5e-4541-9f5d-ca3346050cd7",
+        "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
+        "waiter": "Jefe",
+        "zone": "EVENTOS",
+        "table": "E1",
+        "total": 5,
+        "timestamp": 1782020746829,
+        "headcount": 1,
+        "items": [
+          {
+            "item": "GASEOSA 295ML",
+            "quantity": 1,
+            "price": 5
+          }
+        ],
+        "cartItems": [
+          {
+            "id": "e793bc9c-4fd1-4f94-b7d1-791c7b03320a",
+            "item": {
+              "name": "GASEOSA 295ML",
+              "price": 5,
+              "categoryId": "c1",
+              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+              "noDiscount": false,
+              "id": "1782006218096",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015751062
+          }
+        ],
+        "documentType": "boleta",
+        "documentNumber": "B001-00000003",
+        "companyId": "e474ab4a-6dbd-4172-9a33-d64923ad745a",
+        "companyName": "VICTOR ANDRE SEBASTIAN ÑIQUE",
+        "companyRuc": "10755334567",
+        "customerDni": "",
+        "customerRuc": "",
+        "customerName": "",
+        "customerAddress": "",
+        "internalReason": "",
+        "valorVenta": 4.24,
+        "igv": 0.76,
+        "totalPagar": 5,
+        "paymentMethod": "efectivo"
       }
     ],
     "incomes": [],
     "expenses": []
   },
   "pastDays": [],
-  "activeTables": {
-    "13aa6581-660e-4041-887a-cc068b1acb85-E1": [
-      {
-        "id": "70d6cbbe-29e1-4912-8952-2719bba5ce83",
-        "item": {
-          "name": "GASEOSA 295ML",
-          "price": 5,
-          "categoryId": "c1",
-          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
-          "noDiscount": false,
-          "id": "1782006218096",
-          "active": true
-        },
-        "quantity": 1,
-        "details": "",
-        "status": "sent",
-        "timestamp": 1782015751062
-      }
-    ]
-  },
-  "tableHeadcounts": {
-    "13aa6581-660e-4041-887a-cc068b1acb85-E1": 1
-  },
+  "activeTables": {},
+  "tableHeadcounts": {},
   "companies": [
     {
       "name": "VICTOR ANDRE SEBASTIAN ÑIQUE",
       "ruc": "10755334567",
       "address": "Odonovan 601 Moche",
       "boletaSeries": "B001",
-      "boletaNumber": 1,
+      "boletaNumber": 3,
       "facturaSeries": "F001",
       "facturaNumber": 0,
       "active": true,
