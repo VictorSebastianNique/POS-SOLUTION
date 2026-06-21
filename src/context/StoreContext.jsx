@@ -383,10 +383,11 @@ if (barCart.length > 0) {
       const next = { ...prev };
       const currentCart = next[saleToVoid.tableKey] || [];
       
-      // Regenerate unique IDs for cart items to avoid conflicts
+      // Regenerate unique IDs for cart items to avoid conflicts and force status to 'sent'
       const restoredCartItems = (saleToVoid.cartItems || []).map(c => ({
         ...c,
-        id: uuidv4()
+        id: uuidv4(),
+        status: 'sent'
       }));
 
       next[saleToVoid.tableKey] = [...currentCart, ...restoredCartItems];
