@@ -356,7 +356,12 @@ if (barCart.length > 0) {
 
   const voidSaleAndReopenTable = (saleId, reason, adminUser) => {
     const saleToVoid = (businessDay.sales || []).find(s => s.id === saleId);
-    if (!saleToVoid) return;
+    if (!saleToVoid) return { success: false, error: 'Venta no encontrada.' };
+    
+    const currentCart = activeTables[saleToVoid.tableKey] || [];
+    if (currentCart.length > 0) {
+      return { success: false, error: `No se puede reabrir la cuenta porque la mesa ${saleToVoid.table} está ocupada actualmente. Transfiera la mesa actual a otra primero.` };
+    }
     
     logAudit('ANULACION_VENTA', { saleId, reason, admin: adminUser.name, amount: saleToVoid.total });
     setBusinessDay(prev => ({
@@ -395,6 +400,8 @@ if (barCart.length > 0) {
       }
       return prev;
     });
+
+    return { success: true };
   };
 
   const updateOrderStatus = (orderId, newStatus) => setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));

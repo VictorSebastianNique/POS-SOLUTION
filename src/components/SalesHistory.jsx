@@ -39,7 +39,12 @@ const SalesHistory = ({ onViewReceipt }) => {
       return;
     }
 
-    voidSaleAndReopenTable(saleToVoid.id, voidReason, admin);
+    const result = voidSaleAndReopenTable(saleToVoid.id, voidReason, admin);
+    if (result && !result.success) {
+      setVoidError(result.error);
+      return;
+    }
+
     setShowVoidModal(false);
     setSaleToVoid(null);
   };
