@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { Receipt, X, AlertTriangle, User } from 'lucide-react';
+import { Receipt, X, AlertTriangle, User, Eye } from 'lucide-react';
 
-const SalesHistory = () => {
+const SalesHistory = ({ onViewReceipt }) => {
   const { businessDay, voidSaleAndReopenTable, users, currentUser } = useStore();
   const [showVoidModal, setShowVoidModal] = useState(false);
   const [saleToVoid, setSaleToVoid] = useState(null);
@@ -89,13 +89,20 @@ const SalesHistory = () => {
                   <td style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--success-color)' }}>
                     S/ {sale.total.toFixed(2)}
                   </td>
-                  <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                  <td style={{ padding: '0.75rem 1rem', textAlign: 'right', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ padding: '0.25rem 0.6rem', fontSize: '0.7rem' }}
+                      onClick={() => onViewReceipt && onViewReceipt(sale)}
+                    >
+                      <Eye size={12} style={{ display: 'inline', marginRight: '0.2rem', verticalAlign: 'middle' }} /> Ver
+                    </button>
                     <button 
                       className="btn btn-outline" 
                       style={{ padding: '0.25rem 0.6rem', fontSize: '0.7rem', color: 'var(--danger-color)', borderColor: 'var(--danger-color)' }}
                       onClick={() => handleOpenVoidModal(sale)}
                     >
-                      Anular y Reabrir
+                      Anular
                     </button>
                   </td>
                 </tr>

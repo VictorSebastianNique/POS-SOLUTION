@@ -36,6 +36,28 @@ export default function Caja() {
   const [internalReason, setInternalReason] = useState('');
 
   const [isCapturing, setIsCapturing] = useState(false);
+  const [viewingReceiptDoc, setViewingReceiptDoc] = useState(null);
+
+  const handleViewReceipt = (sale) => {
+    const currentLocId = localStorage.getItem('currentLocationId');
+    const currentLocation = locations?.find(l => l.id === currentLocId) || {};
+    const items = sale.cartItems || sale.items?.map(i => ({ item: { name: i.item, price: i.price }, quantity: i.quantity })) || [];
+    
+    setViewingReceiptDoc({
+      docNumber: sale.documentNumber,
+      totalPagar: sale.total,
+      documentType: sale.documentType,
+      customerName: sale.customerName,
+      companyName: sale.companyName,
+      companyRuc: sale.companyRuc,
+      items: items,
+      tableNum: `${sale.zone} - ${sale.table}`,
+      waiterName: sale.waiter,
+      brandName: currentLocation.brandName || currentLocation.name,
+      locationAddress: currentLocation.address,
+      locationPhone: currentLocation.phone
+    });
+  };
 
   const handleShareWhatsApp = async () => {
     try {
@@ -70,7 +92,7 @@ export default function Caja() {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `comprobante_${paidDoc?.docNumber || 'pago'}.png`;
+          a.download = `comprobante_${(paidDoc || viewingReceiptDoc)?.docNumber || 'pago'}.png`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -491,10 +513,10 @@ export default function Caja() {
       {viewMode === 'usuarios' && <UserManagement />}
 
       {/* MODO VENTAS */}
-      {viewMode === 'ventas' && <SalesHistory />}
+      {viewMode === 'ventas' && <SalesHistory onViewReceipt={handleViewReceipt} />}
 
       {/* PRINT RECEIPT COMPONENT (HIDDEN BY DEFAULT, VISIBLE ON PRINT) */}
-      <PrintReceipt doc={paidDoc} captureMode={isCapturing} />
+      <PrintReceipt doc={paidDoc || viewingReceiptDoc} captureMode={isCapturing} />
 
       {/* MAIN */}
       {viewMode === 'mesas' && (
@@ -975,6 +997,31 @@ export default function Caja() {
                 Confirmar {flowType === 'income' ? 'Ingreso' : 'Egreso'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── VIEW RECEIPT MODAL ────────────────────────────────────── */}
+      {viewingReceiptDoc && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+            <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Detalle de Comprobante</h2>
+            <p className="subtitle mb-4">
+              {viewingReceiptDoc.documentType.toUpperCase()} {viewingReceiptDoc.docNumber}
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => window.print()}>
+                <Receipt size={20} style={{ display: 'inline', marginRight: '0.5rem' }} /> Imprimir Copia
+              </button>
+              <button className="btn" style={{ padding: '0.8rem', fontSize: '1rem', backgroundColor: '#25D366', color: '#fff' }} onClick={handleShareWhatsApp} disabled={isCapturing}>
+                {isCapturing ? <Loader2 size={20} className="spin" style={{ display: 'inline', marginRight: '0.5rem' }} /> : <Share2 size={20} style={{ display: 'inline', marginRight: '0.5rem' }} />}
+                Compartir en WhatsApp
+              </button>
+              <button className="btn btn-outline" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => setViewingReceiptDoc(null)}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
