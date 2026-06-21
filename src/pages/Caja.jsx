@@ -344,7 +344,8 @@ export default function Caja() {
 
     payTable(selectedTable.key, totalPagar, itemsToPay, waiterName, zone?.name || 'Desconocida', tableNum, billingInfo);
     
-    const currentLocation = locations?.find(l => l.id === currentUser.locationId) || {};
+    const currentLocId = localStorage.getItem('currentLocationId');
+    const currentLocation = locations?.find(l => l.id === currentLocId) || {};
     setPaidDoc({ 
       docNumber, change, totalPagar, documentType, customerName, 
       companyName: selectedCompany?.name, companyRuc: selectedCompany?.ruc, 

@@ -18,7 +18,8 @@ export default function Mozo() {
   const handlePrintPrecuenta = () => {
     if (!selectedTable || cart.length === 0) return;
     const totalPagar = cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0);
-    const currentLocation = locations?.find(l => l.id === currentUser.locationId) || {};
+    const currentLocId = localStorage.getItem('currentLocationId');
+    const currentLocation = locations?.find(l => l.id === currentLocId) || {};
     setDocToPrint({
       documentType: 'precuenta',
       docNumber: '-',
