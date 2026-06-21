@@ -900,5 +900,927 @@
   "developerSettings": {
     "isSuperAdminIncognito": true,
     "metricsOnlySuperAdmin": false
-  }
+  },
+  "catalogs": [
+    {
+      "id": "default",
+      "name": "Lista Principal",
+      "active": true,
+      "items": [
+        {
+          "name": "CARNE DE CERDO ADOBADA",
+          "price": 30,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "efb90f1d-92a4-4206-9009-aa1416f4e1c0",
+          "active": true
+        },
+        {
+          "name": "PATITA EN FIAMBRE",
+          "price": 26,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "be0a1250-a332-4fc3-bb5a-6be44fd89540",
+          "active": true
+        },
+        {
+          "name": "1/2 PATITA EN FIAMBRE",
+          "price": 17,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "ef6445db-2aea-47a7-8e4e-8fc6f7c00e51",
+          "active": true
+        },
+        {
+          "name": "SANGRECITA",
+          "price": 26,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "2026de7c-24a3-4c95-8621-64fd48fd31d4",
+          "active": true
+        },
+        {
+          "name": "CECINAS DE LOMO",
+          "price": 35,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "4a222dad-583f-4f52-99f3-25111e7936ca",
+          "active": true
+        },
+        {
+          "name": "AJÍ DE GALLINA",
+          "price": 26,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "7c763501-8278-40ed-bb31-72371ccf0a1c",
+          "active": true
+        },
+        {
+          "name": "PAPA A LA HUANCAINA",
+          "price": 20,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "1c886031-cb0f-43c5-8539-44eaa610e4fd",
+          "active": true
+        },
+        {
+          "name": "MOLLEJITAS GUISADAS",
+          "price": 24,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "ba7457d9-af2c-45d9-b915-ab9629ab4f47",
+          "active": true
+        },
+        {
+          "name": "HUMITA DOÑA FRESIA",
+          "price": 14,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "9921c25e-0804-4feb-88d1-b1a23a6ec124",
+          "active": true
+        },
+        {
+          "name": "PAPA RELLENA",
+          "price": 12,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "b5458984-1a57-4576-94b8-ae8f0c8efbda",
+          "active": true
+        },
+        {
+          "name": "ENSALADA MIXTA PERSONAL",
+          "price": 19,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "7d99c6da-ff9a-4e9a-ac8a-c645f6ba7767",
+          "active": true
+        },
+        {
+          "name": "ENSALDA DOÑA FRESIA",
+          "price": 35,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "4678fd1e-7044-4a15-a296-8aa76c47e4da",
+          "active": true
+        },
+        {
+          "name": "ENSALADA CESAR",
+          "price": 29,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "3133f40e-5eb8-40d8-ac1a-f724d65acb4f",
+          "active": true
+        },
+        {
+          "name": "CEVICHE DE LENGUADO",
+          "price": 48,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "c12fc419-09c9-4f27-816b-ef84f411b3c4",
+          "active": true
+        },
+        {
+          "name": "CEVICHE DE PESCA DEL DIA",
+          "price": 32,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "8b667037-4421-4f45-8e8f-93f510f1409f",
+          "active": true
+        },
+        {
+          "name": "CEVICHE DE MARISCOS",
+          "price": 46,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "fa6026e1-5c1d-446d-906d-f347d44573c6",
+          "active": true
+        },
+        {
+          "name": "LECHE DE TIGRE",
+          "price": 29,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "826d58ff-15b3-4f84-88d9-1408e34ce3b5",
+          "active": true
+        },
+        {
+          "name": "1/2 LECHE DE TIGRE",
+          "price": 22,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "6eb10564-b4cb-4fb7-b116-20fa985c1d27",
+          "active": true
+        },
+        {
+          "name": "TRILOGIA DE LECHES DE TIGRE",
+          "price": 32,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "d9e07eb2-f50a-42c0-9cc5-0f9ee5ed9529",
+          "active": true
+        },
+        {
+          "name": "TIRADITO A LAS 2 CREMAS",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "2fd6a42f-50da-42fc-a935-62bb301d259b",
+          "active": true
+        },
+        {
+          "name": "TIRADITO A LAS 3 CREMAS",
+          "price": 55,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "69269bea-cee1-4dcc-9adf-5bf1f1285ebf",
+          "active": true
+        },
+        {
+          "name": "CAUSA DE LANGOSTINOS",
+          "price": 39,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "f6273e33-6496-45a4-9fb0-cf6a68e7b100",
+          "active": true
+        },
+        {
+          "name": "CAUSA DE POLLO",
+          "price": 32,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "77b5701a-aea2-4e11-8a45-12a4e66a52ab",
+          "active": true
+        },
+        {
+          "name": "CAUSA DE PULPO AL OLIVO",
+          "price": 39,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "ec08e4e0-04f1-41d8-9829-23c837c9370c",
+          "active": true
+        },
+        {
+          "name": "CAUSA DE LA CASA",
+          "price": 39,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "87a7bb70-d1b4-4fb0-94d7-b6b9ca6186c1",
+          "active": true
+        },
+        {
+          "name": "CAUSA DE LOMO FINO",
+          "price": 42,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "c279da77-f165-4ce4-be19-33f4905cc484",
+          "active": true
+        },
+        {
+          "name": "TRIO DE CAUSAS",
+          "price": 37,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "3d90e7ed-a2ff-44b3-a651-cdda47ea686f",
+          "active": true
+        },
+        {
+          "name": "CAUSA CRIOLLA",
+          "price": 42,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "b7e3c9d4-abaf-4893-a5fd-fbf46943ce69",
+          "active": true
+        },
+        {
+          "name": "ARROZ C/N MARISCOS",
+          "price": 47,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "00c908ff-b403-4af9-830b-e5e8f2cc47ec",
+          "active": true
+        },
+        {
+          "name": "ARROZ C/N LANGOSTINOS",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "84898a4a-7543-42d9-91e9-8a6006992814",
+          "active": true
+        },
+        {
+          "name": "CHAUFS DE MARISCOS",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "c012b978-4ae4-4078-99cf-398d9cb4e784",
+          "active": true
+        },
+        {
+          "name": "CHICHARRON PESCA DEL DIA",
+          "price": 32,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "1577fe66-465e-4d97-9dd7-e85720cc4d96",
+          "active": true
+        },
+        {
+          "name": "CHICHARRON DE LANGOSTINOS",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "db619020-a5ea-4a84-88ff-8fe4a53cba8b",
+          "active": true
+        },
+        {
+          "name": "CHICHARRON DE LENGUADO",
+          "price": 46,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "0c3034e5-ddaa-4501-b274-498c3fd31c56",
+          "active": true
+        },
+        {
+          "name": "LENGUADO A LA PLANCHA",
+          "price": 46,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "1c60b397-ade4-4841-861e-f38b33c86f2c",
+          "active": true
+        },
+        {
+          "name": "LENGUADO APANADO",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "0cb712b8-7707-4543-8762-774f22e3da8e",
+          "active": true
+        },
+        {
+          "name": "LENGUADO A LO MACHO",
+          "price": 59,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "2ecb60ed-2d79-4255-9952-d2aacc4d89c1",
+          "active": true
+        },
+        {
+          "name": "LENGUADO ESCABECHADO",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "da8ff63d-8f54-4e12-b8c3-3ff98df9fc5c",
+          "active": true
+        },
+        {
+          "name": "LENGUADO AL AJO",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "6d909ce5-b235-4790-aa31-f15e74ced3a3",
+          "active": true
+        },
+        {
+          "name": "LENGUADO A LA MEUNIERE",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "a0138f4f-91c9-4a67-b656-8dda4267a7a2",
+          "active": true
+        },
+        {
+          "name": "JALEA MIXTA",
+          "price": 69,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "8c45cfaa-f55b-42e1-8567-166b20689b4a",
+          "active": true
+        },
+        {
+          "name": "PIQUEO FRUTOS DEL MAR",
+          "price": 135,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "c14ad95a-278e-4d82-90c3-cdea9b53d20a",
+          "active": true
+        },
+        {
+          "name": "PIQUEO DOÑA FRESIA",
+          "price": 129,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "d943ca5d-6b4c-48a2-82fb-b31e40adb37a",
+          "active": true
+        },
+        {
+          "name": "LOMO A LAS 3 PIMIENTAS",
+          "price": 72,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "7c3b15c3-bb6f-4427-83d4-77fc3bd5fa3d",
+          "active": true
+        },
+        {
+          "name": "LOMO EN SALSA DE CHAMPIÑPONES",
+          "price": 72,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "474b3661-25e1-4104-ab93-aca54c2099a4",
+          "active": true
+        },
+        {
+          "name": "SALTADO MAR Y TIERRA",
+          "price": 62,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "14b41901-e7b6-4785-8e72-75103ce8fd8b",
+          "active": true
+        },
+        {
+          "name": "PULPO AL OLIVO",
+          "price": 45,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "58b9ce4f-8400-496d-ac40-6664d959a0f7",
+          "active": true
+        },
+        {
+          "name": "PULPO ANTICUCHERO",
+          "price": 54,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "302144aa-731b-4596-9fee-acf0b313638e",
+          "active": true
+        },
+        {
+          "name": "COCTEL DE LANGOSTINOS",
+          "price": 39,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "79189eb6-2da3-4e5c-a73e-6e5afae78d34",
+          "active": true
+        },
+        {
+          "name": "CORIVNA SUDADA",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "145d0e47-23ba-47e0-a1e6-75a0f750f0ee",
+          "active": true
+        },
+        {
+          "name": "RISOTTO FRUTOS DEL MAR",
+          "price": 62,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "882492b5-9372-465f-8c2c-cf3f69bffd40",
+          "active": true
+        },
+        {
+          "name": "RISOTTO A LA H. C/N ASADO",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "aaa0289f-ed9a-4fd1-9cce-62badb0385c4",
+          "id": "c70d450b-9c9b-42b7-8632-48c01493add0",
+          "active": true
+        },
+        {
+          "name": "RISOTTO AL P. C/N ASADO",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "aaa0289f-ed9a-4fd1-9cce-62badb0385c4",
+          "id": "f7251feb-49c8-43ee-ab8e-2a6caca354a4",
+          "active": true
+        },
+        {
+          "name": "CABRITO",
+          "price": 47,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "9108af89-f401-401f-981a-b47f6d5b78a8",
+          "active": true
+        },
+        {
+          "name": "CABRITO DESHUESADO",
+          "price": 56,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "d6a1feac-9160-43cf-8940-cf1f79afcc11",
+          "active": true
+        },
+        {
+          "name": "ALBONDIGA",
+          "price": 37,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "9fc8bfdd-23fd-43ec-b062-905df04963a0",
+          "active": true
+        },
+        {
+          "name": "ASADO DE RES",
+          "price": 37,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "7be6a6d6-aff5-42a9-babf-20696dcff03f",
+          "active": true
+        },
+        {
+          "name": "CORVINA GUISADA",
+          "price": 50,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "70106e91-e990-421e-80a2-cc2438ecc775",
+          "active": true
+        },
+        {
+          "name": "PATO ESTOFADO",
+          "price": 47,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "ac4645a5-da23-4e0f-92b3-316c7ff63f0b",
+          "active": true
+        },
+        {
+          "name": "PATO ESTOFADO DESHUESADO",
+          "price": 56,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "34114994-6fe1-4499-ac7c-df0ce5d3f0f2",
+          "active": true
+        },
+        {
+          "name": "ARROZ CON PATO",
+          "price": 48,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "c058a64f-c0d0-4d34-bd8d-4edea53e5a43",
+          "active": true
+        },
+        {
+          "name": "ARROZ CON PATO",
+          "price": 58,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "00eafaeb-fed8-4f47-8682-d6494ebf121b",
+          "active": true
+        },
+        {
+          "name": "PEPIAN DE PAVO",
+          "price": 47,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "6bc9e7cc-6c86-40d9-b6d8-fb699d0667bb",
+          "active": true
+        },
+        {
+          "name": "CUY FRITO ",
+          "price": 65,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "638e054c-7185-4d43-b533-02f37be0632f",
+          "active": true
+        },
+        {
+          "name": "LOMO FINO SALTADO",
+          "price": 56,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "a2dd0e57-79b0-4255-97ce-3006daa0cfdb",
+          "active": true
+        },
+        {
+          "name": "LOMO A NUESTRO ESTILO",
+          "price": 59,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "c5f53c47-328e-4ef0-b300-99bcb6b3c4af",
+          "active": true
+        },
+        {
+          "name": "BISTEC DE LOMO A LO POBRE",
+          "price": 69,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "6955d865-420b-41dd-a92e-2cd86bd88d99",
+          "active": true
+        },
+        {
+          "name": "FILETE DE POLLO",
+          "price": 37,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "ead63c76-8d78-414d-801a-b773b4defe1e",
+          "active": true
+        },
+        {
+          "name": "MILANESA DE POLLO",
+          "price": 40,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "5ce3f62c-43d6-49fc-9c93-d47ee184e15e",
+          "active": true
+        },
+        {
+          "name": "CALDO DE GALLINA",
+          "price": 30,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "f11c6aef-fbd0-4d5c-93dc-13777e32d3b5",
+          "active": true
+        },
+        {
+          "name": "SANCOCHADO ",
+          "price": 34,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "42096681-86d4-43f9-bef5-2fc6cbc36643",
+          "active": true
+        },
+        {
+          "name": "SHAMBAR",
+          "price": 34,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "b014d147-1a3a-4f0a-a760-5ace407762a9",
+          "active": true
+        },
+        {
+          "name": "CHUPE DE CORVINA",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "2d897353-3e71-428a-bccc-19d9f02c908f",
+          "active": true
+        },
+        {
+          "name": "PARIHUELA DE MARISCOS",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "9b83e742-c929-46df-9a6f-2b280135228e",
+          "active": true
+        },
+        {
+          "name": "DIETA DE POLLO",
+          "price": 32,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "3b8b9297-b797-4416-ac34-a7dd2fc4b244",
+          "active": true
+        },
+        {
+          "name": "CHILCANO DE CORVINA",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "5766e3de-ab83-44d1-9862-c7360a8725da",
+          "active": true
+        },
+        {
+          "name": "TORTA DE CHOCOLATE",
+          "price": 13,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "c34e74d5-4cff-4e40-97ac-137a697cd08a",
+          "active": true
+        },
+        {
+          "name": "CHOCOMANJAR",
+          "price": 13,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "b5906174-af73-4c7a-89a9-a2bef71fcf61",
+          "active": true
+        },
+        {
+          "name": "CHEESECAKE DE FRESA",
+          "price": 16,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "c72213e7-f0e5-4ce3-9c3a-b176e3a588da",
+          "active": true
+        },
+        {
+          "name": "CHEESECAKE DE ARANDANOS",
+          "price": 16,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "5cb77d4f-3d14-4b7e-8b09-d37087804069",
+          "active": true
+        },
+        {
+          "name": "CHEESECAKE DE OREO",
+          "price": 16,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "34a70f8f-8919-488c-89bf-510638cce45b",
+          "active": true
+        },
+        {
+          "name": "CHEESECAKE DE MARACUYA",
+          "price": 16,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "50fa14a4-2009-4c7a-9cfb-7e512110bc4a",
+          "active": true
+        },
+        {
+          "name": "TORTA TRES LECHES",
+          "price": 15,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "87c48cbc-fa49-4be5-9fcd-1aa9d6fead6a",
+          "active": true
+        },
+        {
+          "name": "TORTA TRES LECHES DE CAFE",
+          "price": 15,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "b9fc9978-2c0e-4314-9a62-c7c4f8b8fcd9",
+          "active": true
+        },
+        {
+          "name": "TORTA TRES LECHES CHOCOLATE",
+          "price": 15,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "1463be15-6b91-4121-9e5b-6fca59590624",
+          "active": true
+        },
+        {
+          "name": "TORTA DE ZANAHORIA",
+          "price": 14,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "1d986de0-cc41-45ab-b6db-09a068c00f9c",
+          "active": true
+        },
+        {
+          "name": "CREMA VOLTEADA",
+          "price": 15,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "19e2ff40-d7c9-4825-9dfc-a7da142b689a",
+          "active": true
+        },
+        {
+          "name": "PANQUEQUE",
+          "price": 15,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "fa849955-476e-49bf-afd1-5cc88b9a5e22",
+          "active": true
+        },
+        {
+          "name": "PANQUEQUE CON HELADO",
+          "price": 19,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "e40639e3-dea5-4890-8738-bb0b438905c9",
+          "active": true
+        },
+        {
+          "name": "PICARONES",
+          "price": 14,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "a4a732f0-9a82-4d5b-9d57-4c11510b26b0",
+          "active": true
+        },
+        {
+          "name": "RISOTTO A LA H. C/N MILANESA",
+          "price": 53,
+          "categoryId": "c3",
+          "subcategoryId": "aaa0289f-ed9a-4fd1-9cce-62badb0385c4",
+          "id": "872f1bbb-c7cf-42a6-aa18-8e8fdb2318a5",
+          "active": true
+        },
+        {
+          "name": "RISOTTO AL P. C/N MILANESA",
+          "price": 53,
+          "categoryId": "c3",
+          "subcategoryId": "aaa0289f-ed9a-4fd1-9cce-62badb0385c4",
+          "id": "0bb8f7ad-23b2-4e51-9385-ff3cc5b64500",
+          "active": true
+        },
+        {
+          "name": "CABRITO DESHUESADO C/N TACU TACU",
+          "price": 59,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "88a1c784-d980-40c9-9260-4f81607ac9d9",
+          "active": true
+        },
+        {
+          "name": "PATO ESTOFADO DESHUESADO C/N TACU TACU",
+          "price": 59,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "c2cf13ce-85e4-4412-b6db-d28371476779",
+          "active": true
+        },
+        {
+          "name": "TACU TACU CON LOMO EN SALSA DE LANGOSTINOS",
+          "price": 72,
+          "categoryId": "c3",
+          "subcategoryId": "5d643ddf-4b63-40ac-9767-5ac41c3981d9",
+          "id": "4714b758-7602-44b0-8bb0-7920afa5e8aa",
+          "active": true
+        },
+        {
+          "name": "GASEOSA 500ML",
+          "price": 9,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006198921",
+          "active": true
+        },
+        {
+          "name": "GASEOSA 295ML",
+          "price": 5,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006218096",
+          "active": true
+        },
+        {
+          "name": "AGUA C/N GAS 500ML",
+          "price": 7,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006285240",
+          "active": true
+        },
+        {
+          "name": "AGUA S/N GAS 500ML",
+          "price": 7,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006300977",
+          "active": true
+        },
+        {
+          "name": "AGUA C/N GAS 350ML",
+          "price": 5,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006336127",
+          "active": true
+        },
+        {
+          "name": "AGUA S/N GAS 350ML",
+          "price": 5,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006353095",
+          "active": true
+        },
+        {
+          "name": "CUSQUEÑA DORADA",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006390735",
+          "active": true
+        },
+        {
+          "name": "CUSQUEÑA TRIGO",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006401112",
+          "active": true
+        },
+        {
+          "name": "CUSQUEÑA MALTA",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006415321",
+          "active": true
+        },
+        {
+          "name": "PILSEN TRUJILLO",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006437060",
+          "active": true
+        },
+        {
+          "name": "PILSEN CALLAO",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006450646",
+          "active": true
+        },
+        {
+          "name": "HEINEKEN",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006465546",
+          "active": true
+        },
+        {
+          "name": "PISCO SOUR QUEBRANTA",
+          "price": 212,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006570774",
+          "active": true
+        },
+        {
+          "name": "PISCO SOUR PORTON",
+          "price": 32,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006587157",
+          "active": true
+        },
+        {
+          "name": "PISCO SOUR BIONDI",
+          "price": 28,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006600939",
+          "active": true
+        },
+        {
+          "name": "ALGARROBINA",
+          "price": 22,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006616326",
+          "active": true
+        },
+        {
+          "name": "COCTELES DE LA CASA 2X39",
+          "price": 39,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006639231",
+          "active": true
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,352 @@
+{
+  "users": [],
+  "zones": [
+    {
+      "name": "Eventos",
+      "tables": [
+        "Mesa 1",
+        "Mesa 2",
+        "Mesa 3",
+        "Mesa 4"
+      ],
+      "id": "6d40ca85-4f4a-457c-99ce-68d93049c2c5",
+      "active": true
+    }
+  ],
+  "orders": [
+    {
+      "id": "2efd763b-8106-475a-b394-6b6d333f6a7e",
+      "zone": "Eventos",
+      "table": "Mesa 1",
+      "waiter": "Jefe",
+      "items": [
+        {
+          "id": "4e104526-762a-4712-816d-3caaea5ccc76",
+          "item": {
+            "name": "LOMO A LAS 3 PIMIENTAS",
+            "price": 72,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "7c3b15c3-bb6f-4427-83d4-77fc3bd5fa3d",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1781933024189
+        },
+        {
+          "id": "e43925fa-f0fd-4602-aed5-d3edb434bc9b",
+          "item": {
+            "name": "LOMO EN SALSA DE CHAMPIÑPONES",
+            "price": 72,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "474b3661-25e1-4104-ab93-aca54c2099a4",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1781933025311
+        },
+        {
+          "id": "c7d22213-c2b3-48de-b95d-54534b4d219e",
+          "item": {
+            "name": "LOMO A NUESTRO ESTILO",
+            "price": 59,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "c5f53c47-328e-4ef0-b300-99bcb6b3c4af",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1781933026766
+        },
+        {
+          "id": "ab7c832d-ca62-4e34-adcd-47f9ea3674a1",
+          "item": {
+            "name": "BISTEC DE LOMO A LO POBRE",
+            "price": 69,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "6955d865-420b-41dd-a92e-2cd86bd88d99",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready",
+          "timestamp": 1781933028021
+        }
+      ],
+      "station": "cocina",
+      "status": "ready",
+      "timestamp": 1781933031615
+    },
+    {
+      "id": "c74da601-c6f5-4d57-99d3-77201a130667",
+      "zone": "Eventos",
+      "table": "Mesa 1",
+      "waiter": "Jefe",
+      "items": [
+        {
+          "id": "4bddb6b0-0522-44f2-ac5d-257769b68f41",
+          "item": {
+            "name": "TORTA DE CHOCOLATE",
+            "price": 13,
+            "categoryId": "c2",
+            "subcategoryId": "",
+            "id": "c34e74d5-4cff-4e40-97ac-137a697cd08a",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781933018359
+        },
+        {
+          "id": "acb230f4-20eb-48c7-ab32-856898157363",
+          "item": {
+            "name": "CHEESECAKE DE ARANDANOS",
+            "price": 16,
+            "categoryId": "c2",
+            "subcategoryId": "",
+            "id": "5cb77d4f-3d14-4b7e-8b09-d37087804069",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781933020389
+        },
+        {
+          "id": "fbe15fe7-a009-4500-8390-9fe13133df79",
+          "item": {
+            "name": "TORTA DE CHOCOLATE",
+            "price": 13,
+            "categoryId": "c2",
+            "subcategoryId": "",
+            "id": "c34e74d5-4cff-4e40-97ac-137a697cd08a",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781934878133
+        },
+        {
+          "id": "e680fe14-db64-49d5-af00-a7d067e7b123",
+          "item": {
+            "name": "CHOCOMANJAR",
+            "price": 13,
+            "categoryId": "c2",
+            "subcategoryId": "",
+            "id": "b5906174-af73-4c7a-89a9-a2bef71fcf61",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781934880340
+        }
+      ],
+      "station": "bar",
+      "status": "pending",
+      "timestamp": 1781933031615
+    },
+    {
+      "id": "6329b698-7915-48fa-8abb-9b1563345294",
+      "zone": "Eventos",
+      "table": "Mesa 1",
+      "waiter": "Jefe",
+      "items": [
+        {
+          "id": "5249e9f5-214c-496f-a36f-38bd23d06dd6",
+          "item": {
+            "name": "ARROZ CON PATO",
+            "price": 48,
+            "categoryId": "c3",
+            "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+            "id": "c058a64f-c0d0-4d34-bd8d-4edea53e5a43",
+            "active": true
+          },
+          "quantity": 2,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781934883868
+        },
+        {
+          "id": "2997ac70-a5d5-45f0-a560-ef0575b2fbd9",
+          "item": {
+            "name": "ARROZ CON PATO",
+            "price": 58,
+            "categoryId": "c3",
+            "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+            "id": "00eafaeb-fed8-4f47-8682-d6494ebf121b",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781934886756
+        },
+        {
+          "id": "c8453e24-1743-451d-b157-a38b35b7bc3d",
+          "item": {
+            "name": "CUY FRITO ",
+            "price": 65,
+            "categoryId": "c3",
+            "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+            "id": "638e054c-7185-4d43-b533-02f37be0632f",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1781934887750
+        }
+      ],
+      "station": "cocina",
+      "status": "pending",
+      "timestamp": 1781934888445
+    }
+  ],
+  "isBarActive": true,
+  "businessDay": {
+    "id": "740f272f-8594-4ead-934d-3df8b16c9837",
+    "isOpen": true,
+    "startTime": 1781932841398,
+    "totalSales": 0,
+    "voids": [
+      {
+        "item": "Comprobante F-F001-00000001",
+        "quantity": 1,
+        "reason": "admin",
+        "admin": "Jefe",
+        "timestamp": 1781934587621,
+        "tableKey": "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1",
+        "amount": 301
+      },
+      {
+        "item": "Comprobante B-B001-00000001",
+        "quantity": 1,
+        "reason": "admin",
+        "admin": "Jefe",
+        "timestamp": 1781934908405,
+        "tableKey": "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1",
+        "amount": 245
+      },
+      {
+        "item": "Comprobante B-B001-00000002",
+        "quantity": 1,
+        "reason": "admin",
+        "admin": "Jefe",
+        "timestamp": 1781934988677,
+        "tableKey": "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1",
+        "amount": 220.5
+      }
+    ],
+    "sales": [],
+    "incomes": [],
+    "expenses": []
+  },
+  "pastDays": [],
+  "activeTables": {
+    "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1": [
+      {
+        "id": "c155e8a1-2153-4b3d-8ad8-1dfc89868b32",
+        "item": {
+          "name": "TORTA DE CHOCOLATE",
+          "price": 13,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "c34e74d5-4cff-4e40-97ac-137a697cd08a",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1781934878133
+      },
+      {
+        "id": "af85d562-f94b-445b-ae7d-b07e0d1703ca",
+        "item": {
+          "name": "CHOCOMANJAR",
+          "price": 13,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "b5906174-af73-4c7a-89a9-a2bef71fcf61",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1781934880340
+      },
+      {
+        "id": "d8e1addf-b2dd-4d1a-abbd-abb5f6eb6630",
+        "item": {
+          "name": "ARROZ CON PATO",
+          "price": 48,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "c058a64f-c0d0-4d34-bd8d-4edea53e5a43",
+          "active": true
+        },
+        "quantity": 2,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1781934883868
+      },
+      {
+        "id": "c4f220f2-b6e8-4afb-b76b-283f8b8ccc7c",
+        "item": {
+          "name": "ARROZ CON PATO",
+          "price": 58,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "00eafaeb-fed8-4f47-8682-d6494ebf121b",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1781934886756
+      },
+      {
+        "id": "7e8b3fe6-20bc-479c-a690-fcb9a3ce6371",
+        "item": {
+          "name": "CUY FRITO ",
+          "price": 65,
+          "categoryId": "c3",
+          "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
+          "id": "638e054c-7185-4d43-b533-02f37be0632f",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1781934887750
+      }
+    ]
+  },
+  "tableHeadcounts": {
+    "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1": 5
+  },
+  "companies": [
+    {
+      "name": "SEBASTIAN ÑIQUE VICTOR ANDRE",
+      "ruc": "10755334567",
+      "address": "odonovan 601",
+      "boletaSeries": "B001",
+      "boletaNumber": 2,
+      "facturaSeries": "F001",
+      "facturaNumber": 1,
+      "active": true,
+      "id": "d32b0c80-ae34-4d15-b94b-93fc48582847"
+    }
+  ],
+  "menuStatus": {}
+}

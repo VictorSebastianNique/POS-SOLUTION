@@ -6,7 +6,7 @@ import PageHeader from '../components/PageHeader';
 
 export default function Bar() {
   const navigate = useNavigate();
-  const { orders, updateOrderStatus, currentUser, logout , developerSettings } = useStore();
+  const { orders, updateOrderItemStatus, currentUser, logout , developerSettings } = useStore();
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [activeTab, setActiveTab] = useState('pending');
 
@@ -31,79 +31,64 @@ export default function Bar() {
     return diff < 1 ? 'Justo ahora' : `Hace ${diff} min`;
   };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'pending': return 'var(--warning-color)';
-      case 'preparing': return 'var(--primary-color)';
-      default: return 'var(--text-secondary)';
+  // Flatten orders into individual items
+  const allBarItems = [];
+  orders.forEach(order => {
+    if (order.station === 'bar' && order.status !== 'ready') {
+      order.items.forEach(item => {
+        let itemStatus = item.status || order.status || 'pending';
+        if (itemStatus === 'new') itemStatus = 'pending'; // Map cart 'new' status to 'pending'
+        
+        if (itemStatus !== 'ready') {
+          allBarItems.push({
+            orderId: order.id,
+            itemId: item.id,
+            itemName: item.item.name,
+            quantity: item.quantity,
+            details: item.details,
+            table: order.table,
+            zone: order.zone,
+            waiter: order.waiter,
+            timestamp: order.timestamp,
+            status: itemStatus
+          });
+        }
+      });
     }
-  };
+  });
 
-  const barOrders = orders.filter(o => o.station === 'bar');
-  const pendingOrders = barOrders.filter(o => o.status === 'pending');
-  const preparingOrders = barOrders.filter(o => o.status === 'preparing');
+  const pendingItems = allBarItems.filter(i => i.status === 'pending');
+  const preparingItems = allBarItems.filter(i => i.status === 'preparing');
 
-  const OrderCard = ({ order, nextStatus, nextLabel, icon: Icon }) => (
-    <div className="card animate-fade-in" style={{ borderTop: `4px solid ${getStatusColor(order.status)}`, backgroundColor: 'var(--surface-color)' }}>
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="title" style={{ fontSize: '1.1rem' }}>Mesa {order.table}</h3>
-          <p className="subtitle" style={{ fontSize: '0.8rem' }}>{order.zone}</p>
+  const ItemRow = ({ item, nextStatus, nextLabel, icon: Icon, color }) => (
+    <div className="flex items-center justify-between py-3 px-2 animate-fade-in" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'transparent' }}>
+      <div className="flex-1 pr-4">
+        <div className="flex items-center gap-3">
+          <span style={{ fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '1.2rem', minWidth: '35px' }}>{item.quantity}x</span>
+          <div>
+            <span style={{ fontWeight: 500, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{item.itemName}</span>
+            {item.details && <span style={{ fontSize: '0.85rem', color: 'var(--warning-color)', fontStyle: 'italic', marginLeft: '8px' }}>(Nota: {item.details})</span>}
+          </div>
         </div>
-        <div className="flex flex-col items-end">
-          <span className="flex items-center gap-1 subtitle" style={{ fontSize: '0.8rem', color: 'var(--warning-color)' }}><Clock size={12}/> {getWaitTime(order.timestamp)}</span>
-          <span className="subtitle" style={{ fontSize: '0.75rem' }}>Mozo: <span style={{color: 'var(--text-primary)'}}>{order.waiter}</span></span>
+        <div className="flex items-center gap-4 mt-1" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <span>Mesa: <strong style={{ color: 'var(--text-primary)' }}>{item.table}</strong> ({item.zone})</span>
+          <span>Mozo: <strong style={{ color: 'var(--text-primary)' }}>{item.waiter}</strong></span>
+          <span className="flex items-center gap-1" style={{ color: color }}><Clock size={12}/> {getWaitTime(item.timestamp)}</span>
         </div>
       </div>
-      
-      <div className="mb-4">
-        <ul style={{ listStyleType: 'none', padding: 0 }}>
-          {order.items.map((c, i) => (
-            <li key={i} className="flex flex-col py-2" style={{ borderBottom: '1px dashed var(--border-color)' }}>
-              <span style={{ fontWeight: 500, fontSize: '0.95rem' }}><span style={{color: 'var(--primary-color)'}}>{c.quantity}x</span> {c.item.name}</span>
-              {c.details && <span style={{ fontSize: '0.8rem', color: 'var(--warning-color)', fontStyle: 'italic', marginTop: '0.2rem' }}>Nota: {c.details}</span>}
-            </li>
-          ))}
-        </ul>
+      <div>
+        <button 
+          className="btn flex items-center justify-center" 
+          style={{ backgroundColor: color, color: 'white', padding: '0.4rem 0.8rem', fontSize: '0.9rem', borderRadius: '4px' }}
+          onClick={() => updateOrderItemStatus(item.orderId, item.itemId, nextStatus)}
+        >
+          <Icon size={14} className="mr-2" /> {nextLabel}
+        </button>
       </div>
-
-      <button 
-        className="btn w-full justify-center" 
-        style={{ width: '100%', backgroundColor: getStatusColor(order.status), color: 'white', padding: '0.6rem' }}
-        onClick={() => updateOrderStatus(order.id, nextStatus)}
-      >
-        <Icon size={16} /> {nextLabel}
-      </button>
     </div>
   );
 
-  /* Mobile tab bar for small screens */
-  const TabBar = () => (
-    <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)' }} className="show-mobile-flex">
-      <button
-        onClick={() => setActiveTab('pending')}
-        style={{
-          flex: 1, padding: '0.75rem', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600,
-          backgroundColor: activeTab === 'pending' ? 'rgba(245,158,11,0.15)' : 'transparent',
-          color: activeTab === 'pending' ? 'var(--warning-color)' : 'var(--text-secondary)',
-          borderBottom: activeTab === 'pending' ? '2px solid var(--warning-color)' : '2px solid transparent'
-        }}
-      >
-        ⏳ Pendientes ({pendingOrders.length})
-      </button>
-      <button
-        onClick={() => setActiveTab('preparing')}
-        style={{
-          flex: 1, padding: '0.75rem', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600,
-          backgroundColor: activeTab === 'preparing' ? 'rgba(16,185,129,0.15)' : 'transparent',
-          color: activeTab === 'preparing' ? 'var(--primary-color)' : 'var(--text-secondary)',
-          borderBottom: activeTab === 'preparing' ? '2px solid var(--primary-color)' : '2px solid transparent'
-        }}
-      >
-        🍹 Preparando ({preparingOrders.length})
-      </button>
-    </div>
-  );
+  const barItemsToDisplay = [...pendingItems, ...preparingItems].sort((a, b) => a.timestamp - b.timestamp);
 
   return (
     <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)', overflow: 'hidden' }}>
@@ -112,7 +97,7 @@ export default function Bar() {
         iconGradient="135deg, #6366f1, #38bdf8"
         iconGlow="rgba(99,102,241,0.4)"
         title="Tablero de Bar"
-        subtitle="Bar activo"
+        subtitle="Control y Tráfico de Bebidas"
         badge={(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Modo Supervisor' : null}
         badgeColor="var(--warning-color)"
         actions={
@@ -122,62 +107,63 @@ export default function Bar() {
         }
       />
 
-      {/* Mobile tab switcher */}
-      <TabBar />
+      <div className="flex-1" style={{ overflow: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--border-color)' }}>
+              <tr>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Cant.</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Producto / Detalle</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Mozo</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Mesa</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Tiempo</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', textAlign: 'center' }}>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {barItemsToDisplay.map(item => {
+                const isPending = item.status === 'pending';
+                const actionColor = isPending ? 'var(--warning-color)' : 'var(--success-color)';
+                const ActionIcon = isPending ? Play : Check;
+                const actionLabel = isPending ? 'Preparar' : 'Despachar';
+                const nextStatus = isPending ? 'preparing' : 'ready';
 
-      {/* Desktop: two columns. Mobile: single panel based on tab */}
-      <div className="flex-1" style={{ overflow: 'hidden', display: 'flex', gap: '1rem', padding: '1rem' }}>
-        {/* Pending column */}
-        <div
-          className="flex flex-col"
-          style={{
-            flex: 1,
-            minHeight: 0,
-            borderRadius: 'var(--border-radius)',
-            border: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-color)',
-            overflow: 'hidden',
-            /* Hide on mobile if not active tab */
-            display: typeof window !== 'undefined' && window.innerWidth <= 768 && activeTab !== 'pending' ? 'none' : 'flex',
-          }}
-          id="bar-pending-col"
-        >
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(245,158,11,0.08)', flexShrink: 0 }}>
-            <h2 className="title flex items-center gap-2" style={{ color: 'var(--warning-color)', fontSize: '1rem' }}>
-              <span style={{ backgroundColor: 'var(--warning-color)', color: '#000', padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.85rem' }}>{pendingOrders.length}</span>
-              Nuevos / Pendientes
-            </h2>
-          </div>
-          <div className="flex-1 overflow-y-auto" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', minHeight: 0 }}>
-            {pendingOrders.map(o => (<OrderCard key={o.id} order={o} nextStatus="preparing" nextLabel="Preparar" icon={Play} />))}
-            {pendingOrders.length === 0 && <p className="text-center" style={{ color: 'var(--text-secondary)', marginTop: '2rem' }}>No hay pedidos pendientes</p>}
-          </div>
-        </div>
-
-        {/* Preparing column */}
-        <div
-          className="flex flex-col"
-          style={{
-            flex: 1,
-            minHeight: 0,
-            borderRadius: 'var(--border-radius)',
-            border: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-color)',
-            overflow: 'hidden',
-            display: typeof window !== 'undefined' && window.innerWidth <= 768 && activeTab !== 'preparing' ? 'none' : 'flex',
-          }}
-          id="bar-preparing-col"
-        >
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(16,185,129,0.08)', flexShrink: 0 }}>
-            <h2 className="title flex items-center gap-2" style={{ color: 'var(--primary-color)', fontSize: '1rem' }}>
-              <span style={{ backgroundColor: 'var(--primary-color)', color: '#000', padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.85rem' }}>{preparingOrders.length}</span>
-              En Preparación
-            </h2>
-          </div>
-          <div className="flex-1 overflow-y-auto" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', minHeight: 0 }}>
-            {preparingOrders.map(o => (<OrderCard key={o.id} order={o} nextStatus="ready" nextLabel="Listo ✓" icon={Check} />))}
-            {preparingOrders.length === 0 && <p className="text-center" style={{ color: 'var(--text-secondary)', marginTop: '2rem' }}>No hay pedidos en preparación</p>}
-          </div>
+                return (
+                  <tr key={`${item.orderId}-${item.itemId}`} className="animate-fade-in" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '1.1rem' }}>{item.quantity}x</td>
+                    <td style={{ padding: '1rem' }}>
+                      <div style={{ fontWeight: 600, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{item.itemName}</div>
+                      {item.details && <div style={{ fontSize: '0.85rem', color: 'var(--warning-color)', fontStyle: 'italic', marginTop: '0.2rem' }}>Nota: {item.details}</div>}
+                    </td>
+                    <td style={{ padding: '1rem', fontWeight: 500, color: 'var(--text-primary)' }}>{item.waiter}</td>
+                    <td style={{ padding: '1rem' }}>
+                      <span style={{ backgroundColor: 'var(--bg-color)', padding: '0.3rem 0.6rem', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.9rem' }}>Mesa {item.table}</span>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{item.zone}</div>
+                    </td>
+                    <td style={{ padding: '1rem', color: isPending ? 'var(--warning-color)' : 'var(--primary-color)', fontSize: '0.9rem' }}>
+                      <span className="flex items-center gap-1"><Clock size={14}/> {getWaitTime(item.timestamp)}</span>
+                    </td>
+                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                      <button 
+                        className="btn flex items-center justify-center w-full" 
+                        style={{ backgroundColor: actionColor, color: 'white', padding: '0.6rem 1rem', fontSize: '0.9rem', borderRadius: '4px' }}
+                        onClick={() => updateOrderItemStatus(item.orderId, item.itemId, nextStatus)}
+                      >
+                        <ActionIcon size={16} className="mr-2" /> {actionLabel}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {barItemsToDisplay.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                    No hay bebidas pendientes ni en preparación.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

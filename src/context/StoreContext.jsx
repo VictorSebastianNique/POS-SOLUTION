@@ -13,7 +13,7 @@ export const StoreProvider = ({ children }) => {
   const [users, setUsers] = React.useState([]);
   const [categories, setCategories] = React.useState([]);
   const [subcategories, setSubcategories] = React.useState([]);
-  const [menu, setMenu] = React.useState([]);
+  const [catalogs, setCatalogs] = React.useState([]);
   const [zones, setZones] = React.useState([]);
   const [orders, setOrders] = React.useState([]);
   const [isBarActive, setIsBarActive] = React.useState(true);
@@ -42,7 +42,15 @@ export const StoreProvider = ({ children }) => {
         setLocations(loadedLocations);
         if (dataGlobal.categories) setCategories(dataGlobal.categories);
         if (dataGlobal.subcategories) setSubcategories(dataGlobal.subcategories);
-        if (dataGlobal.menu) setMenu(dataGlobal.menu);
+        
+        // Load catalogs, or migrate existing menu to catalogs
+        if (dataGlobal.catalogs && dataGlobal.catalogs.length > 0) {
+          setCatalogs(dataGlobal.catalogs);
+        } else if (dataGlobal.menu && dataGlobal.menu.length > 0) {
+          setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: dataGlobal.menu }]);
+        } else {
+          setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: [] }]);
+        }
         if (dataGlobal.developerSettings) setDeveloperSettings(dataGlobal.developerSettings);
 
         const currentLocId = localStorage.getItem('currentLocationId');
@@ -96,7 +104,7 @@ export const StoreProvider = ({ children }) => {
           const dataGlobal = await resGlobal.json();
           if (dataGlobal.categories) setCategories(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.categories) ? dataGlobal.categories : prev);
           if (dataGlobal.subcategories) setSubcategories(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.subcategories) ? dataGlobal.subcategories : prev);
-          if (dataGlobal.menu) setMenu(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.menu) ? dataGlobal.menu : prev);
+          if (dataGlobal.catalogs) setCatalogs(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.catalogs) ? dataGlobal.catalogs : prev);
         }
         
         const locId = localStorage.getItem('currentLocationId');
@@ -143,7 +151,7 @@ export const StoreProvider = ({ children }) => {
   React.useEffect(() => { if (!loading) saveState('categories', categories, true); }, [categories, loading]);
   React.useEffect(() => { if (!loading) saveState('subcategories', subcategories, true); }, [subcategories, loading]);
   React.useEffect(() => { if (!loading) saveState('developerSettings', developerSettings, true); }, [developerSettings, loading]);
-  React.useEffect(() => { if (!loading) saveState('menu', menu, true); }, [menu, loading]);
+  React.useEffect(() => { if (!loading) saveState('catalogs', catalogs, true); }, [catalogs, loading]);
   
   React.useEffect(() => { if (!loading) saveState('zones', zones); }, [zones, loading]);
   React.useEffect(() => { if (!loading) saveState('orders', orders); }, [orders, loading]);
@@ -274,9 +282,10 @@ if (barCart.length > 0) {
       ...prev, 
       totalSales: prev.totalSales + amount,
       sales: [...(prev.sales || []), {
-        tableKey, waiter, zone: zoneName, table: tableNum, total: amount, timestamp: Date.now(),
+        id: uuidv4(), tableKey, waiter, zone: zoneName, table: tableNum, total: amount, timestamp: Date.now(),
         headcount,
         items: cartDetails.map(c => ({ item: c.item.name, quantity: c.quantity, price: c.item.price })),
+        cartItems: cartDetails,
         ...billingInfo
       }]
     }));
@@ -301,6 +310,48 @@ if (barCart.length > 0) {
         next[tableKey] = remainingCart;
       }
       return next;
+    });
+  };
+
+  const voidSaleAndReopenTable = (saleId, reason, adminUser) => {
+    const saleToVoid = (businessDay.sales || []).find(s => s.id === saleId);
+    if (!saleToVoid) return;
+    
+    setBusinessDay(prev => ({
+      ...prev,
+      totalSales: prev.totalSales - saleToVoid.total,
+      sales: prev.sales.filter(s => s.id !== saleId),
+      voids: [...(prev.voids || []), {
+        item: `Comprobante ${saleToVoid.documentType === 'boleta' ? 'B' : saleToVoid.documentType === 'factura' ? 'F' : 'P'}-${saleToVoid.documentNumber}`,
+        quantity: 1,
+        reason: reason || 'Anulación de Venta',
+        admin: adminUser.name,
+        timestamp: Date.now(),
+        tableKey: saleToVoid.tableKey,
+        amount: saleToVoid.total
+      }]
+    }));
+
+    setActiveTables(prev => {
+      const next = { ...prev };
+      const currentCart = next[saleToVoid.tableKey] || [];
+      
+      // Regenerate unique IDs for cart items to avoid conflicts
+      const restoredCartItems = (saleToVoid.cartItems || []).map(c => ({
+        ...c,
+        id: uuidv4()
+      }));
+
+      next[saleToVoid.tableKey] = [...currentCart, ...restoredCartItems];
+      return next;
+    });
+    
+    // Also ensure headcount is restored if table was completely closed
+    setTableHeadcounts(prev => {
+      if (!prev[saleToVoid.tableKey]) {
+        return { ...prev, [saleToVoid.tableKey]: saleToVoid.headcount || 1 };
+      }
+      return prev;
     });
   };
 
@@ -329,6 +380,14 @@ if (barCart.length > 0) {
     }));
   };
 
+  const updateOrderItemStatus = (orderId, itemId, newStatus) => {
+    setOrders(prev => prev.map(o => {
+      if (o.id !== orderId) return o;
+      const newItems = o.items.map(i => i.id === itemId ? { ...i, status: newStatus } : i);
+      const allReady = newItems.every(i => i.status === 'ready');
+      return { ...o, items: newItems, status: allReady ? 'ready' : o.status };
+    }));
+  };
 
   const addItem = (setter) => (item) => setter(prev => [...prev, { ...item, id: uuidv4(), active: true }]);
   const updateItem = (setter) => (id, updated) => setter(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
@@ -341,14 +400,14 @@ if (barCart.length > 0) {
       users, addUser: addItem(setUsers), updateUser: updateItem(setUsers), deleteUser: deleteItem(setUsers),
       categories, addCategory: addItem(setCategories), updateCategory: updateItem(setCategories), deleteCategory: deleteItem(setCategories),
       subcategories, addSubcategory: addItem(setSubcategories), updateSubcategory: updateItem(setSubcategories), deleteSubcategory: deleteItem(setSubcategories),
-      menu, addMenuItem: addItem(setMenu), updateMenuItem: updateItem(setMenu), deleteMenuItem: deleteItem(setMenu),
+      menu: catalogs.find(c => c.active)?.items || [], catalogs, setCatalogs, addCatalog: addItem(setCatalogs), updateCatalog: updateItem(setCatalogs), deleteCatalog: deleteItem(setCatalogs),
       menuStatus, setMenuStatus,
       zones, addZone: addItem(setZones), updateZone: updateItem(setZones), deleteZone: deleteItem(setZones),
-      orders, setOrders, updateOrderStatus, dispatchOrderItems,
+      orders, setOrders, updateOrderStatus, dispatchOrderItems, updateOrderItemStatus,
       isBarActive, setIsBarActive,
       businessDay, setBusinessDay, pastDays, setPastDays, openDay, closeDay,
       addIncome, addExpense,
-      activeTables, setActiveTables, updateTableCart, sendTableOrders, voidTableItem, payTable,
+      activeTables, setActiveTables, updateTableCart, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable,
       tableHeadcounts, setTableHeadcounts,
       companies, addCompany: addItem(setCompanies), updateCompany: updateItem(setCompanies), deleteCompany: deleteItem(setCompanies),
       developerSettings, setDeveloperSettings

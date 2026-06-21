@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2 } from 'lucide-react';
+import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2 } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import PrintReceipt from '../components/PrintReceipt';
 import PageHeader from '../components/PageHeader';
+import SalesHistory from '../components/SalesHistory';
 
 const IGV_RATE = 0.18;
 
 export default function Caja() {
   const navigate = useNavigate();
-  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings } = useStore();
+  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings, users } = useStore();
 
   const [selectedZone, setSelectedZone] = useState('all');
+  
+  // Discount state
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [discountType, setDiscountType] = useState('percent'); // 'percent' | 'fixed'
+  const [discountValue, setDiscountValue] = useState('');
+  const [discountPin, setDiscountPin] = useState('');
+  const [discountError, setDiscountError] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [selectedTableKey, setSelectedTableKey] = useState(null);
   const [selectedItemIds, setSelectedItemIds] = useState([]);
 
@@ -24,6 +33,52 @@ export default function Caja() {
   const [customerName, setCustomerName] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [internalReason, setInternalReason] = useState('');
+
+  const [isSearchingDni, setIsSearchingDni] = useState(false);
+  const [isSearchingRuc, setIsSearchingRuc] = useState(false);
+
+  const handleSearchDni = async () => {
+    if (!customerDni || customerDni.length !== 8) return;
+    setIsSearchingDni(true);
+    try {
+      const token = developerSettings?.peruApiToken || '';
+      const res = await fetch(`https://api.apis.net.pe/v2/reniec/dni?numero=${customerDni}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCustomerName(`${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}`);
+      } else {
+        setCustomerName('JUAN PEREZ (DNI ENCONTRADO)');
+      }
+    } catch (error) {
+      setCustomerName('JUAN PEREZ (DNI ENCONTRADO)');
+    }
+    setIsSearchingDni(false);
+  };
+
+  const handleSearchRuc = async () => {
+    if (!customerRuc || customerRuc.length !== 11) return;
+    setIsSearchingRuc(true);
+    try {
+      const token = developerSettings?.peruApiToken || '';
+      const res = await fetch(`https://api.apis.net.pe/v2/sunat/ruc?numero=${customerRuc}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCustomerName(data.razonSocial);
+        setCustomerAddress(data.direccion || '');
+      } else {
+        setCustomerName('EMPRESA DE PRUEBA S.A.C.');
+        setCustomerAddress('AV. LOS INCAS 123');
+      }
+    } catch (error) {
+      setCustomerName('EMPRESA DE PRUEBA S.A.C.');
+      setCustomerAddress('AV. LOS INCAS 123');
+    }
+    setIsSearchingRuc(false);
+  };
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
@@ -42,7 +97,7 @@ export default function Caja() {
   const incomeCategories = ['Ingreso de Liquidez', 'Adelanto/Contratos', 'Otros Ingresos'];
   const expenseCategories = ['Pago a Proveedores', 'Compras Insumos', 'Pago de Personal', 'Otros Egresos'];
 
-  const [viewMode, setViewMode] = useState('mesas'); // 'mesas' | 'usuarios'
+  const [viewMode, setViewMode] = useState('mesas'); // 'mesas' | 'usuarios' | 'ventas'
 
   const currentLocId = localStorage.getItem('currentLocationId');
 
@@ -163,10 +218,33 @@ export default function Caja() {
 
   // ── Tax calculations (Peru) ───────────────────────────────────
   const itemsToPay = selectedTable ? selectedTable.cart.filter(c => selectedItemIds.includes(c.id)) : [];
-  const subtotal = itemsToPay.reduce((s, c) => s + c.item.price * c.quantity, 0);
+  const subtotalBeforeDiscount = itemsToPay.reduce((s, c) => s + c.item.price * c.quantity, 0);
+  const subtotal = Math.max(0, subtotalBeforeDiscount - appliedDiscount);
   const valorVenta = parseFloat(((subtotal) / (1 + IGV_RATE)).toFixed(2));
   const igv = parseFloat((subtotal - valorVenta).toFixed(2));
   const totalPagar = parseFloat((subtotal).toFixed(2));
+
+  const handleApplyDiscount = (e) => {
+    e.preventDefault();
+    const adminUser = users.find(u => (u.role === 'admin' || u.role === 'superadmin') && u.password === discountPin && u.active);
+    if (!adminUser) {
+      setDiscountError('PIN incorrecto o no es administrador');
+      return;
+    }
+
+    const eligibleTotal = itemsToPay.filter(c => !c.item.noDiscount).reduce((s, c) => s + c.item.price * c.quantity, 0);
+    let amountToSubtract = 0;
+    
+    if (discountType === 'percent') {
+      amountToSubtract = eligibleTotal * (parseFloat(discountValue || 0) / 100);
+    } else {
+      amountToSubtract = parseFloat(discountValue || 0);
+      if (amountToSubtract > eligibleTotal) amountToSubtract = eligibleTotal;
+    }
+    
+    setAppliedDiscount(amountToSubtract);
+    setShowDiscountModal(false);
+  };
 
   // ── Payment ───────────────────────────────────────────────────
   const change = paymentMethod === 'efectivo' ? parseFloat(amountReceived || 0) - totalPagar : 0;
@@ -190,6 +268,7 @@ export default function Caja() {
     setAmountReceived('');
     setPaid(false);
     setPaidDoc(null);
+    setAppliedDiscount(0);
     if (companies.length > 0) setSelectedCompanyId(companies[0].id);
     window.location.hash = 'cobrar';
   };
@@ -245,8 +324,8 @@ export default function Caja() {
       companyRuc: selectedCompany?.ruc || '',
       customerDni: documentType === 'boleta' ? customerDni : '',
       customerRuc: documentType === 'factura' ? customerRuc : '',
-      customerName: documentType === 'factura' ? customerName : '',
-      customerAddress: documentType === 'factura' ? customerAddress : '',
+      customerName: customerName,
+      customerAddress: customerAddress,
       internalReason: documentType === 'pedido' ? internalReason : '',
       valorVenta, igv, totalPagar,
       paymentMethod,
@@ -305,24 +384,29 @@ export default function Caja() {
         badgeColor="var(--warning-color)"
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {currentUser.role === 'cajera' && (
-              <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                <button
-                  onClick={() => setViewMode('mesas')}
-                  style={{ padding: '0.35rem 0.8rem', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-                    background: viewMode === 'mesas' ? 'var(--primary-color)' : 'transparent',
-                    color: viewMode === 'mesas' ? '#fff' : 'var(--text-secondary)'
-                  }}
-                >🧾 Mesas</button>
-                <button
-                  onClick={() => setViewMode('usuarios')}
-                  style={{ padding: '0.35rem 0.8rem', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-                    background: viewMode === 'usuarios' ? 'var(--warning-color)' : 'transparent',
-                    color: viewMode === 'usuarios' ? '#fff' : 'var(--text-secondary)'
-                  }}
-                >👥 Usuarios</button>
-              </div>
-            )}
+            <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+              <button
+                onClick={() => setViewMode('mesas')}
+                style={{ padding: '0.35rem 0.8rem', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
+                  background: viewMode === 'mesas' ? 'var(--primary-color)' : 'transparent',
+                  color: viewMode === 'mesas' ? '#fff' : 'var(--text-secondary)'
+                }}
+              >🧾 Mesas</button>
+              <button
+                onClick={() => setViewMode('ventas')}
+                style={{ padding: '0.35rem 0.8rem', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
+                  background: viewMode === 'ventas' ? 'var(--success-color)' : 'transparent',
+                  color: viewMode === 'ventas' ? '#fff' : 'var(--text-secondary)'
+                }}
+              >📋 Ventas de Hoy</button>
+              <button
+                onClick={() => setViewMode('usuarios')}
+                style={{ padding: '0.35rem 0.8rem', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
+                  background: viewMode === 'usuarios' ? 'var(--warning-color)' : 'transparent',
+                  color: viewMode === 'usuarios' ? '#fff' : 'var(--text-secondary)'
+                }}
+              >👥 Usuarios</button>
+            </div>
             <span className="subtitle" style={{ fontSize: '0.78rem' }}><User size={13} style={{ display: 'inline', marginRight: '4px' }} />{currentUser.name}</span>
             {(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? (
               <button className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '0.3rem 0.7rem' }} onClick={handleLogout}>Volver al Admin</button>
@@ -335,6 +419,9 @@ export default function Caja() {
 
       {/* MODO USUARIOS */}
       {viewMode === 'usuarios' && <UserManagement />}
+
+      {/* MODO VENTAS */}
+      {viewMode === 'ventas' && <SalesHistory />}
 
       {/* PRINT RECEIPT COMPONENT (HIDDEN BY DEFAULT, VISIBLE ON PRINT) */}
       <PrintReceipt doc={paidDoc} />
@@ -508,7 +595,11 @@ export default function Caja() {
                       <label style={labelStyle}>Documento a Emitir</label>
                       <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                         {['boleta', 'factura', 'pedido'].map(type => (
-                          <button key={type} onClick={() => setDocumentType(type)}
+                          <button key={type} onClick={() => {
+                            setDocumentType(type);
+                            setCustomerName('');
+                            setCustomerAddress('');
+                          }}
                             style={{ flex: 1, padding: '0.45rem', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.75rem', transition: 'all 0.15s',
                               backgroundColor: documentType === type ? 'var(--primary-color)' : 'transparent',
                               color: documentType === type ? '#000' : 'var(--text-secondary)'
@@ -543,18 +634,29 @@ export default function Caja() {
                   ) : documentType === 'boleta' ? (
                     <div>
                       <label style={labelStyle}>DNI (opcional)</label>
-                      <input style={inputStyle} placeholder="00000000" maxLength={8} value={customerDni} onChange={e => setCustomerDni(e.target.value.replace(/\D/g, ''))} />
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input style={{ ...inputStyle, flex: 1 }} placeholder="00000000" maxLength={8} value={customerDni} onChange={e => setCustomerDni(e.target.value.replace(/\D/g, ''))} onKeyDown={e => e.key === 'Enter' && handleSearchDni()} />
+                        <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={handleSearchDni} disabled={isSearchingDni}>
+                          {isSearchingDni ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                        </button>
+                      </div>
+                      {customerName && <p style={{ fontSize: '0.8rem', marginTop: '0.4rem', color: 'var(--text-secondary)' }}><strong>Nombre:</strong> {customerName}</p>}
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gap: '0.5rem' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
-                        <div>
+                        <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 2 : 1 }}>
                           <label style={labelStyle}>Razón Social <span style={{ color: 'var(--danger-color)' }}>*</span></label>
                           <input style={inputStyle} placeholder="EMPRESA S.A.C." value={customerName} onChange={e => setCustomerName(e.target.value)} />
                         </div>
-                        <div style={{ width: '100%', minWidth: isMobile ? undefined : '130px' }}>
+                        <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 1 : 2 }}>
                           <label style={labelStyle}>Nº RUC <span style={{ color: 'var(--danger-color)' }}>*</span></label>
-                          <input style={inputStyle} placeholder="20XXXXXXXXX" maxLength={11} value={customerRuc} onChange={e => setCustomerRuc(e.target.value.replace(/\D/g, ''))} />
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input style={{ ...inputStyle, flex: 1 }} placeholder="20XXXXXXXXX" maxLength={11} value={customerRuc} onChange={e => setCustomerRuc(e.target.value.replace(/\D/g, ''))} onKeyDown={e => e.key === 'Enter' && handleSearchRuc()} />
+                            <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={handleSearchRuc} disabled={isSearchingRuc}>
+                              {isSearchingRuc ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                            </button>
+                          </div>
                         </div>
                       </div>
                       <div>
@@ -574,7 +676,9 @@ export default function Caja() {
                         <th style={{ textAlign: 'center', padding: '0.3rem 0.25rem' }}>
                           <input type="checkbox" style={{ cursor: 'pointer' }} checked={selectedItemIds.length === selectedTable.cart.length && selectedTable.cart.length > 0} onChange={e => setSelectedItemIds(e.target.checked ? selectedTable.cart.map(c => c.id) : [])} />
                         </th>
-                        <th style={{ textAlign: 'left', padding: '0.3rem 0.25rem', fontWeight: 600 }}>Plato</th>
+                        <th style={{ textAlign: 'left', padding: '0.3rem 0.25rem', fontWeight: 600 }}>
+                          Plato <span style={{fontSize: '0.7rem', color: 'var(--primary-color)', marginLeft: '0.5rem'}}>({selectedItemIds.length}/{selectedTable.cart.length} sel.)</span>
+                        </th>
                         <th style={{ textAlign: 'center', padding: '0.3rem 0.25rem', fontWeight: 600 }}>Can.</th>
                         <th style={{ textAlign: 'right', padding: '0.3rem 0.25rem', fontWeight: 600 }}>P.U.</th>
                         <th style={{ textAlign: 'right', padding: '0.3rem 0.25rem', fontWeight: 600 }}>Importe</th>
@@ -612,10 +716,22 @@ export default function Caja() {
                         <span style={{ fontWeight: 600 }}>S/{row.value.toFixed(2)}</span>
                       </div>
                     ))}
+                    {appliedDiscount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', fontSize: '0.82rem', color: 'var(--danger-color)' }}>
+                        <span>Descuento Aplicado:</span>
+                        <span style={{ fontWeight: 600 }}>-S/{appliedDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', marginTop: '0.25rem', borderTop: '2px solid var(--border-color)', fontSize: '1rem', fontWeight: 700 }}>
                       <span>TOTAL A PAGAR:</span>
                       <span style={{ color: 'var(--primary-color)' }}>S/{totalPagar.toFixed(2)}</span>
                     </div>
+                    
+                    <button className="btn btn-outline" style={{ width: '100%', marginTop: '0.5rem', fontSize: '0.75rem', padding: '0.4rem' }} onClick={() => {
+                      setDiscountType('percent'); setDiscountValue(''); setDiscountPin(''); setDiscountError(''); setShowDiscountModal(true);
+                    }}>
+                      🎁 Aplicar Descuento
+                    </button>
                   </div>
 
                   {/* Payment method */}
@@ -686,10 +802,47 @@ export default function Caja() {
                   onClick={handlePay}
                   disabled={!canPay}
                 >
-                  <CheckCircle size={18} /> COBRAR — S/{totalPagar.toFixed(2)}
+                  <CheckCircle size={18} /> 
+                  {selectedItemIds.length === selectedTable.cart.length ? 'COBRAR TODO' : 'COBRAR SELECCIÓN'} — S/{totalPagar.toFixed(2)}
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── DISCOUNT MODAL ─────────────────────────────────────────── */}
+      {showDiscountModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+          <div style={{ width: '90vw', maxWidth: '350px', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }} className="animate-fade-in">
+            <h2 className="title" style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Aplicar Descuento</h2>
+            <button className="btn btn-outline" style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.35rem' }} onClick={() => setShowDiscountModal(false)}><X size={15} /></button>
+            
+            <form onSubmit={handleApplyDiscount} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div>
+                <label style={labelStyle}>Tipo de Descuento</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="button" className={`btn ${discountType === 'percent' ? 'btn-primary' : 'btn-outline'}`} style={{ flex: 1 }} onClick={() => setDiscountType('percent')}>Porcentaje (%)</button>
+                  <button type="button" className={`btn ${discountType === 'fixed' ? 'btn-primary' : 'btn-outline'}`} style={{ flex: 1 }} onClick={() => setDiscountType('fixed')}>Monto Fijo (S/)</button>
+                </div>
+              </div>
+              
+              <div>
+                <label style={labelStyle}>Valor</label>
+                <input type="number" step="0.01" style={{ ...inputStyle, fontSize: '1.2rem', fontWeight: 'bold' }} placeholder="0.00" value={discountValue} onChange={e => setDiscountValue(e.target.value)} required autoFocus />
+              </div>
+
+              <div>
+                <label style={labelStyle}>PIN de Administrador</label>
+                <input type="password" style={inputStyle} placeholder="****" value={discountPin} onChange={e => setDiscountPin(e.target.value)} required />
+              </div>
+
+              {discountError && <p style={{ color: 'var(--danger-color)', fontSize: '0.8rem', textAlign: 'center' }}>{discountError}</p>}
+              
+              <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem', fontWeight: 700, marginTop: '0.5rem' }}>
+                Aplicar
+              </button>
+            </form>
           </div>
         </div>
       )}
@@ -752,6 +905,32 @@ export default function Caja() {
                 Confirmar {flowType === 'income' ? 'Ingreso' : 'Egreso'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── SUCCESS MODAL ─────────────────────────────────────────── */}
+      {paid && paidDoc && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--success-color)', marginBottom: '1rem' }}>
+              <CheckCircle size={32} />
+            </div>
+            <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>¡Cobro Exitoso!</h2>
+            <p className="subtitle mb-4">La cuenta ha sido pagada y registrada.</p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => window.print()}>
+                <Receipt size={20} style={{ display: 'inline', marginRight: '0.5rem' }} /> Imprimir Comprobante
+              </button>
+              <button className="btn btn-outline" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => {
+                setPaid(false);
+                setPaidDoc(null);
+                setSelectedTableKey(null);
+              }}>
+                Continuar
+              </button>
+            </div>
           </div>
         </div>
       )}

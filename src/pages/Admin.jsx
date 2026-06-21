@@ -11,7 +11,7 @@ export default function Admin() {
     users, addUser, updateUser, deleteUser,
     categories, addCategory, updateCategory, deleteCategory,
     subcategories, addSubcategory, updateSubcategory, deleteSubcategory,
-    menu, addMenuItem, updateMenuItem, deleteMenuItem,
+    menu, catalogs, setCatalogs, addCatalog, updateCatalog, deleteCatalog,
     menuStatus, setMenuStatus,
     zones, addZone, updateZone, deleteZone,
     isBarActive, setIsBarActive,
@@ -37,6 +37,7 @@ export default function Admin() {
   // Close Day State
   const [showCloseDayModal, setShowCloseDayModal] = useState(false);
   const [closeDayPassword, setCloseDayPassword] = useState('');
+  const [closeDayDeclaredCash, setCloseDayDeclaredCash] = useState('');
   const [closeDayError, setCloseDayError] = useState('');
 
   const handleOpenCloseDayModal = () => {
@@ -46,6 +47,7 @@ export default function Admin() {
     }
     setShowCloseDayModal(true);
     setCloseDayPassword('');
+    setCloseDayDeclaredCash('');
     setCloseDayError('');
   };
 
@@ -56,7 +58,23 @@ export default function Admin() {
       setCloseDayError('Contraseña incorrecta');
       return;
     }
-    closeDay();
+
+    const todayTotal = businessDay?.totalSales || 0;
+    const todayIncomes = (businessDay?.incomes || []).reduce((sum, inc) => sum + inc.amount, 0);
+    const todayExpenses = (businessDay?.expenses || []).reduce((sum, exp) => sum + exp.amount, 0);
+    const expectedCash = todayTotal + todayIncomes - todayExpenses;
+    const declaredCash = parseFloat(closeDayDeclaredCash || 0);
+    
+    const diff = Math.abs(declaredCash - expectedCash);
+
+    if (diff > 5 && adminUser.role !== 'superadmin') {
+      setCloseDayError(`Descuadre grave (S/${diff.toFixed(2)}). Se requiere PIN de SuperAdmin para forzar cierre.`);
+      return;
+    }
+
+    closeDay({
+      arqueo: { expectedCash, declaredCash, difference: declaredCash - expectedCash }
+    });
     setShowCloseDayModal(false);
   };
 
@@ -149,18 +167,25 @@ export default function Admin() {
   };
 
   // --- Menu State ---
-  const [newMenu, setNewMenu] = useState({ name: '', price: '', categoryId: '', subcategoryId: '' });
+  const [newMenu, setNewMenu] = useState({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false });
   const [editMenu, setEditMenu] = useState(null);
   const [menuSearch, setMenuSearch] = useState('');
   const [menuFilterActive, setMenuFilterActive] = useState('all'); // 'all'|'active'|'inactive'
+  const [menuFilterCategory, setMenuFilterCategory] = useState('all');
+  
+  const [selectedCatalogId, setSelectedCatalogId] = useState('');
+  const workingCatalog = catalogs?.find(c => c.id === (selectedCatalogId || catalogs?.[0]?.id));
+  const workingMenu = workingCatalog?.items || [];
+
   const handleAddMenu = (e) => {
     e.preventDefault();
-    if (!newMenu.name || !newMenu.price || !newMenu.categoryId) return;
-    addMenuItem({ ...newMenu, price: parseFloat(newMenu.price) });
-    setNewMenu({ name: '', price: '', categoryId: '', subcategoryId: '' });
+    if (!newMenu.name || !newMenu.price || !newMenu.categoryId || !workingCatalog) return;
+    const newItem = { ...newMenu, price: parseFloat(newMenu.price), id: Date.now().toString(), active: true };
+    setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: [...c.items, newItem] } : c));
+    setNewMenu({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false });
   };
   const saveEditMenu = () => {
-    updateMenuItem(editMenu.id, { ...editMenu.data, price: parseFloat(editMenu.data.price) });
+    setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: c.items.map(i => i.id === editMenu.id ? { ...editMenu.data, price: parseFloat(editMenu.data.price) } : i) } : c));
     setEditMenu(null);
   };
 
@@ -583,11 +608,11 @@ export default function Admin() {
                 <form onSubmit={handleAddUser} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1 }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre Real</label>
-                    <input className="input mt-1 w-full" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} placeholder="Ej. Juan Pérez" required />
+                    <input className="input mt-1 w-full" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value.toUpperCase()})} placeholder="Ej. Juan Pérez" required />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Usuario (Login)</label>
-                    <input className="input mt-1" value={newUser.username} onChange={e => setNewUser({...newUser, username: e.target.value})} placeholder="juanp" required style={{ width: '150px' }} />
+                    <input className="input mt-1" value={newUser.username} onChange={e => setNewUser({...newUser, username: e.target.value.toUpperCase()})} placeholder="juanp" required style={{ width: '150px' }} />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Contraseña</label>
@@ -628,8 +653,8 @@ export default function Admin() {
                       <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                         {editUser?.id === u.id ? (
                           <>
-                            <td className="py-2"><input className="input" value={editUser.data.name} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, name: e.target.value } })} /></td>
-                            <td className="py-2"><input className="input" value={editUser.data.username} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, username: e.target.value } })} /></td>
+                            <td className="py-2"><input className="input" value={editUser.data.name} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, name: e.target.value.toUpperCase() } })} /></td>
+                            <td className="py-2"><input className="input" value={editUser.data.username} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, username: e.target.value.toUpperCase() } })} /></td>
                             <td className="py-2">
                               <div className="flex items-center gap-2">
                                 <input type={visiblePasswords[u.id] ? "text" : "password"} className="input w-full" value={editUser.data.password} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, password: e.target.value } })} />
@@ -698,7 +723,7 @@ export default function Admin() {
                 <form onSubmit={handleAddCategory} className="flex gap-4 items-end">
                   <div style={{ flex: 1 }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre de Categoría</label>
-                    <input className="input mt-1 w-full" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} placeholder="Ej. Bebidas Calientes" required />
+                    <input className="input mt-1 w-full" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value.toUpperCase()})} placeholder="Ej. Bebidas Calientes" required />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Estación</label>
@@ -716,7 +741,7 @@ export default function Admin() {
                   <div key={c.id} className="card flex justify-between items-center">
                     {editCat?.id === c.id ? (
                       <div className="flex gap-2 w-full items-center">
-                        <input className="input" style={{ flex: 1 }} value={editCat.data.name} onChange={e => setEditCat({ ...editCat, data: { ...editCat.data, name: e.target.value } })} />
+                        <input className="input" style={{ flex: 1 }} value={editCat.data.name} onChange={e => setEditCat({ ...editCat, data: { ...editCat.data, name: e.target.value.toUpperCase() } })} />
                         <select className="input" style={{ width: '120px' }} value={editCat.data.station || 'cocina'} onChange={e => setEditCat({ ...editCat, data: { ...editCat.data, station: e.target.value } })}>
                           <option value="cocina">Cocina</option>
                           <option value="bar">Bar</option>
@@ -813,7 +838,7 @@ export default function Admin() {
                 <form onSubmit={handleAddSubcategory} className="flex gap-4 items-end">
                   <div style={{ flex: 1 }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre de Subcategoría</label>
-                    <input className="input mt-1 w-full" value={newSubcat.name} onChange={e => setNewSubcat({...newSubcat, name: e.target.value})} placeholder="Ej. Sopas" required />
+                    <input className="input mt-1 w-full" value={newSubcat.name} onChange={e => setNewSubcat({...newSubcat, name: e.target.value.toUpperCase()})} placeholder="Ej. Sopas" required />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Categoría Padre</label>
@@ -834,7 +859,7 @@ export default function Admin() {
                   <div key={s.id} className="card flex justify-between items-center">
                     {editSubcat?.id === s.id ? (
                       <div className="flex gap-2 w-full items-center">
-                        <input className="input" style={{ flex: 1 }} value={editSubcat.data.name} onChange={e => setEditSubcat({ ...editSubcat, data: { ...editSubcat.data, name: e.target.value } })} />
+                        <input className="input" style={{ flex: 1 }} value={editSubcat.data.name} onChange={e => setEditSubcat({ ...editSubcat, data: { ...editSubcat.data, name: e.target.value.toUpperCase() } })} />
                         <select className="input" style={{ width: '150px' }} value={editSubcat.data.categoryId} onChange={e => setEditSubcat({ ...editSubcat, data: { ...editSubcat.data, categoryId: e.target.value } })}>
                           {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
@@ -863,30 +888,95 @@ export default function Admin() {
           {/* TAB: MENU */}
           {activeTab === 'menu' && (
             <div className="animate-fade-in">
+              {/* Selector de Listas / Catálogos */}
+              <div className="card mb-6" style={{ borderLeft: '4px solid var(--primary-color)' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <label className="subtitle mb-2" style={{ fontSize: '0.875rem' }}>Lista de Precios Actual</label>
+                    <select 
+                      className="input w-full" 
+                      value={selectedCatalogId || catalogs?.[0]?.id || ''} 
+                      onChange={e => setSelectedCatalogId(e.target.value)}
+                    >
+                      {catalogs?.map(c => (
+                        <option key={c.id} value={c.id}>{c.name} {c.active ? '(ACTIVA)' : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {workingCatalog && !workingCatalog.active && (
+                      <button 
+                        className="btn btn-primary"
+                        onClick={() => {
+                          setCatalogs(prev => prev.map(c => ({ ...c, active: c.id === workingCatalog.id })));
+                        }}
+                      >
+                        <Check size={18} /> Fijar como Activa
+                      </button>
+                    )}
+                    <button 
+                      className="btn btn-outline"
+                      onClick={() => {
+                        const name = window.prompt('Nombre de la nueva lista (Copia):', workingCatalog ? workingCatalog.name + ' - Copia' : 'Nueva Lista');
+                        if (name) {
+                          const newCatalog = {
+                            id: Date.now().toString(),
+                            name,
+                            active: false,
+                            items: workingCatalog ? workingCatalog.items.map(i => ({ ...i, id: Date.now().toString() + Math.random().toString().slice(2, 6), active: true })) : []
+                          };
+                          setCatalogs(prev => [...prev, newCatalog]);
+                          setSelectedCatalogId(newCatalog.id);
+                        }
+                      }}
+                    >
+                      <Plus size={18} /> Crear Copia
+                    </button>
+                    {workingCatalog && !workingCatalog.active && catalogs?.length > 1 && (
+                      <button 
+                        className="btn btn-outline" style={{ color: 'var(--danger-color)' }}
+                        onClick={() => {
+                          if (window.confirm('¿Eliminar esta lista permanentemente?')) {
+                            setCatalogs(prev => prev.filter(c => c.id !== workingCatalog.id));
+                            setSelectedCatalogId(catalogs.find(c => c.id !== workingCatalog.id)?.id);
+                          }
+                        }}
+                      >
+                        <Trash2 size={18} /> Eliminar Lista
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="card mb-6">
-                <h2 className="title mb-4" style={{ fontSize: '1.25rem' }}>Agregar Nuevo Plato</h2>
-                <form onSubmit={handleAddMenu} className="flex gap-4 items-end">
-                  <div style={{ flex: 1 }}>
+                <h2 className="title mb-4" style={{ fontSize: '1.25rem' }}>Agregar Nuevo Plato a {workingCatalog?.name}</h2>
+                <form onSubmit={handleAddMenu} className="flex gap-4 items-end flex-wrap">
+                  <div style={{ flex: '1 1 200px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre</label>
-                    <input className="input mt-1 w-full" value={newMenu.name} onChange={e => setNewMenu({...newMenu, name: e.target.value})} placeholder="Ej. Torta de Chocolate" required />
+                    <input className="input mt-1 w-full" value={newMenu.name} onChange={e => setNewMenu({...newMenu, name: e.target.value.toUpperCase()})} placeholder="Ej. Torta de Chocolate" required />
                   </div>
-                  <div>
+                  <div style={{ width: '120px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Precio (S/)</label>
-                    <input className="input mt-1" type="number" step="0.01" value={newMenu.price} onChange={e => setNewMenu({...newMenu, price: e.target.value})} placeholder="0.00" required style={{ width: '120px' }} />
+                    <input className="input mt-1 w-full" type="number" step="0.01" value={newMenu.price} onChange={e => setNewMenu({...newMenu, price: e.target.value})} placeholder="0.00" required />
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 150px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Categoría</label>
-                    <select className="input mt-1" value={newMenu.categoryId} onChange={e => setNewMenu({...newMenu, categoryId: e.target.value, subcategoryId: ''})} required>
+                    <select className="input mt-1 w-full" value={newMenu.categoryId} onChange={e => setNewMenu({...newMenu, categoryId: e.target.value, subcategoryId: ''})} required>
                       <option value="">Selecciona...</option>
                       {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 150px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Subcategoría</label>
-                    <select className="input mt-1" value={newMenu.subcategoryId || ''} onChange={e => setNewMenu({...newMenu, subcategoryId: e.target.value})}>
+                    <select className="input mt-1 w-full" value={newMenu.subcategoryId || ''} onChange={e => setNewMenu({...newMenu, subcategoryId: e.target.value})}>
                       <option value="">Todas / Ninguna</option>
                       {subcategories.filter(s => s.categoryId === newMenu.categoryId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: '42px', paddingBottom: '0.2rem' }}>
+                    <input type="checkbox" checked={newMenu.noDiscount} onChange={e => setNewMenu({...newMenu, noDiscount: e.target.checked})} id="noDiscount" />
+                    <label htmlFor="noDiscount" className="subtitle mb-0" style={{ fontSize: '0.8rem', cursor: 'pointer' }}>No permite descuento</label>
                   </div>
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
                 </form>
@@ -898,11 +988,21 @@ export default function Admin() {
                   {/* Search bar */}
                   <input
                     className="input"
-                    style={{ width: '220px', padding: '0.45rem 0.75rem', fontSize: '0.875rem' }}
+                    style={{ width: '180px', padding: '0.45rem 0.75rem', fontSize: '0.875rem' }}
                     placeholder="🔍 Buscar plato..."
                     value={menuSearch}
                     onChange={e => setMenuSearch(e.target.value)}
                   />
+                  {/* Category Filter */}
+                  <select
+                    className="input"
+                    style={{ padding: '0.45rem 0.75rem', fontSize: '0.875rem', width: '150px' }}
+                    value={menuFilterCategory}
+                    onChange={e => setMenuFilterCategory(e.target.value)}
+                  >
+                    <option value="all">Todas las Categorías</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
                   {/* Status filter */}
                   <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                     {[['all','Todos'],['active','Activos'],['inactive','Inactivos']].map(([val, label]) => (
@@ -927,11 +1027,12 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {menu
+                    {workingMenu
                       .filter(m => {
                         const matchSearch = m.name.toLowerCase().includes(menuSearch.toLowerCase());
                         const matchActive = menuFilterActive === 'all' ? true : menuFilterActive === 'active' ? m.active !== false : m.active === false;
-                        return matchSearch && matchActive;
+                        const matchCat = menuFilterCategory === 'all' ? true : m.categoryId === menuFilterCategory;
+                        return matchSearch && matchActive && matchCat;
                       })
                       .map(m => {
                       const catName = categories.find(c => c.id === m.categoryId)?.name || 'Sin Categoría';
@@ -940,7 +1041,7 @@ export default function Admin() {
                         <tr key={m.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                           {editMenu?.id === m.id ? (
                             <>
-                              <td className="py-2"><input className="input" value={editMenu.data.name} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, name: e.target.value } })} /></td>
+                              <td className="py-2"><input className="input" value={editMenu.data.name} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, name: e.target.value.toUpperCase() } })} /></td>
                               <td className="py-2">
                                 <select className="input" value={editMenu.data.categoryId} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, categoryId: e.target.value } })}>
                                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -955,7 +1056,12 @@ export default function Admin() {
                               </td>
 
                               <td className="py-2"><input type="number" step="0.01" className="input" style={{ width: '100px' }} value={editMenu.data.price} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, price: e.target.value } })} /></td>
-                              <td className="py-2">-</td>
+                              <td className="py-2">
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}>
+                                  <input type="checkbox" checked={editMenu.data.noDiscount || false} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, noDiscount: e.target.checked } })} />
+                                  Sin Dsc.
+                                </label>
+                              </td>
                               <td className="py-2 flex justify-end gap-2">
                                 <button className="btn btn-primary" style={{ padding: '0.4rem' }} onClick={saveEditMenu}><Save size={16}/></button>
                                 <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => setEditMenu(null)}><X size={16}/></button>
@@ -973,7 +1079,7 @@ export default function Admin() {
                                     <button 
                                       className={`btn ${m.active ? 'btn-outline' : 'btn-danger'}`} 
                                       style={{ padding: '0.2rem 0.4rem', fontSize: '0.65rem' }}
-                                      onClick={() => updateMenuItem(m.id, { active: !m.active })}
+                                      onClick={() => setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: c.items.map(i => i.id === m.id ? { ...i, active: !i.active } : i) } : c))}
                                       title="Cambia el estado en TODAS las sedes"
                                     >
                                       Global: {m.active ? 'Activo' : 'Inactivo'}
@@ -986,11 +1092,12 @@ export default function Admin() {
                                   >
                                     {menuStatus[m.id] !== false ? <span className="flex items-center gap-1"><Check size={14}/> Local Activo</span> : <span className="flex items-center gap-1"><X size={14}/> Local Inactivo</span>}
                                   </button>
+                                  {m.noDiscount && <span style={{ fontSize: '0.65rem', color: 'var(--warning-color)', textAlign: 'center', marginTop: '0.2rem' }}>⚠️ Sin descuento</span>}
                                 </div>
                               </td>
                               <td className="py-4 flex justify-end gap-2">
                                 <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--warning-color)' }} onClick={() => setEditMenu({ id: m.id, data: { ...m } })}><Edit2 size={16}/></button>
-                                <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--danger-color)' }} onClick={() => deleteMenuItem(m.id)}><Trash2 size={16}/></button>
+                                <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--danger-color)' }} onClick={() => setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: c.items.filter(i => i.id !== m.id) } : c))}><Trash2 size={16}/></button>
                               </td>
                             </>
                           )}
@@ -1013,7 +1120,7 @@ export default function Admin() {
                     <form onSubmit={handleAddZone} className="flex gap-4 items-end">
                       <div style={{ flex: 1 }}>
                         <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre de la Zona</label>
-                        <input className="input mt-1 w-full" value={newZone.name} onChange={e => setNewZone({...newZone, name: e.target.value})} placeholder="Ej. Patio Trasero" required />
+                        <input className="input mt-1 w-full" value={newZone.name} onChange={e => setNewZone({...newZone, name: e.target.value.toUpperCase()})} placeholder="Ej. Patio Trasero" required />
                       </div>
                       <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/> Añadir</button>
                     </form>
@@ -1024,7 +1131,7 @@ export default function Admin() {
                       <div key={z.id} className="card card-interactive flex flex-col justify-between" onClick={() => setSelectedAdminZone(z)}>
                         {editZone?.id === z.id ? (
                           <div className="flex gap-2 items-center" onClick={e => e.stopPropagation()}>
-                            <input className="input" style={{ flex: 1 }} value={editZone.data.name} onChange={e => setEditZone({ ...editZone, data: { ...editZone.data, name: e.target.value } })} />
+                            <input className="input" style={{ flex: 1 }} value={editZone.data.name} onChange={e => setEditZone({ ...editZone, data: { ...editZone.data, name: e.target.value.toUpperCase() } })} />
                             <button className="btn btn-primary" style={{ padding: '0.4rem' }} onClick={saveEditZone}><Save size={16}/></button>
                             <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => setEditZone(null)}><X size={16}/></button>
                           </div>
@@ -1103,7 +1210,7 @@ export default function Admin() {
                 <form onSubmit={handleAddCompany} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
                   <div style={{ flex: '2 1 200px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Razón Social *</label>
-                    <input className="input mt-1 w-full" value={newCompany.name} onChange={e => setNewCompany({...newCompany, name: e.target.value})} placeholder="EMPRESA S.A.C." required />
+                    <input className="input mt-1 w-full" value={newCompany.name} onChange={e => setNewCompany({...newCompany, name: e.target.value.toUpperCase()})} placeholder="EMPRESA S.A.C." required />
                   </div>
                   <div style={{ flex: '1 1 130px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>RUC *</label>
@@ -1137,7 +1244,7 @@ export default function Admin() {
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'flex-end' }}>
                             <div style={{ flex: '2 1 180px' }}>
                               <label className="subtitle" style={{ fontSize: '0.78rem' }}>Razón Social</label>
-                              <input className="input mt-1 w-full" value={editCompany.data.name} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, name: e.target.value}})} />
+                              <input className="input mt-1 w-full" value={editCompany.data.name} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, name: e.target.value.toUpperCase()}})} />
                             </div>
                             <div style={{ flex: '1 1 120px' }}>
                               <label className="subtitle" style={{ fontSize: '0.78rem' }}>RUC</label>
@@ -1203,16 +1310,20 @@ export default function Admin() {
               <h2 className="title flex items-center gap-2 text-danger"><Lock size={20}/> Confirmar Cierre de Día</h2>
               <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => setShowCloseDayModal(false)}><X size={16}/></button>
             </div>
-            <p className="subtitle mb-4">Ingresa tu contraseña de administrador para proceder con el cierre de la jornada.</p>
+            <p className="subtitle mb-4">Ingresa el efectivo físico en caja y tu contraseña para proceder con el cierre.</p>
             
             {closeDayError && <p style={{ color: 'var(--danger-color)', fontSize: '0.875rem', marginBottom: '1rem' }}>{closeDayError}</p>}
             
             <form onSubmit={handleCloseDayConfirm} className="flex flex-col gap-4">
               <div>
-                <label className="subtitle" style={{ fontSize: '0.875rem' }}>Contraseña de Administrador</label>
-                <input type="password" className="input mt-1 w-full" value={closeDayPassword} onChange={e => setCloseDayPassword(e.target.value)} required autoFocus />
+                <label className="subtitle" style={{ fontSize: '0.875rem' }}>Efectivo en Caja (S/)</label>
+                <input type="number" step="0.01" className="input mt-1 w-full" value={closeDayDeclaredCash} onChange={e => setCloseDayDeclaredCash(e.target.value)} required autoFocus style={{ fontSize: '1.2rem', fontWeight: 'bold' }} />
               </div>
-              <button type="submit" className="btn justify-center" style={{ backgroundColor: 'var(--danger-color)', color: 'white', marginTop: '1rem', padding: '0.75rem' }}>Cerrar Día</button>
+              <div>
+                <label className="subtitle" style={{ fontSize: '0.875rem' }}>Contraseña de Administrador</label>
+                <input type="password" className="input mt-1 w-full" value={closeDayPassword} onChange={e => setCloseDayPassword(e.target.value)} required />
+              </div>
+              <button type="submit" className="btn justify-center" style={{ backgroundColor: 'var(--danger-color)', color: 'white', marginTop: '1rem', padding: '0.75rem' }}>Confirmar y Cerrar Día</button>
             </form>
           </div>
         </div>
