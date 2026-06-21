@@ -3,12 +3,13 @@ import { useStore } from '../context/StoreContext';
 import { Receipt, X, AlertTriangle, User, Eye } from 'lucide-react';
 
 const SalesHistory = ({ onViewReceipt }) => {
-  const { businessDay, voidSaleAndReopenTable, users, currentUser } = useStore();
+  const { businessDay, voidSaleAndReopenTable, users, currentUser, activeTables, locations } = useStore();
   const [showVoidModal, setShowVoidModal] = useState(false);
   const [saleToVoid, setSaleToVoid] = useState(null);
   const [voidReason, setVoidReason] = useState('');
   const [voidPin, setVoidPin] = useState('');
   const [voidError, setVoidError] = useState('');
+  const [selectedAlternativeTable, setSelectedAlternativeTable] = useState('');
 
   const sales = businessDay?.sales || [];
 
@@ -17,8 +18,25 @@ const SalesHistory = ({ onViewReceipt }) => {
     setVoidReason('');
     setVoidPin('');
     setVoidError('');
+    setSelectedAlternativeTable('');
     setShowVoidModal(true);
   };
+
+  const isOriginalTableOccupied = saleToVoid ? (activeTables[saleToVoid.tableKey]?.length > 0) : false;
+
+  const currentLocId = localStorage.getItem('currentLocationId') || currentUser?.locationId;
+  const location = locations?.find(l => l.id === currentLocId);
+  const freeTables = [];
+  if (isOriginalTableOccupied) {
+    location?.zones?.forEach(z => {
+      z.tables.forEach(t => {
+        const tKey = `${z.name}-${t}`;
+        if (!activeTables[tKey] || activeTables[tKey].length === 0) {
+          freeTables.push({ zone: z.name, table: t, key: tKey });
+        }
+      });
+    });
+  }
 
   const handleConfirmVoid = (e) => {
     e.preventDefault();
@@ -39,7 +57,13 @@ const SalesHistory = ({ onViewReceipt }) => {
       return;
     }
 
-    const result = voidSaleAndReopenTable(saleToVoid.id, voidReason, admin);
+    if (isOriginalTableOccupied && !selectedAlternativeTable) {
+      setVoidError('Debes seleccionar una mesa libre para recuperar la cuenta.');
+      return;
+    }
+
+    const targetTableKey = isOriginalTableOccupied ? selectedAlternativeTable : null;
+    const result = voidSaleAndReopenTable(saleToVoid.id, voidReason, admin, targetTableKey);
     if (result && !result.success) {
       setVoidError(result.error);
       return;
@@ -127,10 +151,34 @@ const SalesHistory = ({ onViewReceipt }) => {
             <button className="btn btn-outline" style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.35rem' }} onClick={() => setShowVoidModal(false)}><X size={15} /></button>
             
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Se eliminará el registro de la venta <strong>{saleToVoid?.documentType === 'boleta' ? 'B' : saleToVoid?.documentType === 'factura' ? 'F' : 'P'}-{saleToVoid?.documentNumber}</strong> por <strong>S/{saleToVoid?.total.toFixed(2)}</strong>. Los platos volverán a la Mesa <strong>{saleToVoid?.table}</strong> para ser cobrados nuevamente.
+              Se eliminará el registro de la venta <strong>{saleToVoid?.documentType === 'boleta' ? 'B' : saleToVoid?.documentType === 'factura' ? 'F' : 'P'}-{saleToVoid?.documentNumber}</strong> por <strong>S/{saleToVoid?.total.toFixed(2)}</strong>.
+              {isOriginalTableOccupied ? (
+                <span style={{ color: 'var(--danger-color)', display: 'block', marginTop: '0.5rem', fontWeight: 'bold' }}>
+                  ¡La Mesa {saleToVoid?.table} está ocupada! Selecciona una mesa libre para recuperar la cuenta:
+                </span>
+              ) : (
+                <span> Los platos volverán a la Mesa <strong>{saleToVoid?.table}</strong> para ser cobrados nuevamente.</span>
+              )}
             </p>
 
             <form onSubmit={handleConfirmVoid} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {isOriginalTableOccupied && (
+                <div>
+                  <label style={labelStyle}>Recuperar en Mesa Libre</label>
+                  <select
+                    style={inputStyle}
+                    value={selectedAlternativeTable}
+                    onChange={e => setSelectedAlternativeTable(e.target.value)}
+                    required={isOriginalTableOccupied}
+                  >
+                    <option value="">-- Selecciona una Mesa --</option>
+                    {freeTables.map(t => (
+                      <option key={t.key} value={t.key}>{t.zone} - {t.table}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
               <div>
                 <label style={labelStyle}>Motivo de Anulación</label>
                 <input 

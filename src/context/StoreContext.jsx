@@ -354,13 +354,15 @@ if (barCart.length > 0) {
     });
   };
 
-  const voidSaleAndReopenTable = (saleId, reason, adminUser) => {
+  const voidSaleAndReopenTable = (saleId, reason, adminUser, targetTableKey = null) => {
     const saleToVoid = (businessDay.sales || []).find(s => s.id === saleId);
     if (!saleToVoid) return { success: false, error: 'Venta no encontrada.' };
     
-    const currentCart = activeTables[saleToVoid.tableKey] || [];
+    const finalTableKey = targetTableKey || saleToVoid.tableKey;
+
+    const currentCart = activeTables[finalTableKey] || [];
     if (currentCart.length > 0) {
-      return { success: false, error: `No se puede reabrir la cuenta porque la mesa ${saleToVoid.table} está ocupada actualmente. Transfiera la mesa actual a otra primero.` };
+      return { success: false, error: `No se puede reabrir la cuenta porque la mesa seleccionada está ocupada actualmente. Transfiera la mesa actual a otra primero.` };
     }
     
     logAudit('ANULACION_VENTA', { saleId, reason, admin: adminUser.name, amount: saleToVoid.total });
@@ -381,7 +383,7 @@ if (barCart.length > 0) {
 
     setActiveTables(prev => {
       const next = { ...prev };
-      const currentCart = next[saleToVoid.tableKey] || [];
+      const currentCart = next[finalTableKey] || [];
       
       // Regenerate unique IDs for cart items to avoid conflicts and force status to 'sent'
       const restoredCartItems = (saleToVoid.cartItems || []).map(c => ({
@@ -390,14 +392,14 @@ if (barCart.length > 0) {
         status: 'sent'
       }));
 
-      next[saleToVoid.tableKey] = [...currentCart, ...restoredCartItems];
+      next[finalTableKey] = [...currentCart, ...restoredCartItems];
       return next;
     });
     
     // Also ensure headcount is restored if table was completely closed
     setTableHeadcounts(prev => {
-      if (!prev[saleToVoid.tableKey]) {
-        return { ...prev, [saleToVoid.tableKey]: saleToVoid.headcount || 1 };
+      if (!prev[finalTableKey]) {
+        return { ...prev, [finalTableKey]: saleToVoid.headcount || 1 };
       }
       return prev;
     });
