@@ -166,6 +166,33 @@ export const StoreProvider = ({ children }) => {
   if (loading) {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white' }}>Cargando sistema...</div>;
   }
+  const logAudit = async (action, details = {}) => {
+    try {
+      // Intenta usar el currentUser del estado, o el del localStorage, o un default
+      let user = currentUser;
+      if (!user) {
+        const stored = localStorage.getItem('currentUserData');
+        if (stored) user = JSON.parse(stored);
+      }
+      
+      const logData = {
+        action,
+        user: user ? user.username : 'Sistema',
+        role: user ? user.role : 'system',
+        details,
+        locationId: localStorage.getItem('currentLocationId') || 'global'
+      };
+      
+      await fetch('/api/audit/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(logData)
+      });
+    } catch (e) {
+      console.error('Failed to log audit event', e);
+    }
+  };
+
   const login = (username, password, locId) => {
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
@@ -178,6 +205,10 @@ export const StoreProvider = ({ children }) => {
       localStorage.setItem('currentLocationId', locId);
       localStorage.setItem('currentUserData', JSON.stringify(user));
       
+      // We set currentUser manually to ensure logAudit captures it if state hasn't updated yet, 
+      // but logAudit reads from localStorage as fallback anyway.
+      logAudit('LOGIN', { location: locId });
+
       if (currentLoc !== locId) {
         return { success: true, user, needsReload: true };
       } else {
@@ -187,7 +218,15 @@ export const StoreProvider = ({ children }) => {
     }
     return { success: false, error: 'Credenciales inválidas' };
   };
-  const logout = () => { if (currentUser) { localStorage.setItem('lastRole', currentUser.role); } setCurrentUser(null); localStorage.removeItem('currentUserData'); };
+
+  const logout = () => { 
+    if (currentUser) { 
+      logAudit('LOGOUT', {});
+      localStorage.setItem('lastRole', currentUser.role); 
+    } 
+    setCurrentUser(null); 
+    localStorage.removeItem('currentUserData'); 
+  };
 
   // V3 Actions: Day
   const openDay = () => setBusinessDay({ id: uuidv4(), isOpen: true, startTime: Date.now(), totalSales: 0, voids: [], sales: [], incomes: [], expenses: [] });
@@ -264,6 +303,7 @@ if (barCart.length > 0) {
       
       // Log the void
       if (itemToVoid) {
+        logAudit('ANULACION_ITEM', { item: itemToVoid.item.name, quantity: itemToVoid.quantity, reason, table: tableKey, admin: adminUser.name });
         setBusinessDay(day => ({
           ...day,
           voids: [...(day.voids || []), { 
@@ -277,6 +317,7 @@ if (barCart.length > 0) {
   };
 
   const payTable = (tableKey, amount, cartDetails, waiter, zoneName, tableNum, billingInfo = {}) => {
+    logAudit('COBRO_MESA', { table: tableKey, amount, waiter });
     const headcount = tableHeadcounts[tableKey] || 1;
     setBusinessDay(prev => ({ 
       ...prev, 
@@ -317,6 +358,7 @@ if (barCart.length > 0) {
     const saleToVoid = (businessDay.sales || []).find(s => s.id === saleId);
     if (!saleToVoid) return;
     
+    logAudit('ANULACION_VENTA', { saleId, reason, admin: adminUser.name, amount: saleToVoid.total });
     setBusinessDay(prev => ({
       ...prev,
       totalSales: prev.totalSales - saleToVoid.total,
@@ -395,7 +437,7 @@ if (barCart.length > 0) {
 
   return (
     <StoreContext.Provider value={{
-      currentUser, login, logout,
+      currentUser, login, logout, logAudit,
       locations, addLocation: addItem(setLocations), updateLocation: updateItem(setLocations), deleteLocation: deleteItem(setLocations),
       users, addUser: addItem(setUsers), updateUser: updateItem(setUsers), deleteUser: deleteItem(setUsers),
       categories, addCategory: addItem(setCategories), updateCategory: updateItem(setCategories), deleteCategory: deleteItem(setCategories),

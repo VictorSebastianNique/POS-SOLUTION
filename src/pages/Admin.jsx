@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp } from 'lucide-react';
+import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp, ShieldAlert } from 'lucide-react';
 import Metrics from './Metrics';
 
 export default function Admin() {
@@ -33,6 +33,40 @@ export default function Admin() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
   const isMobile = windowWidth <= 768;
+
+  // Auditoria State
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditSearch, setAuditSearch] = useState('');
+  
+  useEffect(() => {
+    if (activeTab === 'auditoria') {
+      fetch('/api/audit/logs').then(res => res.json()).then(data => setAuditLogs(data)).catch(console.error);
+    }
+  }, [activeTab]);
+
+  const exportAuditCSV = () => {
+    const headers = ['Fecha', 'Usuario', 'Rol', 'Acción', 'Detalles'];
+    const rows = auditLogs.filter(log => 
+      Object.values(log).some(v => String(v).toLowerCase().includes(auditSearch.toLowerCase())) ||
+      JSON.stringify(log.details).toLowerCase().includes(auditSearch.toLowerCase())
+    ).map(log => [
+      new Date(log.timestamp).toLocaleString(),
+      log.user,
+      log.role,
+      log.action,
+      JSON.stringify(log.details || {}).replace(/"/g, '""')
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => `"${e.join('","')}"`)].join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `auditoria_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Close Day State
   const [showCloseDayModal, setShowCloseDayModal] = useState(false);
@@ -206,7 +240,21 @@ export default function Admin() {
   const [selectedAdminZone, setSelectedAdminZone] = useState(null);
 
   const handleAddTableToZone = (zone) => {
-    const newTableName = `Mesa ${zone.tables.length + 1}`;
+    let prefix = zone.name ? zone.name.charAt(0).toUpperCase() : 'M';
+    
+    // Check if other zones start with the same letter
+    const sameFirstLetter = zones.some(z => z.id !== zone.id && z.name && z.name.toUpperCase().startsWith(prefix));
+    
+    if (sameFirstLetter && zone.name && zone.name.length >= 2) {
+      prefix = zone.name.substring(0, 2).toUpperCase();
+      
+      const sameFirstTwo = zones.some(z => z.id !== zone.id && z.name && z.name.toUpperCase().startsWith(prefix));
+      if (sameFirstTwo && zone.name.length >= 3) {
+        prefix = zone.name.substring(0, 3).toUpperCase();
+      }
+    }
+
+    const newTableName = `${prefix}${zone.tables.length + 1}`;
     updateZone(zone.id, { ...zone, tables: [...zone.tables, newTableName] });
   };
 
@@ -425,6 +473,8 @@ export default function Admin() {
           {(!developerSettings?.metricsOnlySuperAdmin || isSuperAdmin) && (
             <button className={`btn ${activeTab === 'metrics' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('metrics'); setSidebarOpen(false); }}><TrendingUp size={15}/> Business Intelligence (BI)</button>
           )}
+
+          <button className={`btn ${activeTab === 'auditoria' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('auditoria'); setSidebarOpen(false); }}><ShieldAlert size={15}/> Auditoría</button>
 
           {isSuperAdmin && (
             <button className={`btn ${activeTab === 'locales' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('locales'); setSidebarOpen(false); }}><MapPin size={15}/> Locales / Sedes</button>
@@ -1199,6 +1249,57 @@ export default function Admin() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB: AUDITORÍA */}
+          {activeTab === 'auditoria' && (
+            <div className="animate-fade-in">
+              <div className="card mb-6">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <h2 className="title" style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><ShieldAlert size={20} /> Historial de Auditoría</h2>
+                  <button className="btn btn-outline" onClick={exportAuditCSV}><Download size={15} /> Exportar CSV</button>
+                </div>
+                
+                <input 
+                  type="text" 
+                  className="input w-full mb-4" 
+                  placeholder="Buscar por acción, usuario o detalle..." 
+                  value={auditSearch}
+                  onChange={e => setAuditSearch(e.target.value)}
+                />
+                
+                <div className="table-responsive">
+                  <table className="table w-full">
+                    <thead>
+                      <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Acción</th>
+                        <th>Usuario (Rol)</th>
+                        <th>Detalles</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.filter(log => 
+                        Object.values(log).some(v => String(v).toLowerCase().includes(auditSearch.toLowerCase())) ||
+                        JSON.stringify(log.details).toLowerCase().includes(auditSearch.toLowerCase())
+                      ).map((log, i) => (
+                        <tr key={i}>
+                          <td>{new Date(log.timestamp).toLocaleString()}</td>
+                          <td><span className="badge">{log.action}</span></td>
+                          <td>{log.user} ({log.role})</td>
+                          <td style={{ fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
+                            {JSON.stringify(log.details, null, 2)}
+                          </td>
+                        </tr>
+                      ))}
+                      {auditLogs.length === 0 && (
+                        <tr><td colSpan="4" style={{ textAlign: 'center' }}>No hay registros de auditoría.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 

@@ -1,4 +1,4 @@
-﻿const { MongoClient } = require('mongodb');
+const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
@@ -119,6 +119,38 @@ async function writeLocalData(locId, key, value) {
   }
 }
 
+async function appendAuditLog(log) {
+  if (db) {
+    await db.collection('audit_logs').insertOne({
+      ...log,
+      timestamp: new Date()
+    });
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, 'db_audit.json');
+    let localDb = [];
+    if (fs.existsSync(dbPath)) localDb = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+    localDb.push({
+      ...log,
+      timestamp: new Date().toISOString()
+    });
+    fs.writeFileSync(dbPath, JSON.stringify(localDb, null, 2));
+  }
+}
+
+async function getAuditLogs() {
+  if (db) {
+    return await db.collection('audit_logs').find({}).sort({ timestamp: -1 }).toArray();
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, 'db_audit.json');
+    if (fs.existsSync(dbPath)) {
+      const logs = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+      // Sort descending by timestamp
+      return logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+    return [];
+  }
+}
+
 function getDb() {
   return db;
 }
@@ -130,5 +162,7 @@ module.exports = {
   writeGlobalData,
   getLocalData,
   writeLocalData,
+  appendAuditLog,
+  getAuditLogs,
   getDb
 };

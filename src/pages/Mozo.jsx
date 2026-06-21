@@ -1,13 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { ShoppingCart, Plus, Minus, Check, ChevronRight, X, Lock, User as UserIcon, Clock, UtensilsCrossed, Search } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Check, ChevronRight, X, Lock, User as UserIcon, Clock, UtensilsCrossed, Search, Printer } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import PageHeader from '../components/PageHeader';
+import PrintReceipt from '../components/PrintReceipt';
 
 export default function Mozo() {
   const navigate = useNavigate();
   const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts } = useStore();
+  
+  const [showItemNotes, setShowItemNotes] = useState(false);
+  const [activeItemForNotes, setActiveItemForNotes] = useState(null);
+  
+  const [docToPrint, setDocToPrint] = useState(null);
+
+  const handlePrintPrecuenta = () => {
+    if (!selectedTable || cart.length === 0) return;
+    const totalPagar = cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0);
+    setDocToPrint({
+      documentType: 'precuenta',
+      docNumber: '-',
+      totalPagar,
+      waiterName: currentUser.name,
+      tableNum: `${selectedZone.name} - ${selectedTable}`,
+      items: cart
+    });
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
   
   const [selectedZone, setSelectedZone] = useState(null);
   const [selectedTable, setSelectedTable] = useState(null);
@@ -516,13 +538,16 @@ export default function Mozo() {
                   gap: '0.35rem',
                   textAlign: 'center'
                 }}>
-                  <span style={{ fontSize: '1.2rem' }}>🔒</span>
+                  <span style={{ fontSize: '1.2rem' }}>📄</span>
                   <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)' }}>
-                    Listo para cobrar
+                    Pre-cuenta
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                    Dirija al cliente a la <strong style={{ color: 'var(--text-primary)' }}>Caja</strong> para procesar el pago y liberar la mesa.
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '0.5rem' }}>
+                    Imprima la pre-cuenta para entregar al cliente.
                   </span>
+                  <button className="btn btn-outline w-full" onClick={handlePrintPrecuenta} style={{ fontSize: '0.9rem', justifyContent: 'center', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+                    <Printer size={16} style={{ marginRight: '0.5rem' }}/> Imprimir Pre-cuenta
+                  </button>
                 </div>
               )}
             </div>
@@ -687,6 +712,7 @@ export default function Mozo() {
         </div>
       )}
 
+      {docToPrint && <PrintReceipt doc={docToPrint} />}
     </div>
   );
 }

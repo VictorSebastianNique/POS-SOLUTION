@@ -1,18 +1,595 @@
 {
   "users": [],
-  "zones": [],
-  "orders": [],
+  "zones": [
+    {
+      "name": "EVENTOS",
+      "tables": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E8",
+        "E9",
+        "E10",
+        "E11",
+        "E12",
+        "E13",
+        "E14",
+        "E15",
+        "E16",
+        "E17",
+        "E18",
+        "E19",
+        "E20",
+        "E21",
+        "E22",
+        "E23",
+        "E24",
+        "E25",
+        "E26",
+        "E27",
+        "E28",
+        "E29",
+        "E30",
+        "E31",
+        "E32",
+        "E33",
+        "E34",
+        "E35"
+      ],
+      "id": "13aa6581-660e-4041-887a-cc068b1acb85",
+      "active": true
+    },
+    {
+      "name": "MEZANINE",
+      "tables": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M14",
+        "M15",
+        "M16",
+        "M17",
+        "M18",
+        "M19",
+        "M20"
+      ],
+      "id": "3860c194-1666-4c63-a749-79f9564182a0",
+      "active": true
+    },
+    {
+      "name": "PRIVADOS",
+      "tables": [
+        "P1"
+      ],
+      "id": "2f50c3bc-ceaf-4b25-82aa-0d7779a14e93",
+      "active": true
+    }
+  ],
+  "orders": [
+    {
+      "id": "fa18eb56-6ce6-48a7-ba1a-688a285dfd1e",
+      "zone": "EVENTOS",
+      "table": "E1",
+      "waiter": "Jefe",
+      "items": [
+        {
+          "id": "8aaa7ce0-04ce-4b39-9b21-76cbeda2f2e4",
+          "item": {
+            "name": "SALTADO MAR Y TIERRA",
+            "price": 62,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "14b41901-e7b6-4785-8e72-75103ce8fd8b",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015353541
+        },
+        {
+          "id": "36dd6e49-2af2-4b24-9c0c-9187efdc44b4",
+          "item": {
+            "name": "CABRITO DESHUESADO",
+            "price": 56,
+            "categoryId": "c3",
+            "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+            "id": "d6a1feac-9160-43cf-8940-cf1f79afcc11",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015356900
+        },
+        {
+          "id": "ee056dae-5561-4ff7-a7a1-8d2aa2bfd3c1",
+          "item": {
+            "name": "ARROZ C/N MARISCOS",
+            "price": 47,
+            "categoryId": "c3",
+            "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+            "id": "00c908ff-b403-4af9-830b-e5e8f2cc47ec",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015359860
+        },
+        {
+          "id": "6f2d83fc-9cd7-4d57-b430-a4788059fce3",
+          "item": {
+            "name": "LENGUADO A LA MEUNIERE",
+            "price": 49,
+            "categoryId": "c3",
+            "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+            "id": "a0138f4f-91c9-4a67-b656-8dda4267a7a2",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015372628
+        },
+        {
+          "id": "45319248-8f7a-4865-aef4-6d0df849ed5d",
+          "item": {
+            "name": "LOMO A NUESTRO ESTILO",
+            "price": 59,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "c5f53c47-328e-4ef0-b300-99bcb6b3c4af",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015377526
+        },
+        {
+          "id": "df0a687a-c0db-4ad9-b44b-44c83810b464",
+          "item": {
+            "name": "MILANESA DE POLLO",
+            "price": 40,
+            "categoryId": "c3",
+            "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+            "id": "5ce3f62c-43d6-49fc-9c93-d47ee184e15e",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015378998
+        }
+      ],
+      "station": "cocina",
+      "status": "pending",
+      "timestamp": 1782015425540
+    },
+    {
+      "id": "0a25e900-2d41-4b24-b953-280a3d5530bd",
+      "zone": "EVENTOS",
+      "table": "E1",
+      "waiter": "Jefe",
+      "items": [
+        {
+          "id": "d2b6e4aa-78d4-4e1b-9754-7f7665978763",
+          "item": {
+            "name": "GASEOSA 500ML",
+            "price": 9,
+            "categoryId": "c1",
+            "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+            "noDiscount": false,
+            "id": "1782006198921",
+            "active": true
+          },
+          "quantity": 2,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015330037
+        },
+        {
+          "id": "92c19bc9-5821-4b89-8f9a-505da89a9ec4",
+          "item": {
+            "name": "AGUA C/N GAS 500ML",
+            "price": 7,
+            "categoryId": "c1",
+            "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+            "noDiscount": false,
+            "id": "1782006285240",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015336604
+        },
+        {
+          "id": "eadee1e2-f3b2-4da6-8427-7ccfdbb66462",
+          "item": {
+            "name": "AGUA S/N GAS 500ML",
+            "price": 7,
+            "categoryId": "c1",
+            "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+            "noDiscount": false,
+            "id": "1782006300977",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015337989
+        },
+        {
+          "id": "a6d0d8e6-7ff6-4cc8-bc5d-8e004c3254bf",
+          "item": {
+            "name": "PISCO SOUR PORTON",
+            "price": 32,
+            "categoryId": "c1",
+            "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+            "noDiscount": false,
+            "id": "1782006587157",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015346262
+        },
+        {
+          "id": "ed747964-e713-44d0-bea4-568e0bae7853",
+          "item": {
+            "name": "PISCO SOUR BIONDI",
+            "price": 28,
+            "categoryId": "c1",
+            "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+            "noDiscount": false,
+            "id": "1782006600939",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015415429
+        },
+        {
+          "id": "70d6cbbe-29e1-4912-8952-2719bba5ce83",
+          "item": {
+            "name": "GASEOSA 295ML",
+            "price": 5,
+            "categoryId": "c1",
+            "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+            "noDiscount": false,
+            "id": "1782006218096",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782015751062
+        }
+      ],
+      "station": "bar",
+      "status": "pending",
+      "timestamp": 1782015425540
+    }
+  ],
   "isBarActive": true,
   "businessDay": {
-    "isOpen": false,
-    "startTime": null,
-    "totalSales": 0,
+    "id": "3c3b36dc-4ba1-4b6f-bb22-2408dfccf136",
+    "isOpen": true,
+    "startTime": 1782010292283,
+    "totalSales": 405,
     "voids": [],
-    "sales": []
+    "sales": [
+      {
+        "id": "f3155cd3-5dbe-4139-a8b1-df19a2224339",
+        "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
+        "waiter": "Jefe",
+        "zone": "EVENTOS",
+        "table": "E1",
+        "total": 405,
+        "timestamp": 1782015636781,
+        "headcount": 6,
+        "items": [
+          {
+            "item": "GASEOSA 500ML",
+            "quantity": 2,
+            "price": 9
+          },
+          {
+            "item": "AGUA C/N GAS 500ML",
+            "quantity": 1,
+            "price": 7
+          },
+          {
+            "item": "AGUA S/N GAS 500ML",
+            "quantity": 1,
+            "price": 7
+          },
+          {
+            "item": "PISCO SOUR PORTON",
+            "quantity": 1,
+            "price": 32
+          },
+          {
+            "item": "SALTADO MAR Y TIERRA",
+            "quantity": 1,
+            "price": 62
+          },
+          {
+            "item": "CABRITO DESHUESADO",
+            "quantity": 1,
+            "price": 56
+          },
+          {
+            "item": "ARROZ C/N MARISCOS",
+            "quantity": 1,
+            "price": 47
+          },
+          {
+            "item": "LENGUADO A LA MEUNIERE",
+            "quantity": 1,
+            "price": 49
+          },
+          {
+            "item": "LOMO A NUESTRO ESTILO",
+            "quantity": 1,
+            "price": 59
+          },
+          {
+            "item": "MILANESA DE POLLO",
+            "quantity": 1,
+            "price": 40
+          },
+          {
+            "item": "PISCO SOUR BIONDI",
+            "quantity": 1,
+            "price": 28
+          }
+        ],
+        "cartItems": [
+          {
+            "id": "d2b6e4aa-78d4-4e1b-9754-7f7665978763",
+            "item": {
+              "name": "GASEOSA 500ML",
+              "price": 9,
+              "categoryId": "c1",
+              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+              "noDiscount": false,
+              "id": "1782006198921",
+              "active": true
+            },
+            "quantity": 2,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015330037
+          },
+          {
+            "id": "92c19bc9-5821-4b89-8f9a-505da89a9ec4",
+            "item": {
+              "name": "AGUA C/N GAS 500ML",
+              "price": 7,
+              "categoryId": "c1",
+              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+              "noDiscount": false,
+              "id": "1782006285240",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015336604
+          },
+          {
+            "id": "eadee1e2-f3b2-4da6-8427-7ccfdbb66462",
+            "item": {
+              "name": "AGUA S/N GAS 500ML",
+              "price": 7,
+              "categoryId": "c1",
+              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+              "noDiscount": false,
+              "id": "1782006300977",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015337989
+          },
+          {
+            "id": "a6d0d8e6-7ff6-4cc8-bc5d-8e004c3254bf",
+            "item": {
+              "name": "PISCO SOUR PORTON",
+              "price": 32,
+              "categoryId": "c1",
+              "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+              "noDiscount": false,
+              "id": "1782006587157",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015346262
+          },
+          {
+            "id": "8aaa7ce0-04ce-4b39-9b21-76cbeda2f2e4",
+            "item": {
+              "name": "SALTADO MAR Y TIERRA",
+              "price": 62,
+              "categoryId": "c3",
+              "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+              "id": "14b41901-e7b6-4785-8e72-75103ce8fd8b",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015353541
+          },
+          {
+            "id": "36dd6e49-2af2-4b24-9c0c-9187efdc44b4",
+            "item": {
+              "name": "CABRITO DESHUESADO",
+              "price": 56,
+              "categoryId": "c3",
+              "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+              "id": "d6a1feac-9160-43cf-8940-cf1f79afcc11",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015356900
+          },
+          {
+            "id": "ee056dae-5561-4ff7-a7a1-8d2aa2bfd3c1",
+            "item": {
+              "name": "ARROZ C/N MARISCOS",
+              "price": 47,
+              "categoryId": "c3",
+              "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+              "id": "00c908ff-b403-4af9-830b-e5e8f2cc47ec",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015359860
+          },
+          {
+            "id": "6f2d83fc-9cd7-4d57-b430-a4788059fce3",
+            "item": {
+              "name": "LENGUADO A LA MEUNIERE",
+              "price": 49,
+              "categoryId": "c3",
+              "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+              "id": "a0138f4f-91c9-4a67-b656-8dda4267a7a2",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015372628
+          },
+          {
+            "id": "45319248-8f7a-4865-aef4-6d0df849ed5d",
+            "item": {
+              "name": "LOMO A NUESTRO ESTILO",
+              "price": 59,
+              "categoryId": "c3",
+              "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+              "id": "c5f53c47-328e-4ef0-b300-99bcb6b3c4af",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015377526
+          },
+          {
+            "id": "df0a687a-c0db-4ad9-b44b-44c83810b464",
+            "item": {
+              "name": "MILANESA DE POLLO",
+              "price": 40,
+              "categoryId": "c3",
+              "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+              "id": "5ce3f62c-43d6-49fc-9c93-d47ee184e15e",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015378998
+          },
+          {
+            "id": "ed747964-e713-44d0-bea4-568e0bae7853",
+            "item": {
+              "name": "PISCO SOUR BIONDI",
+              "price": 28,
+              "categoryId": "c1",
+              "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+              "noDiscount": false,
+              "id": "1782006600939",
+              "active": true
+            },
+            "quantity": 1,
+            "details": "",
+            "status": "sent",
+            "timestamp": 1782015415429
+          }
+        ],
+        "documentType": "boleta",
+        "documentNumber": "B001-00000001",
+        "companyId": "e474ab4a-6dbd-4172-9a33-d64923ad745a",
+        "companyName": "VICTOR ANDRE SEBASTIAN ÑIQUE",
+        "companyRuc": "10755334567",
+        "customerDni": "75533456",
+        "customerRuc": "",
+        "customerName": "JUAN PEREZ (DNI ENCONTRADO)",
+        "customerAddress": "",
+        "internalReason": "",
+        "valorVenta": 343.22,
+        "igv": 61.78,
+        "totalPagar": 405,
+        "paymentMethod": "tarjeta"
+      }
+    ],
+    "incomes": [],
+    "expenses": []
   },
   "pastDays": [],
-  "activeTables": {},
-  "tableHeadcounts": {},
-  "companies": [],
+  "activeTables": {
+    "13aa6581-660e-4041-887a-cc068b1acb85-E1": [
+      {
+        "id": "70d6cbbe-29e1-4912-8952-2719bba5ce83",
+        "item": {
+          "name": "GASEOSA 295ML",
+          "price": 5,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006218096",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015751062
+      }
+    ]
+  },
+  "tableHeadcounts": {
+    "13aa6581-660e-4041-887a-cc068b1acb85-E1": 1
+  },
+  "companies": [
+    {
+      "name": "VICTOR ANDRE SEBASTIAN ÑIQUE",
+      "ruc": "10755334567",
+      "address": "Odonovan 601 Moche",
+      "boletaSeries": "B001",
+      "boletaNumber": 1,
+      "facturaSeries": "F001",
+      "facturaNumber": 0,
+      "active": true,
+      "id": "e474ab4a-6dbd-4172-9a33-d64923ad745a"
+    }
+  ],
   "menuStatus": {}
 }

@@ -11,7 +11,7 @@ const IGV_RATE = 0.18;
 
 export default function Caja() {
   const navigate = useNavigate();
-  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings, users } = useStore();
+  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings, users, logAudit } = useStore();
 
   const [selectedZone, setSelectedZone] = useState('all');
   
@@ -244,6 +244,14 @@ export default function Caja() {
     
     setAppliedDiscount(amountToSubtract);
     setShowDiscountModal(false);
+    
+    logAudit('DESCUENTO_APLICADO', {
+      amount: amountToSubtract,
+      admin: adminUser.name,
+      table: selectedTable?.key,
+      customer: customerName || 'Consumidor Final',
+      type: discountType
+    });
   };
 
   // ── Payment ───────────────────────────────────────────────────

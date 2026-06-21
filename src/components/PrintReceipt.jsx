@@ -5,6 +5,7 @@ const PrintReceipt = ({ doc }) => {
 
   const documentTitle = doc.documentType === 'boleta' ? 'BOLETA DE VENTA ELECTRÓNICA' : 
                         doc.documentType === 'factura' ? 'FACTURA ELECTRÓNICA' : 
+                        doc.documentType === 'precuenta' ? 'PRE-CUENTA' :
                         'TICKET DE VENTA';
 
   const subtotal = doc.totalPagar / 1.18;
@@ -21,9 +22,16 @@ const PrintReceipt = ({ doc }) => {
 
       <div className="receipt-divider"></div>
 
-      <div className="receipt-header" style={{ marginBottom: '5px' }}>
+      <div className="receipt-header" style={{ marginBottom: '5px', position: 'relative' }}>
+        {doc.documentType === 'precuenta' && (
+          <div style={{ position: 'absolute', top: '-10px', right: 0, fontSize: '12px', fontWeight: 'bold' }}>
+            <span>( &nbsp; ) B &nbsp;&nbsp; ( &nbsp; ) F</span>
+          </div>
+        )}
         <h3 style={{ margin: '5px 0', fontSize: '15px' }}>{documentTitle}</h3>
-        <p style={{ fontWeight: 'bold', fontSize: '14px' }}>{doc.docNumber || 'B001-00000001'}</p>
+        {doc.documentType !== 'precuenta' && (
+          <p style={{ fontWeight: 'bold', fontSize: '14px' }}>{doc.docNumber || 'B001-00000001'}</p>
+        )}
       </div>
 
       <div className="receipt-divider"></div>
@@ -94,7 +102,14 @@ const PrintReceipt = ({ doc }) => {
 
       <div className="receipt-divider" style={{ marginTop: '15px' }}></div>
       <div className="receipt-footer">
-        <p>Representación impresa de la {documentTitle}</p>
+        {doc.documentType === 'precuenta' ? (
+          <div style={{ textAlign: 'left', marginTop: '10px', marginBottom: '15px', fontSize: '12px', lineHeight: '2.5' }}>
+            <p style={{ borderBottom: '1px dashed #000', paddingBottom: '2px', margin: 0 }}>DNI / RUC: </p>
+            <p style={{ borderBottom: '1px dashed #000', paddingBottom: '2px', margin: '15px 0 0 0' }}>RAZÓN SOCIAL / NOMBRES: </p>
+          </div>
+        ) : (
+          <p>Representación impresa de la {documentTitle}</p>
+        )}
         <p style={{ marginTop: '10px', fontSize: '14px', fontWeight: 'bold' }}>¡Gracias por su preferencia!</p>
         <p>Vuelva pronto</p>
       </div>
