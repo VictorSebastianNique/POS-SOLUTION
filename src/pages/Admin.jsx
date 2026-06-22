@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp, ShieldAlert } from 'lucide-react';
+import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp, ShieldAlert, FileText } from 'lucide-react';
 import Metrics from './Metrics';
+import KardexConfigTab from '../components/KardexConfigTab';
+import MenuRecipeModal from '../components/MenuRecipeModal';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -204,6 +206,7 @@ export default function Admin() {
   // --- Menu State ---
   const [newMenu, setNewMenu] = useState({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false });
   const [editMenu, setEditMenu] = useState(null);
+  const [recipeMenu, setRecipeMenu] = useState(null);
   const [menuSearch, setMenuSearch] = useState('');
   const [menuFilterActive, setMenuFilterActive] = useState('all'); // 'all'|'active'|'inactive'
   const [menuFilterCategory, setMenuFilterCategory] = useState('all');
@@ -467,6 +470,7 @@ export default function Admin() {
           <button className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('categories'); setSidebarOpen(false); }}>Categorías</button>
           <button className={`btn ${activeTab === 'subcategories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('subcategories'); setSidebarOpen(false); }}>Subcategorías</button>
           <button className={`btn ${activeTab === 'menu' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('menu'); setSidebarOpen(false); }}>Platos / Menú</button>
+          <button className={`btn ${activeTab === 'kardex_config' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('kardex_config'); setSidebarOpen(false); }}>Insumos Kardex</button>
           <button className={`btn ${activeTab === 'zones' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('zones'); setSidebarOpen(false); }}>Zonas y Mesas</button>
           <button className={`btn ${activeTab === 'empresas' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('empresas'); setSidebarOpen(false); }}><Building2 size={15}/> Empresas</button>
           
@@ -1188,6 +1192,7 @@ export default function Admin() {
                                 </div>
                               </td>
                               <td className="py-4 flex justify-end gap-2">
+                                <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--primary-color)' }} onClick={() => setRecipeMenu(m)} title="Configurar Receta Kardex"><FileText size={16}/></button>
                                 <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--warning-color)' }} onClick={() => setEditMenu({ id: m.id, data: { ...m } })}><Edit2 size={16}/></button>
                                 <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--danger-color)' }} onClick={() => setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: c.items.filter(i => i.id !== m.id) } : c))}><Trash2 size={16}/></button>
                               </td>
@@ -1203,6 +1208,10 @@ export default function Admin() {
           )}
 
           {/* TAB: ZONES */}
+          {activeTab === 'kardex_config' && (
+            <KardexConfigTab />
+          )}
+
           {activeTab === 'zones' && (
             <div className="animate-fade-in flex flex-col h-full">
               {!selectedAdminZone ? (

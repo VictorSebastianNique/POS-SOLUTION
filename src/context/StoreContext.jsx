@@ -24,6 +24,7 @@ export const StoreProvider = ({ children }) => {
   const [companies, setCompanies] = React.useState([]);
   const [menuStatus, setMenuStatus] = React.useState({});
   const [developerSettings, setDeveloperSettings] = React.useState({ isSuperAdminIncognito: false });
+  const [kardexItems, setKardexItems] = React.useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -52,6 +53,7 @@ export const StoreProvider = ({ children }) => {
           setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: [] }]);
         }
         if (dataGlobal.developerSettings) setDeveloperSettings(dataGlobal.developerSettings);
+        if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
 
         const currentLocId = localStorage.getItem('currentLocationId');
         let localUsers = [];
@@ -138,6 +140,7 @@ export const StoreProvider = ({ children }) => {
 
   React.useEffect(() => { if (!loading) saveState('currentUser', currentUser, true); }, [currentUser, loading]);
   React.useEffect(() => { if (!loading) saveState('locations', locations, true); }, [locations, loading]);
+  React.useEffect(() => { if (!loading) saveState('kardexItems', kardexItems, true); }, [kardexItems, loading]);
   
   // Custom user saving to split superadmins and locals
   React.useEffect(() => { 
@@ -230,7 +233,18 @@ export const StoreProvider = ({ children }) => {
 
   // V3 Actions: Day
   const openDay = () => setBusinessDay({ id: uuidv4(), isOpen: true, startTime: Date.now(), totalSales: 0, voids: [], sales: [], incomes: [], expenses: [] });
-  const closeDay = () => {
+  const updateKardexData = (kardexId, data) => {
+    setBusinessDay(prev => {
+      const nextKardex = { ...(prev.kardex || {}) };
+      if (!nextKardex[kardexId]) {
+        nextKardex[kardexId] = { inicial: 0, ingresos: 0, mermas: 0, observacion: '', ventas: 0 };
+      }
+      nextKardex[kardexId] = { ...nextKardex[kardexId], ...data };
+      return { ...prev, kardex: nextKardex };
+    });
+  };
+
+  const closeDay = (closeDetails) => {
     setPastDays(prev => [{ ...businessDay, endTime: Date.now() }, ...prev]);
     setBusinessDay(prev => ({ isOpen: false, lastClosedTotal: prev.totalSales, sales: [], voids: [], incomes: [], expenses: [] }));
   };
@@ -319,17 +333,34 @@ if (barCart.length > 0) {
   const payTable = (tableKey, amount, cartDetails, waiter, zoneName, tableNum, billingInfo = {}) => {
     logAudit('COBRO_MESA', { table: tableKey, amount, waiter });
     const headcount = tableHeadcounts[tableKey] || 1;
-    setBusinessDay(prev => ({ 
-      ...prev, 
-      totalSales: prev.totalSales + amount,
-      sales: [...(prev.sales || []), {
-        id: uuidv4(), tableKey, waiter, zone: zoneName, table: tableNum, total: amount, timestamp: Date.now(),
-        headcount,
-        items: cartDetails.map(c => ({ item: c.item.name, quantity: c.quantity, price: c.item.price })),
-        cartItems: cartDetails,
-        ...billingInfo
-      }]
-    }));
+    setBusinessDay(prev => {
+      const nextKardex = { ...(prev.kardex || {}) };
+      
+      cartDetails.forEach(c => {
+        if (c.item.kardexRecipe && Array.isArray(c.item.kardexRecipe)) {
+          c.item.kardexRecipe.forEach(recipeItem => {
+            const deduction = c.quantity * (parseFloat(recipeItem.qty) || 1);
+            if (!nextKardex[recipeItem.kardexId]) {
+              nextKardex[recipeItem.kardexId] = { inicial: 0, ingresos: 0, mermas: 0, observacion: '', ventas: 0 };
+            }
+            nextKardex[recipeItem.kardexId].ventas = (nextKardex[recipeItem.kardexId].ventas || 0) + deduction;
+          });
+        }
+      });
+
+      return { 
+        ...prev, 
+        totalSales: prev.totalSales + amount,
+        kardex: nextKardex,
+        sales: [...(prev.sales || []), {
+          id: uuidv4(), tableKey, waiter, zone: zoneName, table: tableNum, total: amount, timestamp: Date.now(),
+          headcount,
+          items: cartDetails.map(c => ({ item: c.item.name, quantity: c.quantity, price: c.item.price })),
+          cartItems: cartDetails,
+          ...billingInfo
+        }]
+      };
+    });
     // Auto-increment document number on the company
     if (billingInfo.companyId && billingInfo.documentType) {
       setCompanies(prev => prev.map(c => {
@@ -366,20 +397,36 @@ if (barCart.length > 0) {
     }
     
     logAudit('ANULACION_VENTA', { saleId, reason, admin: adminUser.name, amount: saleToVoid.total });
-    setBusinessDay(prev => ({
-      ...prev,
-      totalSales: prev.totalSales - saleToVoid.total,
-      sales: prev.sales.filter(s => s.id !== saleId),
-      voids: [...(prev.voids || []), {
-        item: `Comprobante ${saleToVoid.documentType === 'boleta' ? 'B' : saleToVoid.documentType === 'factura' ? 'F' : 'P'}-${saleToVoid.documentNumber}`,
-        quantity: 1,
-        reason: reason || 'Anulación de Venta',
-        admin: adminUser.name,
-        timestamp: Date.now(),
-        tableKey: saleToVoid.tableKey,
-        amount: saleToVoid.total
-      }]
-    }));
+    setBusinessDay(prev => {
+      const nextKardex = { ...(prev.kardex || {}) };
+      
+      (saleToVoid.cartItems || []).forEach(c => {
+        if (c.item.kardexRecipe && Array.isArray(c.item.kardexRecipe)) {
+          c.item.kardexRecipe.forEach(recipeItem => {
+            const deduction = c.quantity * (parseFloat(recipeItem.qty) || 1);
+            if (nextKardex[recipeItem.kardexId]) {
+              nextKardex[recipeItem.kardexId].ventas = Math.max(0, (nextKardex[recipeItem.kardexId].ventas || 0) - deduction);
+            }
+          });
+        }
+      });
+
+      return {
+        ...prev,
+        totalSales: prev.totalSales - saleToVoid.total,
+        kardex: nextKardex,
+        sales: prev.sales.filter(s => s.id !== saleId),
+        voids: [...(prev.voids || []), {
+          item: `Comprobante ${saleToVoid.documentType === 'boleta' ? 'B' : saleToVoid.documentType === 'factura' ? 'F' : 'P'}-${saleToVoid.documentNumber}`,
+          quantity: 1,
+          reason: reason || 'Anulación de Venta',
+          admin: adminUser.name,
+          timestamp: Date.now(),
+          tableKey: saleToVoid.tableKey,
+          amount: saleToVoid.total
+        }]
+      };
+    });
 
     setActiveTables(prev => {
       const next = { ...prev };
@@ -463,7 +510,9 @@ if (barCart.length > 0) {
       activeTables, setActiveTables, updateTableCart, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable,
       tableHeadcounts, setTableHeadcounts,
       companies, addCompany: addItem(setCompanies), updateCompany: updateItem(setCompanies), deleteCompany: deleteItem(setCompanies),
-      developerSettings, setDeveloperSettings
+      developerSettings, setDeveloperSettings,
+      kardexItems, addKardexItem: addItem(setKardexItems), updateKardexItem: updateItem(setKardexItems), deleteKardexItem: deleteItem(setKardexItems),
+      updateKardexData
     }}>
       {children}
     </StoreContext.Provider>

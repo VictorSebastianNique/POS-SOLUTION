@@ -267,6 +267,9 @@ export default function Cocina() {
                 }}
               >🍽️ Platos</button>
             </div>
+            <button className="btn btn-outline" style={{ color: 'var(--success-color)', borderColor: 'var(--success-color)' }} onClick={() => navigate('/kardex')}>
+              📊 Kardex
+            </button>
             <button className="btn btn-outline" onClick={handleLogout}>
               {(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : 'Cerrar Sesión'}
             </button>

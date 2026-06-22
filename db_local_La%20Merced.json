@@ -175,6 +175,66 @@
           "details": "",
           "status": "new",
           "timestamp": 1782015378998
+        },
+        {
+          "id": "132ba559-5c36-437f-9be5-0df654083c79",
+          "item": {
+            "name": "CECINAS DE LOMO",
+            "price": 35,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "4a222dad-583f-4f52-99f3-25111e7936ca",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782022889173
+        },
+        {
+          "id": "f52b5420-d7e4-4230-b96c-b6a62f1ead36",
+          "item": {
+            "name": "MOLLEJITAS GUISADAS",
+            "price": 24,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "ba7457d9-af2c-45d9-b915-ab9629ab4f47",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782022890269
+        },
+        {
+          "id": "b6eaf8c0-547c-48c2-bbef-84c7bdf37e5e",
+          "item": {
+            "name": "ENSALADA MIXTA PERSONAL",
+            "price": 19,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "7d99c6da-ff9a-4e9a-ac8a-c645f6ba7767",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782022891419
+        },
+        {
+          "id": "1422bf62-1f1f-4b65-9f59-c830d35c371c",
+          "item": {
+            "name": "CEVICHE DE MARISCOS",
+            "price": 46,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "fa6026e1-5c1d-446d-906d-f347d44573c6",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782022893581
         }
       ],
       "station": "cocina",
@@ -282,6 +342,22 @@
           "details": "",
           "status": "new",
           "timestamp": 1782015751062
+        },
+        {
+          "id": "14f761e6-7a13-478c-ab72-64d520d93a5a",
+          "item": {
+            "name": "GASEOSA 500ML",
+            "price": 9,
+            "categoryId": "c1",
+            "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+            "noDiscount": false,
+            "id": "1782006198921",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1782022886852
         }
       ],
       "station": "bar",
@@ -294,7 +370,7 @@
     "id": "3c3b36dc-4ba1-4b6f-bb22-2408dfccf136",
     "isOpen": true,
     "startTime": 1782010292283,
-    "totalSales": 410,
+    "totalSales": 5,
     "voids": [
       {
         "item": "Comprobante B-B001-00000002",
@@ -304,262 +380,18 @@
         "timestamp": 1782020740799,
         "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
         "amount": 5
+      },
+      {
+        "item": "Comprobante B-B001-00000001",
+        "quantity": 1,
+        "reason": "admin",
+        "admin": "Jefe",
+        "timestamp": 1782023543477,
+        "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
+        "amount": 405
       }
     ],
     "sales": [
-      {
-        "id": "f3155cd3-5dbe-4139-a8b1-df19a2224339",
-        "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
-        "waiter": "Jefe",
-        "zone": "EVENTOS",
-        "table": "E1",
-        "total": 405,
-        "timestamp": 1782015636781,
-        "headcount": 6,
-        "items": [
-          {
-            "item": "GASEOSA 500ML",
-            "quantity": 2,
-            "price": 9
-          },
-          {
-            "item": "AGUA C/N GAS 500ML",
-            "quantity": 1,
-            "price": 7
-          },
-          {
-            "item": "AGUA S/N GAS 500ML",
-            "quantity": 1,
-            "price": 7
-          },
-          {
-            "item": "PISCO SOUR PORTON",
-            "quantity": 1,
-            "price": 32
-          },
-          {
-            "item": "SALTADO MAR Y TIERRA",
-            "quantity": 1,
-            "price": 62
-          },
-          {
-            "item": "CABRITO DESHUESADO",
-            "quantity": 1,
-            "price": 56
-          },
-          {
-            "item": "ARROZ C/N MARISCOS",
-            "quantity": 1,
-            "price": 47
-          },
-          {
-            "item": "LENGUADO A LA MEUNIERE",
-            "quantity": 1,
-            "price": 49
-          },
-          {
-            "item": "LOMO A NUESTRO ESTILO",
-            "quantity": 1,
-            "price": 59
-          },
-          {
-            "item": "MILANESA DE POLLO",
-            "quantity": 1,
-            "price": 40
-          },
-          {
-            "item": "PISCO SOUR BIONDI",
-            "quantity": 1,
-            "price": 28
-          }
-        ],
-        "cartItems": [
-          {
-            "id": "d2b6e4aa-78d4-4e1b-9754-7f7665978763",
-            "item": {
-              "name": "GASEOSA 500ML",
-              "price": 9,
-              "categoryId": "c1",
-              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
-              "noDiscount": false,
-              "id": "1782006198921",
-              "active": true
-            },
-            "quantity": 2,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015330037
-          },
-          {
-            "id": "92c19bc9-5821-4b89-8f9a-505da89a9ec4",
-            "item": {
-              "name": "AGUA C/N GAS 500ML",
-              "price": 7,
-              "categoryId": "c1",
-              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
-              "noDiscount": false,
-              "id": "1782006285240",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015336604
-          },
-          {
-            "id": "eadee1e2-f3b2-4da6-8427-7ccfdbb66462",
-            "item": {
-              "name": "AGUA S/N GAS 500ML",
-              "price": 7,
-              "categoryId": "c1",
-              "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
-              "noDiscount": false,
-              "id": "1782006300977",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015337989
-          },
-          {
-            "id": "a6d0d8e6-7ff6-4cc8-bc5d-8e004c3254bf",
-            "item": {
-              "name": "PISCO SOUR PORTON",
-              "price": 32,
-              "categoryId": "c1",
-              "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
-              "noDiscount": false,
-              "id": "1782006587157",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015346262
-          },
-          {
-            "id": "8aaa7ce0-04ce-4b39-9b21-76cbeda2f2e4",
-            "item": {
-              "name": "SALTADO MAR Y TIERRA",
-              "price": 62,
-              "categoryId": "c3",
-              "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
-              "id": "14b41901-e7b6-4785-8e72-75103ce8fd8b",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015353541
-          },
-          {
-            "id": "36dd6e49-2af2-4b24-9c0c-9187efdc44b4",
-            "item": {
-              "name": "CABRITO DESHUESADO",
-              "price": 56,
-              "categoryId": "c3",
-              "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
-              "id": "d6a1feac-9160-43cf-8940-cf1f79afcc11",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015356900
-          },
-          {
-            "id": "ee056dae-5561-4ff7-a7a1-8d2aa2bfd3c1",
-            "item": {
-              "name": "ARROZ C/N MARISCOS",
-              "price": 47,
-              "categoryId": "c3",
-              "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
-              "id": "00c908ff-b403-4af9-830b-e5e8f2cc47ec",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015359860
-          },
-          {
-            "id": "6f2d83fc-9cd7-4d57-b430-a4788059fce3",
-            "item": {
-              "name": "LENGUADO A LA MEUNIERE",
-              "price": 49,
-              "categoryId": "c3",
-              "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
-              "id": "a0138f4f-91c9-4a67-b656-8dda4267a7a2",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015372628
-          },
-          {
-            "id": "45319248-8f7a-4865-aef4-6d0df849ed5d",
-            "item": {
-              "name": "LOMO A NUESTRO ESTILO",
-              "price": 59,
-              "categoryId": "c3",
-              "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
-              "id": "c5f53c47-328e-4ef0-b300-99bcb6b3c4af",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015377526
-          },
-          {
-            "id": "df0a687a-c0db-4ad9-b44b-44c83810b464",
-            "item": {
-              "name": "MILANESA DE POLLO",
-              "price": 40,
-              "categoryId": "c3",
-              "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
-              "id": "5ce3f62c-43d6-49fc-9c93-d47ee184e15e",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015378998
-          },
-          {
-            "id": "ed747964-e713-44d0-bea4-568e0bae7853",
-            "item": {
-              "name": "PISCO SOUR BIONDI",
-              "price": 28,
-              "categoryId": "c1",
-              "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
-              "noDiscount": false,
-              "id": "1782006600939",
-              "active": true
-            },
-            "quantity": 1,
-            "details": "",
-            "status": "sent",
-            "timestamp": 1782015415429
-          }
-        ],
-        "documentType": "boleta",
-        "documentNumber": "B001-00000001",
-        "companyId": "e474ab4a-6dbd-4172-9a33-d64923ad745a",
-        "companyName": "VICTOR ANDRE SEBASTIAN ÑIQUE",
-        "companyRuc": "10755334567",
-        "customerDni": "75533456",
-        "customerRuc": "",
-        "customerName": "JUAN PEREZ (DNI ENCONTRADO)",
-        "customerAddress": "",
-        "internalReason": "",
-        "valorVenta": 343.22,
-        "igv": 61.78,
-        "totalPagar": 405,
-        "paymentMethod": "tarjeta"
-      },
       {
         "id": "03458e53-fc5e-4541-9f5d-ca3346050cd7",
         "tableKey": "13aa6581-660e-4041-887a-cc068b1acb85-E1",
@@ -614,8 +446,273 @@
     "expenses": []
   },
   "pastDays": [],
-  "activeTables": {},
-  "tableHeadcounts": {},
+  "activeTables": {
+    "13aa6581-660e-4041-887a-cc068b1acb85-E1": [
+      {
+        "id": "14f761e6-7a13-478c-ab72-64d520d93a5a",
+        "item": {
+          "name": "GASEOSA 500ML",
+          "price": 9,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006198921",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782022886852
+      },
+      {
+        "id": "132ba559-5c36-437f-9be5-0df654083c79",
+        "item": {
+          "name": "CECINAS DE LOMO",
+          "price": 35,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "4a222dad-583f-4f52-99f3-25111e7936ca",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782022889173
+      },
+      {
+        "id": "f52b5420-d7e4-4230-b96c-b6a62f1ead36",
+        "item": {
+          "name": "MOLLEJITAS GUISADAS",
+          "price": 24,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "ba7457d9-af2c-45d9-b915-ab9629ab4f47",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782022890269
+      },
+      {
+        "id": "b6eaf8c0-547c-48c2-bbef-84c7bdf37e5e",
+        "item": {
+          "name": "ENSALADA MIXTA PERSONAL",
+          "price": 19,
+          "categoryId": "c3",
+          "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+          "id": "7d99c6da-ff9a-4e9a-ac8a-c645f6ba7767",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782022891419
+      },
+      {
+        "id": "1422bf62-1f1f-4b65-9f59-c830d35c371c",
+        "item": {
+          "name": "CEVICHE DE MARISCOS",
+          "price": 46,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "fa6026e1-5c1d-446d-906d-f347d44573c6",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782022893581
+      }
+    ],
+    "13aa6581-660e-4041-887a-cc068b1acb85-E15": [
+      {
+        "id": "7ce53663-82f8-433e-82ed-f60d09decd0a",
+        "item": {
+          "name": "GASEOSA 500ML",
+          "price": 9,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006198921",
+          "active": true
+        },
+        "quantity": 2,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015330037,
+        "isRecovered": true
+      },
+      {
+        "id": "845e1dae-78c5-45d4-9c9e-c6c486c8869c",
+        "item": {
+          "name": "AGUA C/N GAS 500ML",
+          "price": 7,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006285240",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015336604,
+        "isRecovered": true
+      },
+      {
+        "id": "8244901f-7653-448a-8328-29150613ffdd",
+        "item": {
+          "name": "AGUA S/N GAS 500ML",
+          "price": 7,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006300977",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015337989,
+        "isRecovered": true
+      },
+      {
+        "id": "ce2c4a85-5597-450c-9cdf-ead1a63bd633",
+        "item": {
+          "name": "PISCO SOUR PORTON",
+          "price": 32,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006587157",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015346262,
+        "isRecovered": true
+      },
+      {
+        "id": "485c68e0-7a7e-4085-9edd-6a7a06b070c3",
+        "item": {
+          "name": "SALTADO MAR Y TIERRA",
+          "price": 62,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "14b41901-e7b6-4785-8e72-75103ce8fd8b",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015353541,
+        "isRecovered": true
+      },
+      {
+        "id": "297965e9-84e6-4839-9a32-97337e61c592",
+        "item": {
+          "name": "CABRITO DESHUESADO",
+          "price": 56,
+          "categoryId": "c3",
+          "subcategoryId": "b7262096-95cb-4ed5-9022-e9bc33196cec",
+          "id": "d6a1feac-9160-43cf-8940-cf1f79afcc11",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015356900,
+        "isRecovered": true
+      },
+      {
+        "id": "1e2e76b1-d157-4de4-bea5-a4f8fe6e617d",
+        "item": {
+          "name": "ARROZ C/N MARISCOS",
+          "price": 47,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "00c908ff-b403-4af9-830b-e5e8f2cc47ec",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015359860,
+        "isRecovered": true
+      },
+      {
+        "id": "8ca0f127-20d2-4de3-8335-3b40bb254b84",
+        "item": {
+          "name": "LENGUADO A LA MEUNIERE",
+          "price": 49,
+          "categoryId": "c3",
+          "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
+          "id": "a0138f4f-91c9-4a67-b656-8dda4267a7a2",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015372628,
+        "isRecovered": true
+      },
+      {
+        "id": "eae9eae3-3763-459d-a05a-bd40a10ec2d0",
+        "item": {
+          "name": "LOMO A NUESTRO ESTILO",
+          "price": 59,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "c5f53c47-328e-4ef0-b300-99bcb6b3c4af",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015377526,
+        "isRecovered": true
+      },
+      {
+        "id": "73a3510b-389e-40af-b8da-6b632d58caec",
+        "item": {
+          "name": "MILANESA DE POLLO",
+          "price": 40,
+          "categoryId": "c3",
+          "subcategoryId": "0a32ac33-9ddd-48eb-aec1-c1f72f439485",
+          "id": "5ce3f62c-43d6-49fc-9c93-d47ee184e15e",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015378998,
+        "isRecovered": true
+      },
+      {
+        "id": "f0f8af1f-2c04-44ed-9439-6218e928de5b",
+        "item": {
+          "name": "PISCO SOUR BIONDI",
+          "price": 28,
+          "categoryId": "c1",
+          "subcategoryId": "af9c8340-8c67-4ce1-a4b8-7f03e9d4c087",
+          "noDiscount": false,
+          "id": "1782006600939",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1782015415429,
+        "isRecovered": true
+      }
+    ]
+  },
+  "tableHeadcounts": {
+    "13aa6581-660e-4041-887a-cc068b1acb85-E1": 4,
+    "13aa6581-660e-4041-887a-cc068b1acb85-E15": 6
+  },
   "companies": [
     {
       "name": "VICTOR ANDRE SEBASTIAN ÑIQUE",
@@ -629,5 +726,121 @@
       "id": "e474ab4a-6dbd-4172-9a33-d64923ad745a"
     }
   ],
-  "menuStatus": {}
+  "menuStatus": {},
+  "kardexItems": [
+    {
+      "id": "k_cabrito_normal",
+      "name": "CABRITO NORMAL",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_pato_estofado",
+      "name": "PATO ESTOFADO",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_pepian",
+      "name": "PEPIAN",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_corvina_guisada",
+      "name": "CORVINA GUISADA",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_lomo_saltado",
+      "name": "LOMO SALTADO",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_filete_pollo",
+      "name": "FILETE DE POLLO CARTA",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_milanesa",
+      "name": "MILANESA CARTA",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_bisteck",
+      "name": "BISTECK CARTA",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_chicharron_pollo",
+      "name": "CHICHARRON DE POLLO",
+      "category": "FRITURAS",
+      "active": true
+    },
+    {
+      "id": "k_lenguado",
+      "name": "LENGUADO",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_corvina",
+      "name": "CORVINA",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_pulpo_olivo",
+      "name": "PULPO AL OLIVO",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_pulpo_anticuchero",
+      "name": "PULPO ANTICUCHERO",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_pulpo_causas",
+      "name": "PULPO(CAUSAS)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_camaron",
+      "name": "CAMARON",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_mixtura_mariscos",
+      "name": "MIXTURA(MARISCOS)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_mixtura_ceviches",
+      "name": "MIXTURA(CEVICHES)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_langostinos_mariscos",
+      "name": "LANGOSTINOS(MARISCOS)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_langostino_causa",
+      "name": "LANGOSTINO(CAUSA)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    }
+  ]
 }

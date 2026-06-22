@@ -33,5 +33,121 @@
   "pastDays": [],
   "activeTables": {},
   "companies": [],
-  "menuStatus": {}
+  "menuStatus": {},
+  "kardexItems": [
+    {
+      "id": "k_cabrito_normal",
+      "name": "CABRITO NORMAL",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_pato_estofado",
+      "name": "PATO ESTOFADO",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_pepian",
+      "name": "PEPIAN",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_corvina_guisada",
+      "name": "CORVINA GUISADA",
+      "category": "GUISOS",
+      "active": true
+    },
+    {
+      "id": "k_lomo_saltado",
+      "name": "LOMO SALTADO",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_filete_pollo",
+      "name": "FILETE DE POLLO CARTA",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_milanesa",
+      "name": "MILANESA CARTA",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_bisteck",
+      "name": "BISTECK CARTA",
+      "category": "CARNES",
+      "active": true
+    },
+    {
+      "id": "k_chicharron_pollo",
+      "name": "CHICHARRON DE POLLO",
+      "category": "FRITURAS",
+      "active": true
+    },
+    {
+      "id": "k_lenguado",
+      "name": "LENGUADO",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_corvina",
+      "name": "CORVINA",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_pulpo_olivo",
+      "name": "PULPO AL OLIVO",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_pulpo_anticuchero",
+      "name": "PULPO ANTICUCHERO",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_pulpo_causas",
+      "name": "PULPO(CAUSAS)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_camaron",
+      "name": "CAMARON",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_mixtura_mariscos",
+      "name": "MIXTURA(MARISCOS)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_mixtura_ceviches",
+      "name": "MIXTURA(CEVICHES)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_langostinos_mariscos",
+      "name": "LANGOSTINOS(MARISCOS)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    },
+    {
+      "id": "k_langostino_causa",
+      "name": "LANGOSTINO(CAUSA)",
+      "category": "PESCADOS Y MARISCOS",
+      "active": true
+    }
+  ]
 }

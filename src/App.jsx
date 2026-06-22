@@ -6,6 +6,7 @@ import Cocina from './pages/Cocina';
 import Bar from './pages/Bar';
 import Admin from './pages/Admin';
 import Caja from './pages/Caja';
+import Kardex from './pages/Kardex';
 import DeveloperConfig from './pages/DeveloperConfig';
 import { useStore } from './context/StoreContext';
 
@@ -135,6 +136,7 @@ function App() {
         <Route path="/bar"             element={<Bar />} />
         <Route path="/admin"           element={<Admin />} />
         <Route path="/caja"            element={<Caja />} />
+        <Route path="/kardex"          element={<Kardex />} />
       </Routes>
       <GlobalClock />
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
