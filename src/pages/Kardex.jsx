@@ -44,7 +44,7 @@ export default function Kardex() {
   }, [kardexItems]);
 
   const categories = useMemo(() => {
-    const order = ['ENTRADAS', 'GUISOS', 'FRITURAS', 'PESCADOS Y MARISCOS', 'OTROS'];
+    const order = ['ENTRADAS', 'GUISOS', 'FRITURAS Y CARNES', 'PESCADOS Y MARISCOS', 'OTROS'];
     const cats = new Set(activeKardexItems.map(k => k.category || 'OTROS'));
     return Array.from(cats).sort((a, b) => {
       const idxA = order.indexOf(a);

@@ -71,8 +71,12 @@ async function seedMongo() {
             const map = new Map(currentKardex.map(k => [k.id, k]));
             let added = false;
             for (const ki of globalData.kardexItems) {
-              if (!map.has(ki.id)) {
+              const existingKi = map.get(ki.id);
+              if (!existingKi) {
                 currentKardex.push(ki);
+                added = true;
+              } else if (existingKi.category !== ki.category) {
+                existingKi.category = ki.category;
                 added = true;
               }
             }

@@ -2058,31 +2058,31 @@
     {
       "id": "k_lomo_saltado",
       "name": "LOMO SALTADO",
-      "category": "CARNES",
+      "category": "FRITURAS Y CARNES",
       "active": true
     },
     {
       "id": "k_filete_pollo",
       "name": "FILETE DE POLLO CARTA",
-      "category": "CARNES",
+      "category": "FRITURAS Y CARNES",
       "active": true
     },
     {
       "id": "k_milanesa",
       "name": "MILANESA CARTA",
-      "category": "CARNES",
+      "category": "FRITURAS Y CARNES",
       "active": true
     },
     {
       "id": "k_bisteck",
       "name": "BISTECK CARTA",
-      "category": "CARNES",
+      "category": "FRITURAS Y CARNES",
       "active": true
     },
     {
       "id": "k_chicharron_pollo",
       "name": "CHICHARRON DE POLLO",
-      "category": "FRITURAS",
+      "category": "FRITURAS Y CARNES",
       "active": true
     },
     {
