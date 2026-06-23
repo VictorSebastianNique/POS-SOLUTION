@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin } from 'lucide-react';
+import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin, Cloud, HardDrive, RefreshCw, FileText, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 
 export default function DeveloperConfig() {
   const navigate = useNavigate();
-  const { developerSettings, setDeveloperSettings, locations, users, orders } = useStore();
+  const { developerSettings, setDeveloperSettings, locations, users, orders, setOrders, setPastDays, setBusinessDay, pastDays } = useStore();
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState('');
@@ -32,6 +32,40 @@ export default function DeveloperConfig() {
       ...prev,
       metricsOnlySuperAdmin: !prev.metricsOnlySuperAdmin
     }));
+  };
+
+  const handleToggleBillingMode = () => {
+    setDeveloperSettings(prev => ({
+      ...prev,
+      billingMode: prev.billingMode === 'production' ? 'test' : 'production'
+    }));
+  };
+
+  const [showToken, setShowToken] = useState(false);
+  const [storageSize, setStorageSize] = useState('Calculando...');
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    try {
+      let total = 0;
+      for (let x in localStorage) {
+        if (localStorage.hasOwnProperty(x)) {
+          total += (localStorage[x].length + x.length) * 2;
+        }
+      }
+      setStorageSize((total / 1024).toFixed(2) + ' KB');
+    } catch(e) {
+      setStorageSize('No disponible');
+    }
+  }, [isAuthenticated]);
+
+  const handleClearTestHistory = () => {
+    if (window.confirm('🚨 ¡CUIDADO! 🚨\nEsto borrará permanentemente todo el historial de pedidos, caja y kardex (Días Pasados) de LA SEDE ACTUAL.\n\n¿Deseas continuar y dejar la base de datos en blanco para iniciar producción?')) {
+      setPastDays([]);
+      setOrders([]);
+      setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] });
+      alert('✅ Historial de pruebas eliminado con éxito. El sistema está limpio.');
+    }
   };
 
   const handleClearSessions = () => {
@@ -176,6 +210,83 @@ export default function DeveloperConfig() {
                 <Database size={24} style={{ color: '#44aaff', margin: '0 auto 0.5rem auto' }} />
                 <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{orders.length}</p>
                 <p style={{ fontSize: '0.75rem', color: '#888' }}>Pedidos Históricos</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Facturación y APIs Externas */}
+          <div className="card md-col-span-1" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
+            <h2 className="title flex items-center gap-2 mb-4" style={{ fontSize: '1.1rem', color: '#fff' }}>
+              <Cloud size={18} style={{ color: '#ffb84d' }} /> API de Facturación Externa
+            </h2>
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                <div>
+                  <p style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Entorno de API</p>
+                  <p style={{ fontSize: '0.75rem', color: developerSettings.billingMode === 'production' ? '#00ffcc' : '#ffb84d' }}>
+                    {developerSettings.billingMode === 'production' ? 'PRODUCCIÓN (SUNAT)' : 'PRUEBAS (Sandbox)'}
+                  </p>
+                </div>
+                <button 
+                  onClick={handleToggleBillingMode}
+                  style={{
+                    padding: '0.4rem 0.8rem', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem',
+                    backgroundColor: '#333', color: '#fff'
+                  }}
+                >
+                  Cambiar
+                </button>
+              </div>
+
+              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Token de Integración (Bearer)</p>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showToken ? 'text' : 'password'}
+                    className="input w-full"
+                    value={developerSettings.billingToken || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token'}
+                    readOnly
+                    style={{ backgroundColor: '#111', color: '#00ffcc', borderColor: '#333', paddingRight: '2.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                  />
+                  <button 
+                    onClick={() => setShowToken(!showToken)}
+                    style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}
+                  >
+                    {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '0.5rem' }}>El token se inyecta en el header de las peticiones hacia Nubefact.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5: Almacenamiento y Limpieza */}
+          <div className="card md-col-span-1" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
+            <h2 className="title flex items-center gap-2 mb-4" style={{ fontSize: '1.1rem', color: '#fff' }}>
+              <HardDrive size={18} style={{ color: '#ff44ff' }} /> Estado de Almacenamiento
+            </h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                <div className="flex items-center gap-3">
+                  <Database size={24} style={{ color: '#ff44ff' }} />
+                  <div>
+                    <p style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Uso de Memoria Local</p>
+                    <p style={{ fontSize: '0.75rem', color: '#888' }}>Tamaño estimado del caché LocalStorage</p>
+                  </div>
+                </div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#00ffcc' }}>
+                  {storageSize}
+                </div>
+              </div>
+
+              <div className="p-3 rounded" style={{ backgroundColor: '#330000', border: '1px solid #ff4444' }}>
+                <p className="flex items-center gap-2 font-bold mb-2" style={{ color: '#ff4444' }}><AlertTriangle size={16} /> Danger Zone</p>
+                <p style={{ fontSize: '0.75rem', color: '#ffaaaa', marginBottom: '1rem' }}>
+                  Elimina permanentemente el historial de pedidos, caja y Kardex (días pasados) de la Sede Actual. Ideal para preparar a producción.
+                </p>
+                <button className="btn w-full flex justify-center gap-2 items-center" style={{ backgroundColor: '#ff4444', color: '#fff', border: 'none', padding: '0.6rem', fontWeight: 'bold', borderRadius: '8px' }} onClick={handleClearTestHistory}>
+                  <Trash2 size={16} /> Limpiar Historial de Pruebas
+                </button>
               </div>
             </div>
           </div>
