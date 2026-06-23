@@ -27,7 +27,7 @@ export default function Admin() {
   const currentLoc = locations?.find(l => l.id === localStorage.getItem('currentLocationId'));
   
   const [activeTab, setActiveTab] = useState('caja');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   useEffect(() => {
     const onResize = () => setWindowWidth(window.innerWidth);
@@ -408,6 +408,12 @@ export default function Admin() {
       {active ? <span className="flex items-center gap-1"><Check size={14}/> Activo</span> : <span className="flex items-center gap-1"><X size={14}/> Inactivo</span>}
     </button>
   );
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    if (window.innerWidth <= 1024) {
+      setSidebarOpen(false);
+    }
+  };
 
   return (
     <div className="animate-fade-in" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-color)', paddingBottom: '3rem' }}>
@@ -420,14 +426,12 @@ export default function Admin() {
       )}
       <div className="top-nav" style={{ borderRadius: isMobile ? 0 : 'var(--border-radius)', marginBottom: isMobile ? '1rem' : '2rem', padding: isMobile ? '0.6rem 1rem' : undefined }}>
         <div className="flex items-center gap-3">
-          {isMobile && (
-            <button
-              onClick={() => setSidebarOpen(o => !o)}
-              style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.35rem 0.5rem', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}
-            >
-              <span style={{ fontSize: '1.2rem' }}>&#9776;</span>
-            </button>
-          )}
+          <button
+            onClick={() => setSidebarOpen(o => !o)}
+            style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.35rem 0.5rem', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}
+          >
+            <span style={{ fontSize: '1.2rem' }}>&#9776;</span>
+          </button>
           <Settings size={isMobile ? 20 : 28} style={{ color: 'var(--primary-color)' }} />
           <h1 className="title" style={{ fontSize: isMobile ? '1rem' : '1.5rem' }}>{isMobile ? 'Admin' : 'Panel de Administración'}</h1>
         </div>
@@ -452,7 +456,7 @@ export default function Admin() {
         <div style={{
           width: isMobile ? '260px' : '220px',
           flexShrink: 0,
-          display: isMobile ? (sidebarOpen ? 'flex' : 'none') : 'flex',
+          display: sidebarOpen ? 'flex' : 'none',
           flexDirection: 'column',
           gap: '0.5rem',
           position: isMobile ? 'fixed' : 'relative',
@@ -465,24 +469,24 @@ export default function Admin() {
           overflowY: isMobile ? 'auto' : undefined,
         }}>
           {isMobile && <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Menú Admin</div>}
-          <button className={`btn ${activeTab === 'caja' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('caja'); setSidebarOpen(false); }}>Caja y Reportes</button>
-          <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('users'); setSidebarOpen(false); }}>Usuarios</button>
-          <button className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('categories'); setSidebarOpen(false); }}>Categorías</button>
-          <button className={`btn ${activeTab === 'subcategories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('subcategories'); setSidebarOpen(false); }}>Subcategorías</button>
-          <button className={`btn ${activeTab === 'menu' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('menu'); setSidebarOpen(false); }}>Platos / Menú</button>
-          <button className={`btn ${activeTab === 'kardex_config' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('kardex_config'); setSidebarOpen(false); }}>Insumos Kardex</button>
-          <button className={`btn ${activeTab === 'zones' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('zones'); setSidebarOpen(false); }}>Zonas y Mesas</button>
-          <button className={`btn ${activeTab === 'empresas' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('empresas'); setSidebarOpen(false); }}><Building2 size={15}/> Empresas</button>
+          <button className={`btn ${activeTab === 'caja' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('caja')}>Caja y Reportes</button>
+          <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('users')}>Usuarios</button>
+          <button className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('categories')}>Categorías</button>
+          <button className={`btn ${activeTab === 'subcategories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('subcategories')}>Subcategorías</button>
+          <button className={`btn ${activeTab === 'menu' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('menu')}>Platos / Menú</button>
+          <button className={`btn ${activeTab === 'kardex_config' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('kardex_config')}>Insumos Kardex</button>
+          <button className={`btn ${activeTab === 'zones' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('zones')}>Zonas y Mesas</button>
+          <button className={`btn ${activeTab === 'empresas' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('empresas')}><Building2 size={15}/> Empresas</button>
           
           
           {(!developerSettings?.metricsOnlySuperAdmin || isSuperAdmin) && (
-            <button className={`btn ${activeTab === 'metrics' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('metrics'); setSidebarOpen(false); }}><TrendingUp size={15}/> Business Intelligence (BI)</button>
+            <button className={`btn ${activeTab === 'metrics' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('metrics')}><TrendingUp size={15}/> Business Intelligence (BI)</button>
           )}
 
-          <button className={`btn ${activeTab === 'auditoria' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('auditoria'); setSidebarOpen(false); }}><ShieldAlert size={15}/> Auditoría</button>
+          <button className={`btn ${activeTab === 'auditoria' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('auditoria')}><ShieldAlert size={15}/> Auditoría</button>
 
           {isSuperAdmin && (
-            <button className={`btn ${activeTab === 'locales' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => { setActiveTab('locales'); setSidebarOpen(false); }}><MapPin size={15}/> Locales / Sedes</button>
+            <button className={`btn ${activeTab === 'locales' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('locales')}><MapPin size={15}/> Locales / Sedes</button>
           )}
           
           <div className="mt-6 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
