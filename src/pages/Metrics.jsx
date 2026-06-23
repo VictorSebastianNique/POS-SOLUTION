@@ -36,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }) => {
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entry.color, boxShadow: `0 0 6px ${entry.color}` }} />
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{entry.name}:</span>
           <span style={{ fontWeight: 700, color: entry.color, fontSize: '0.9rem' }}>
-            {(entry.name?.includes('Venta') || entry.name?.includes('Proy') || entry.name?.includes('Monto') || entry.name?.includes('Tend'))
+            {(entry.name?.includes('Venta') || entry.name?.includes('Proy') || entry.name?.includes('Monto') || entry.name?.includes('Tend') || entry.dataKey === 'value' || entry.dataKey === 'Ingresos' || entry.dataKey === 'Costo' || entry.dataKey === 'Rentabilidad')
               ? `S/ ${Number(entry.value).toFixed(2)}`
               : entry.value}
           </span>
@@ -410,7 +410,7 @@ export default function Metrics() {
 
       {/* ── Pie + Heatmap ───────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
-        <ChartContainer title="Distribución de Ingresos (Top 6)" icon={<PieIcon />} badge="Por producto" accentColor="#f59e0b">
+        <ChartContainer title="Distribución de Ingresos (Top 6 + Otros)" icon={<PieIcon />} badge="Por producto" accentColor="#ff6b2b">
           {itemRanking.pieData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
