@@ -53,6 +53,61 @@ async function seedMongo() {
           console.log(`Seeded local database for "${locId}" successfully.`);
         }
       }
+    } else {
+      // Merge kardexItems and recipes if global exists
+      console.log('MongoDB global exists. Checking for kardexItems and recipe migrations...');
+      const globalPath = path.resolve(ROOT_DIR, 'db_global.json');
+      if (fs.existsSync(globalPath)) {
+        const globalData = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
+        let needsUpdate = false;
+        
+        // Merge kardexItems
+        if (globalData.kardexItems && globalData.kardexItems.length > 0) {
+          const currentKardex = globalExists.kardexItems || [];
+          if (currentKardex.length === 0) {
+            globalExists.kardexItems = globalData.kardexItems;
+            needsUpdate = true;
+          } else {
+            const map = new Map(currentKardex.map(k => [k.id, k]));
+            let added = false;
+            for (const ki of globalData.kardexItems) {
+              if (!map.has(ki.id)) {
+                currentKardex.push(ki);
+                added = true;
+              }
+            }
+            if (added) {
+              globalExists.kardexItems = currentKardex;
+              needsUpdate = true;
+            }
+          }
+        }
+
+        // Merge menu recipes
+        if (globalData.menu) {
+           const currentMenu = globalExists.menu || [];
+           let updatedRecipes = false;
+           for (const item of currentMenu) {
+             const localItem = globalData.menu.find(m => m.id === item.id);
+             if (localItem && localItem.recipe && (!item.recipe || item.recipe.length === 0)) {
+               item.recipe = localItem.recipe;
+               updatedRecipes = true;
+             }
+           }
+           if (updatedRecipes) {
+             globalExists.menu = currentMenu;
+             needsUpdate = true;
+           }
+        }
+
+        if (needsUpdate) {
+          const { _id, ...rest } = globalExists;
+          await db.collection('store').updateOne({ _id: 'global' }, { $set: rest });
+          console.log('Successfully migrated kardexItems and recipes to MongoDB.');
+        } else {
+          console.log('No migration needed. Database is up to date.');
+        }
+      }
     }
   } catch (err) {
     console.error('Error seeding MongoDB database:', err);
