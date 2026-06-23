@@ -455,7 +455,9 @@ if (barCart.length > 0) {
     return { success: true };
   };
 
-  const updateOrderStatus = (orderId, newStatus) => setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+  const updateOrderStatus = (orderId, newStatus) => setOrders(prev => prev.map(o => 
+    o.id === orderId ? { ...o, status: newStatus, completedAt: newStatus === 'ready' ? Date.now() : o.completedAt } : o
+  ));
 
   const addIncome = (amount, category, details, paymentMethod) => {
     setBusinessDay(prev => ({

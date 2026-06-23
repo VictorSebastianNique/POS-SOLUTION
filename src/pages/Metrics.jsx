@@ -9,11 +9,11 @@ import {
   TrendingUp, Users, DollarSign, Clock, Award,
   AlertTriangle, ShieldAlert, Activity,
   PieChart as PieIcon, BarChart3,
-  ArrowUpRight, ArrowDownRight
+  ArrowUpRight, ArrowDownRight, MapPin
 } from 'lucide-react';
 
 /* ── Paleta de gráficos (se ve bien en ambos temas) ─────────── */
-const CHART_COLORS = ['#ff6b2b', '#10d990', '#6366f1', '#f59e0b', '#38bdf8', '#f43f5e'];
+const CHART_COLORS = ['#ff6b2b', '#10d990', '#6366f1', '#f59e0b', '#38bdf8', '#f43f5e', '#8b5cf6', '#94a3b8'];
 
 /* ── Tooltip adaptativo ─────────────────────────────────────── */
 const CustomTooltip = ({ active, payload, label }) => {
@@ -170,7 +170,7 @@ const GRID_COLOR = 'rgba(128,128,128,0.12)';
    COMPONENTE PRINCIPAL
    ══════════════════════════════════════════════════════════════ */
 export default function Metrics() {
-  const { pastDays, businessDay } = useStore();
+  const { pastDays, businessDay, orders = [], menu = [], kardexItems = [] } = useStore();
 
   const allDays = useMemo(() => {
     const days = [...pastDays];
@@ -221,11 +221,21 @@ export default function Metrics() {
       map[item.item].quantity += item.quantity;
       map[item.item].revenue += item.price * item.quantity;
     }));
-    const sorted = Object.values(map).sort((a, b) => b.quantity - a.quantity);
+    const sortedByRevenue = Object.values(map).sort((a, b) => b.revenue - a.revenue);
+    const top6 = sortedByRevenue.slice(0, 6);
+    const others = sortedByRevenue.slice(6);
+    
+    const pieData = top6.map(i => ({ name: i.name, value: +i.revenue.toFixed(2) }));
+    if (others.length > 0) {
+      const othersRevenue = others.reduce((sum, item) => sum + item.revenue, 0);
+      pieData.push({ name: 'OTROS', value: +othersRevenue.toFixed(2) });
+    }
+
+    const sortedByQuantity = Object.values(map).sort((a, b) => b.quantity - a.quantity);
     return {
-      top: sorted.slice(0, 5),
-      pieData: sorted.slice(0, 6).map(i => ({ name: i.name, value: +i.revenue.toFixed(2) })),
-      bottom: sorted.slice(-5).reverse().filter(i => i.quantity > 0),
+      top: sortedByQuantity.slice(0, 5),
+      pieData: pieData,
+      bottom: sortedByQuantity.slice(-5).reverse().filter(i => i.quantity > 0),
     };
   }, [allSales]);
 
@@ -246,6 +256,66 @@ export default function Metrics() {
     Efectivas: (d.sales || []).length,
     Anuladas: (d.voids || []).length,
   })), [allDays]);
+
+  /* 6. Rendimiento por Zonas */
+  const zonePerformance = useMemo(() => {
+    const map = {};
+    allSales.forEach(s => {
+      const z = s.zone || 'Sin Zona';
+      if (!map[z]) map[z] = { name: z, Ingresos: 0 };
+      map[z].Ingresos += s.total;
+    });
+    return Object.values(map).sort((a,b) => b.Ingresos - a.Ingresos);
+  }, [allSales]);
+
+  /* 7. Tiempo Promedio de Atención */
+  const avgWaitTime = useMemo(() => {
+    let totalMins = 0;
+    let count = 0;
+    orders.forEach(o => {
+       if (o.timestamp && o.completedAt) {
+          totalMins += (new Date(o.completedAt) - new Date(o.timestamp)) / 60000;
+          count++;
+       }
+    });
+    return count > 0 ? (totalMins / count).toFixed(1) : 'N/A';
+  }, [orders]);
+
+  /* 8. Mapa de Calor (Demanda por Día) */
+  const heatmapData = useMemo(() => {
+    const daysMap = { 0: 'Dom', 1: 'Lun', 2: 'Mar', 3: 'Mié', 4: 'Jue', 5: 'Vie', 6: 'Sáb' };
+    const map = { 'Dom': 0, 'Lun': 0, 'Mar': 0, 'Mié': 0, 'Jue': 0, 'Vie': 0, 'Sáb': 0 };
+    allSales.forEach(s => {
+      const d = new Date(s.timestamp).getDay();
+      map[daysMap[d]]++;
+    });
+    return Object.keys(map).map(k => ({ name: k, Órdenes: map[k] })).filter(d => d.Órdenes > 0);
+  }, [allSales]);
+
+  /* 9. Rentabilidad (Top 5) */
+  const profitabilityData = useMemo(() => {
+     return itemRanking.top.map(item => {
+        const menuItem = menu.find(m => m.name === item.name);
+        let cost = 0;
+        if (menuItem && menuItem.kardexRecipe) {
+           menuItem.kardexRecipe.forEach(r => {
+              const ki = kardexItems.find(k => k.id === r.kardexId);
+              if (ki && ki.costoPromedio) {
+                 cost += ki.costoPromedio * (parseFloat(r.qty) || 1);
+              }
+           });
+        }
+        if (cost === 0) {
+           const price = menuItem ? menuItem.price : (item.revenue / item.quantity);
+           cost = price * 0.3; // Estimación del 30% si no hay receta
+        }
+        
+        const totalCost = cost * item.quantity;
+        const profit = item.revenue - totalCost;
+        
+        return { name: item.name, Ingresos: +item.revenue.toFixed(2), Costo: +totalCost.toFixed(2), Rentabilidad: +profit.toFixed(2) };
+     });
+  }, [itemRanking, menu, kardexItems]);
 
   /* KPIs */
   const totalRevenue = allSales.reduce((s, v) => s + v.total, 0);
@@ -289,6 +359,13 @@ export default function Metrics() {
         <KPICard title="Ticket Promedio / Mesa"  value={`S/ ${avgTicket}`}               icon={<TrendingUp />}  color="#ff6b2b" subtitle="Consumo por mesa" />
         <KPICard title="Ticket Promedio / Pax"   value={`S/ ${avgPerHead}`}              icon={<PieIcon />}     color="#6366f1" subtitle="Por comensal" />
         <KPICard title="Tráfico Total (Pax)"     value={totalPax}                         icon={<Users />}       color="#f59e0b" subtitle="Comensales atendidos" />
+        <KPICard
+          title="Tiempo Atención (Prom)"
+          value={avgWaitTime !== 'N/A' ? `${avgWaitTime} min` : 'N/A'}
+          icon={<Clock />}
+          color="#38bdf8"
+          subtitle="Preparación a mesa"
+        />
         <KPICard
           title="Tasa de Anulación"
           value={`${voidRate}%`}
@@ -414,6 +491,66 @@ export default function Metrics() {
               </AreaChart>
             </ResponsiveContainer>
           ) : <EmptyState msg="Sin datos de control de calidad" />}
+        </ChartContainer>
+      </div>
+
+      {/* ── Nuevas Métricas Avanzadas (Rentabilidad, Zonas, Mapa de Calor) ─────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+        <ChartContainer title="Rentabilidad Estimada (Top 5)" icon={<DollarSign />} badge="Ingreso vs Costo" accentColor="#10d990">
+          {profitabilityData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={profitabilityData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
+                <CartesianGrid stroke={GRID_COLOR} strokeDasharray="4 4" horizontal={false} />
+                <XAxis type="number" {...axisProps} />
+                <YAxis dataKey="name" type="category" tick={{ fill: AXIS_COLOR, fontWeight: 600, fontSize: 10 }} axisLine={false} tickLine={false} width={90} />
+                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: GRID_COLOR }} />
+                <Legend wrapperStyle={{ fontSize: '11px', color: AXIS_COLOR, paddingTop: '5px' }} />
+                <Bar dataKey="Ingresos" fill="#10d990" radius={[0,4,4,0]} barSize={12} />
+                <Bar dataKey="Costo" fill="#ff4d6d" radius={[0,4,4,0]} barSize={12} />
+                <Bar dataKey="Rentabilidad" fill="#6366f1" radius={[0,4,4,0]} barSize={12} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          ) : <EmptyState msg="Sin datos de rentabilidad" />}
+        </ChartContainer>
+
+        <ChartContainer title="Rendimiento por Zonas" icon={<MapPin />} badge="Ingresos" accentColor="#38bdf8">
+          {zonePerformance.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={zonePerformance} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gZonas" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor="#38bdf8" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={GRID_COLOR} strokeDasharray="4 4" vertical={false} />
+                <XAxis dataKey="name" {...axisProps} />
+                <YAxis {...axisProps} />
+                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: GRID_COLOR }} />
+                <Bar dataKey="Ingresos" fill="url(#gZonas)" radius={[6,6,0,0]} maxBarSize={50} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <EmptyState msg="Sin datos de zonas" />}
+        </ChartContainer>
+
+        <ChartContainer title="Demanda por Día" icon={<Clock />} badge="Órdenes diarias" accentColor="#8b5cf6">
+          {heatmapData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={heatmapData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gDias" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor="#8b5cf6" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#f43f5e" stopOpacity={1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={GRID_COLOR} strokeDasharray="4 4" vertical={false} />
+                <XAxis dataKey="name" {...axisProps} />
+                <YAxis {...axisProps} />
+                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: GRID_COLOR }} />
+                <Bar dataKey="Órdenes" fill="url(#gDias)" radius={[6,6,0,0]} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <EmptyState msg="Sin datos de días" />}
         </ChartContainer>
       </div>
 
