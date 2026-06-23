@@ -39,6 +39,11 @@ const CustomTooltip = ({ active, payload, label }) => {
             {(entry.name?.includes('Venta') || entry.name?.includes('Proy') || entry.name?.includes('Monto') || entry.name?.includes('Tend') || entry.dataKey === 'value' || entry.dataKey === 'Ingresos' || entry.dataKey === 'Costo' || entry.dataKey === 'Rentabilidad')
               ? `S/ ${Number(entry.value).toFixed(2)}`
               : entry.value}
+            {entry.payload && entry.payload.pct !== undefined && (
+              <span style={{ fontSize: '0.8rem', opacity: 0.8, marginLeft: '6px' }}>
+                ({entry.payload.pct.toFixed(1)}%)
+              </span>
+            )}
           </span>
         </div>
       ))}
@@ -225,10 +230,11 @@ export default function Metrics() {
     const top6 = sortedByRevenue.slice(0, 6);
     const others = sortedByRevenue.slice(6);
     
-    const pieData = top6.map(i => ({ name: i.name, value: +i.revenue.toFixed(2) }));
+    const totalRev = sortedByRevenue.reduce((sum, item) => sum + item.revenue, 0);
+    const pieData = top6.map(i => ({ name: i.name, value: +i.revenue.toFixed(2), pct: totalRev > 0 ? (i.revenue / totalRev) * 100 : 0 }));
     if (others.length > 0) {
       const othersRevenue = others.reduce((sum, item) => sum + item.revenue, 0);
-      pieData.push({ name: 'OTROS', value: +othersRevenue.toFixed(2) });
+      pieData.push({ name: 'OTROS', value: +othersRevenue.toFixed(2), pct: totalRev > 0 ? (othersRevenue / totalRev) * 100 : 0 });
     }
 
     const sortedByQuantity = Object.values(map).sort((a, b) => b.quantity - a.quantity);
