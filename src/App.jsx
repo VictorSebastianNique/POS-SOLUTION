@@ -26,8 +26,8 @@ const GlobalClock = () => {
     <div style={{
       position: 'fixed',
       bottom: isMobile ? '6px' : '12px',
-      left: isMobile ? '8px' : '50%',
-      transform: isMobile ? 'none' : 'translateX(-50%)',
+      left: '50%',
+      transform: 'translateX(-50%)',
       background: 'var(--glass-bg)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
