@@ -176,6 +176,7 @@ const GRID_COLOR = 'rgba(128,128,128,0.12)';
    ══════════════════════════════════════════════════════════════ */
 export default function Metrics() {
   const { pastDays, businessDay, orders = [], menu = [], kardexItems = [] } = useStore();
+  const [pieFilter, setPieFilter] = useState('all'); // 'all', 'comida', 'bebida'
 
   const allDays = useMemo(() => {
     const days = [...pastDays];
@@ -218,7 +219,7 @@ export default function Metrics() {
     return hrs.map((c, h) => ({ name: `${String(h).padStart(2, '0')}:00`, Órdenes: c })).filter(h => h.Órdenes > 0);
   }, [allSales]);
 
-  /* 3. Ranking de Productos */
+  /* 3. Ranking de Productos (General) */
   const itemRanking = useMemo(() => {
     const map = {};
     allSales.forEach(s => (s.items || []).forEach(item => {
@@ -226,24 +227,40 @@ export default function Metrics() {
       map[item.item].quantity += item.quantity;
       map[item.item].revenue += item.price * item.quantity;
     }));
+    const sortedByQuantity = Object.values(map).sort((a, b) => b.quantity - a.quantity);
+    return {
+      top: sortedByQuantity.slice(0, 5),
+      bottom: sortedByQuantity.slice(-5).reverse().filter(i => i.quantity > 0),
+    };
+  }, [allSales]);
+
+  /* 3b. Datos del Gráfico de Torta (con filtro) */
+  const pieChartData = useMemo(() => {
+    const map = {};
+    allSales.forEach(s => (s.items || []).forEach(item => {
+      const menuItem = menu.find(m => m.name === item.item);
+      const isBebida = menuItem && menuItem.category && menuItem.category.toLowerCase().includes('bebida');
+      
+      if (pieFilter === 'bebida' && !isBebida) return;
+      if (pieFilter === 'comida' && isBebida) return;
+
+      if (!map[item.item]) map[item.item] = { name: item.item, quantity: 0, revenue: 0 };
+      map[item.item].quantity += item.quantity;
+      map[item.item].revenue += item.price * item.quantity;
+    }));
+
     const sortedByRevenue = Object.values(map).sort((a, b) => b.revenue - a.revenue);
     const top6 = sortedByRevenue.slice(0, 6);
     const others = sortedByRevenue.slice(6);
     
     const totalRev = sortedByRevenue.reduce((sum, item) => sum + item.revenue, 0);
-    const pieData = top6.map(i => ({ name: i.name, value: +i.revenue.toFixed(2), pct: totalRev > 0 ? (i.revenue / totalRev) * 100 : 0 }));
+    const data = top6.map(i => ({ name: i.name, value: +i.revenue.toFixed(2), pct: totalRev > 0 ? (i.revenue / totalRev) * 100 : 0 }));
     if (others.length > 0) {
       const othersRevenue = others.reduce((sum, item) => sum + item.revenue, 0);
-      pieData.push({ name: 'OTROS', value: +othersRevenue.toFixed(2), pct: totalRev > 0 ? (othersRevenue / totalRev) * 100 : 0 });
+      data.push({ name: 'OTROS', value: +othersRevenue.toFixed(2), pct: totalRev > 0 ? (othersRevenue / totalRev) * 100 : 0 });
     }
-
-    const sortedByQuantity = Object.values(map).sort((a, b) => b.quantity - a.quantity);
-    return {
-      top: sortedByQuantity.slice(0, 5),
-      pieData: pieData,
-      bottom: sortedByQuantity.slice(-5).reverse().filter(i => i.quantity > 0),
-    };
-  }, [allSales]);
+    return data;
+  }, [allSales, menu, pieFilter]);
 
   /* 4. Ranking Mozos */
   const waiterPerformance = useMemo(() => {
@@ -407,7 +424,7 @@ export default function Metrics() {
                 <Legend wrapperStyle={{ paddingTop: '16px', fontSize: '12px', color: AXIS_COLOR }} />
                 <Bar      yAxisId="right" dataKey="Comensales" fill="url(#gPax)"    radius={[4,4,0,0]} maxBarSize={32} opacity={0.85} />
                 <Area     yAxisId="left"  dataKey="Ventas"     stroke="#6366f1" strokeWidth={2.5} fill="url(#gVentas)" />
-                <TrendingUp yAxisId="left" dataKey="Proyección" stroke="#ff6b2b" />
+                <Line     yAxisId="left"  dataKey="Proyección" stroke="#ff6b2b" strokeWidth={2} dot={false} strokeDasharray="5 5" />
               </ComposedChart>
             </ResponsiveContainer>
           ) : <EmptyState msg="Necesitas al menos 2 días de ventas para ver la proyección" />}
@@ -416,19 +433,43 @@ export default function Metrics() {
 
       {/* ── Pie + Heatmap ───────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
-        <ChartContainer title="Distribución de Ingresos (Top 6 + Otros)" icon={<PieIcon />} badge="Por producto" accentColor="#ff6b2b">
-          {itemRanking.pieData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <RechartsTooltip content={<CustomTooltip />} />
-                <Pie data={itemRanking.pieData} cx="50%" cy="45%" innerRadius="50%" outerRadius="70%" paddingAngle={4} dataKey="value" stroke="none">
-                  {itemRanking.pieData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                </Pie>
-                <Legend layout="horizontal" verticalAlign="bottom" wrapperStyle={{ fontSize: '11px', color: AXIS_COLOR, paddingTop: '12px' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : <EmptyState />}
-        </ChartContainer>
+        <div style={{ background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '10px' }}>
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PieIcon size={16} color="#ff6b2b" /> Distribución de Ingresos
+            </h2>
+            <div style={{ display: 'flex', background: 'var(--surface-color)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+              <button 
+                onClick={() => setPieFilter('all')}
+                style={{ padding: '4px 12px', fontSize: '0.75rem', borderRadius: '6px', fontWeight: 600, background: pieFilter === 'all' ? 'var(--primary-color)' : 'transparent', color: pieFilter === 'all' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', border: 'none', outline: 'none' }}>
+                Todos
+              </button>
+              <button 
+                onClick={() => setPieFilter('comida')}
+                style={{ padding: '4px 12px', fontSize: '0.75rem', borderRadius: '6px', fontWeight: 600, background: pieFilter === 'comida' ? 'var(--primary-color)' : 'transparent', color: pieFilter === 'comida' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', border: 'none', outline: 'none' }}>
+                Comida
+              </button>
+              <button 
+                onClick={() => setPieFilter('bebida')}
+                style={{ padding: '4px 12px', fontSize: '0.75rem', borderRadius: '6px', fontWeight: 600, background: pieFilter === 'bebida' ? 'var(--primary-color)' : 'transparent', color: pieFilter === 'bebida' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', border: 'none', outline: 'none' }}>
+                Bebidas
+              </button>
+            </div>
+          </div>
+          <div style={{ flex: 1, minHeight: '250px' }}>
+            {pieChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <RechartsTooltip content={<CustomTooltip />} />
+                  <Pie data={pieChartData} cx="50%" cy="45%" innerRadius="50%" outerRadius="70%" paddingAngle={4} dataKey="value" stroke="none">
+                    {pieChartData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                  </Pie>
+                  <Legend layout="horizontal" verticalAlign="bottom" wrapperStyle={{ fontSize: '11px', color: AXIS_COLOR, paddingTop: '12px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : <EmptyState msg="Sin datos para esta categoría" />}
+          </div>
+        </div>
 
         <ChartContainer title="Mapa de Calor (Horas Pico)" icon={<Clock />} badge="Demanda horaria" accentColor="#f59e0b">
           {peakHoursData.length > 0 ? (
