@@ -139,7 +139,7 @@ export const StoreProvider = ({ children }) => {
   };
 
   React.useEffect(() => { if (!loading) saveState('currentUser', currentUser, true); }, [currentUser, loading]);
-  React.useEffect(() => { if (!loading) saveState('locations', locations, true); }, [locations, loading]);
+  React.useEffect(() => { if (!loading && locations.length > 0) saveState('locations', locations, true); }, [locations, loading]);
   React.useEffect(() => { if (!loading) saveState('kardexItems', kardexItems, true); }, [kardexItems, loading]);
   
   // Custom user saving to split superadmins and locals

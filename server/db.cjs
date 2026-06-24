@@ -61,6 +61,14 @@ async function seedMongo() {
         const globalData = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
         let needsUpdate = false;
         
+        // Restore locations if missing
+        if (!globalExists.locations || globalExists.locations.length === 0) {
+          if (globalData.locations && globalData.locations.length > 0) {
+            globalExists.locations = globalData.locations;
+            needsUpdate = true;
+          }
+        }
+        
         // Merge kardexItems
         if (globalData.kardexItems && globalData.kardexItems.length > 0) {
           const currentKardex = globalExists.kardexItems || [];
