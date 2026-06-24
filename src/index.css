@@ -269,6 +269,12 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--surface-hover);
 }
 
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 3rem 2.5rem;
+}
+
 /* ============================================================
    BOTONES
    ============================================================ */
@@ -584,6 +590,7 @@ h1, h2, h3, h4, h5, h6 {
   .grid-cols-3, .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .container  { padding: 0.75rem; }
   .card       { padding: 1rem; }
+  .login-card { padding: 2rem 1.5rem; max-width: 400px; }
   .main-content { padding: 0.75rem; }
   .title      { font-size: 1.2rem; }
   .grid       { gap: 0.75rem; }
@@ -594,6 +601,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 480px) {
   .container { padding: 0.5rem; }
   .card      { padding: 0.75rem; }
+  .login-card { padding: 1.5rem 1.25rem; }
   .top-nav   { padding: 0.5rem 0.75rem; }
   .btn       { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
   .title     { font-size: 1rem; }

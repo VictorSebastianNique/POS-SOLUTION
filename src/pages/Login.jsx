@@ -66,7 +66,7 @@ export default function Login({ isSuperAdminRoute }) {
   return (
     <div className="container flex flex-col items-center justify-center animate-fade-in" style={{ minHeight: '100vh' }}>
       
-      <div className="card w-full" style={{ maxWidth: '400px', padding: '2.5rem' }}>
+      <div className="card login-card">
         {invalidSede ? (
           <div className="text-center">
             <h1 className="title" style={{ fontSize: '1.5rem', color: 'var(--danger-color)' }}>Sede No Encontrada</h1>

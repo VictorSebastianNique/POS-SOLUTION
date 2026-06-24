@@ -82,7 +82,7 @@ const ThemeToggle = ({ theme, onToggle }) => {
 /* ── Página de acceso restringido ─────────────────────────── */
 const RestrictedRoot = () => (
   <div className="container flex flex-col items-center justify-center animate-fade-in" style={{ minHeight: '100vh', textAlign: 'center' }}>
-    <div className="card" style={{ maxWidth: '500px', padding: '3rem' }}>
+    <div className="card login-card">
       <div style={{
         width: '64px', height: '64px',
         background: 'var(--danger-bg)',
