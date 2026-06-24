@@ -61,11 +61,14 @@ async function seedMongo() {
         const globalData = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
         let needsUpdate = false;
         
-        // Restore locations if missing
-        if (!globalExists.locations || globalExists.locations.length === 0) {
-          if (globalData.locations && globalData.locations.length > 0) {
-            globalExists.locations = globalData.locations;
-            needsUpdate = true;
+        // Restore missing core global arrays if they were wiped
+        const globalKeys = ['locations', 'users', 'categories', 'subcategories', 'catalogs', 'menu', 'kardexItems'];
+        for (const k of globalKeys) {
+          if (!globalExists[k] || globalExists[k].length === 0) {
+            if (globalData[k] && globalData[k].length > 0) {
+              globalExists[k] = globalData[k];
+              needsUpdate = true;
+            }
           }
         }
         
@@ -118,6 +121,32 @@ async function seedMongo() {
           console.log('Successfully migrated kardexItems and recipes to MongoDB.');
         } else {
           console.log('No migration needed. Database is up to date.');
+        }
+      }
+      
+      // Check local files to restore wiped local arrays
+      const files = fs.readdirSync(ROOT_DIR).filter(f => f.startsWith('db_local_') && f.endsWith('.json'));
+      for (const file of files) {
+        const rawLocId = file.replace('db_local_', '').replace('.json', '');
+        const decodedLocId = decodeURIComponent(rawLocId);
+        const localExists = await db.collection('store').findOne({ _id: `local_${decodedLocId}` });
+        if (localExists) {
+          const localData = JSON.parse(fs.readFileSync(path.resolve(ROOT_DIR, file), 'utf-8'));
+          const localKeys = ['users', 'zones', 'companies'];
+          let localNeedsUpdate = false;
+          for (const k of localKeys) {
+            if (!localExists[k] || localExists[k].length === 0) {
+              if (localData[k] && localData[k].length > 0) {
+                localExists[k] = localData[k];
+                localNeedsUpdate = true;
+              }
+            }
+          }
+          if (localNeedsUpdate) {
+            const { _id, ...rest } = localExists;
+            await db.collection('store').updateOne({ _id: localExists._id }, { $set: rest });
+            console.log(`Successfully restored wiped arrays for local_${decodedLocId}`);
+          }
         }
       }
     }

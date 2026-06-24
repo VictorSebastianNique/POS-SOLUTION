@@ -138,25 +138,25 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
-  React.useEffect(() => { if (!loading) saveState('currentUser', currentUser, true); }, [currentUser, loading]);
+  React.useEffect(() => { if (!loading && currentUser) saveState('currentUser', currentUser, true); }, [currentUser, loading]);
   React.useEffect(() => { if (!loading && locations.length > 0) saveState('locations', locations, true); }, [locations, loading]);
-  React.useEffect(() => { if (!loading) saveState('kardexItems', kardexItems, true); }, [kardexItems, loading]);
+  React.useEffect(() => { if (!loading && kardexItems.length > 0) saveState('kardexItems', kardexItems, true); }, [kardexItems, loading]);
   
   // Custom user saving to split superadmins and locals
   React.useEffect(() => { 
-    if (!loading) {
+    if (!loading && users.length > 0) {
       const superadmins = users.filter(u => u.role === 'superadmin');
       const localUsers = users.filter(u => u.role !== 'superadmin');
-      saveState('users', superadmins, true);
+      if (superadmins.length > 0) saveState('users', superadmins, true);
       saveState('users', localUsers, false);
     } 
   }, [users, loading]);
-  React.useEffect(() => { if (!loading) saveState('categories', categories, true); }, [categories, loading]);
-  React.useEffect(() => { if (!loading) saveState('subcategories', subcategories, true); }, [subcategories, loading]);
-  React.useEffect(() => { if (!loading) saveState('developerSettings', developerSettings, true); }, [developerSettings, loading]);
-  React.useEffect(() => { if (!loading) saveState('catalogs', catalogs, true); }, [catalogs, loading]);
+  React.useEffect(() => { if (!loading && categories.length > 0) saveState('categories', categories, true); }, [categories, loading]);
+  React.useEffect(() => { if (!loading && subcategories.length > 0) saveState('subcategories', subcategories, true); }, [subcategories, loading]);
+  React.useEffect(() => { if (!loading && developerSettings) saveState('developerSettings', developerSettings, true); }, [developerSettings, loading]);
+  React.useEffect(() => { if (!loading && catalogs.length > 0) saveState('catalogs', catalogs, true); }, [catalogs, loading]);
   
-  React.useEffect(() => { if (!loading) saveState('zones', zones); }, [zones, loading]);
+  React.useEffect(() => { if (!loading && zones.length > 0) saveState('zones', zones); }, [zones, loading]);
   React.useEffect(() => { if (!loading) saveState('orders', orders); }, [orders, loading]);
   React.useEffect(() => { if (!loading) saveState('isBarActive', isBarActive); }, [isBarActive, loading]);
   React.useEffect(() => { if (!loading) saveState('businessDay', businessDay); }, [businessDay, loading]);
