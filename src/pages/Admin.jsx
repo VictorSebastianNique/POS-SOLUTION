@@ -667,11 +667,11 @@ export default function Admin() {
                 <form onSubmit={handleAddUser} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1 }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre Real</label>
-                    <input className="input mt-1 w-full" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value.toUpperCase()})} placeholder="Ej. Juan Pérez" required />
+                    <input className="input mt-1 w-full" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} placeholder="Ej. Juan Pérez" required />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Usuario (Login)</label>
-                    <input className="input mt-1" value={newUser.username} onChange={e => setNewUser({...newUser, username: e.target.value.toUpperCase()})} placeholder="juanp" required style={{ width: '150px' }} />
+                    <input className="input mt-1" value={newUser.username} onChange={e => setNewUser({...newUser, username: e.target.value})} placeholder="juanp" required style={{ width: '150px' }} />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Contraseña</label>
@@ -712,8 +712,8 @@ export default function Admin() {
                       <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                         {editUser?.id === u.id ? (
                           <>
-                            <td className="py-2"><input className="input" value={editUser.data.name} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, name: e.target.value.toUpperCase() } })} /></td>
-                            <td className="py-2"><input className="input" value={editUser.data.username} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, username: e.target.value.toUpperCase() } })} /></td>
+                            <td className="py-2"><input className="input" value={editUser.data.name} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, name: e.target.value } })} /></td>
+                            <td className="py-2"><input className="input" value={editUser.data.username} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, username: e.target.value } })} /></td>
                             <td className="py-2">
                               <div className="flex items-center gap-2">
                                 <input type={visiblePasswords[u.id] ? "text" : "password"} className="input w-full" value={editUser.data.password} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, password: e.target.value } })} />
