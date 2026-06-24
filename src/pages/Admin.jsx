@@ -432,8 +432,8 @@ export default function Admin() {
           >
             <span style={{ fontSize: '1.2rem' }}>&#9776;</span>
           </button>
-          <img src="/favicon.svg" alt="Logo" style={{ width: isMobile ? '24px' : '32px', height: isMobile ? '24px' : '32px', filter: 'drop-shadow(0 0 8px var(--primary-glow))' }} />
-          <h1 className="title" style={{ fontSize: isMobile ? '1rem' : '1.5rem', whiteSpace: 'nowrap' }}>{isMobile ? 'Admin' : 'Panel de Administración'}</h1>
+          <Settings size={isMobile ? 20 : 28} style={{ color: 'var(--primary-color)' }} />
+          <h1 className="title" style={{ fontSize: isMobile ? '1rem' : '1.5rem' }}>{isMobile ? 'Admin' : 'Panel de Administración'}</h1>
         </div>
         <div className="flex items-center gap-2">
           {!isMobile && (

@@ -76,10 +76,11 @@ export default function Login({ isSuperAdminRoute }) {
         <>
         <div className="flex flex-col items-center gap-3 mb-8">
           <div style={{
-            padding: '0.5rem',
-            background: 'transparent'
+            background: 'linear-gradient(135deg, var(--primary-color), var(--primary-hover))',
+            padding: '1rem', borderRadius: '18px',
+            boxShadow: '0 0 24px var(--primary-glow)',
           }}>
-            <img src="/favicon.svg" alt="Logo" style={{ width: '80px', height: '80px', filter: 'drop-shadow(0 0 16px var(--primary-glow))' }} />
+            <UtensilsCrossed size={32} color="white" />
           </div>
           <h1 className="title text-center" style={{ fontSize: '1.75rem', lineHeight: '1.2', fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '-0.04em' }}>
             {isSuperAdminRoute ? 'Panel Global' : `Bienvenido a ${sedeInfo?.name || 'Cargando...'}`}
