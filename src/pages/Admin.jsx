@@ -671,7 +671,7 @@ export default function Admin() {
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Usuario (Login)</label>
-                    <input className="input mt-1" value={newUser.username} onChange={e => setNewUser({...newUser, username: e.target.value})} placeholder="juanp" required style={{ width: '150px' }} />
+                    <input className="input mt-1" value={newUser.username} onChange={e => setNewUser({...newUser, username: e.target.value.toLowerCase()})} placeholder="juanp" required style={{ width: '150px' }} />
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Contraseña</label>
@@ -713,7 +713,7 @@ export default function Admin() {
                         {editUser?.id === u.id ? (
                           <>
                             <td className="py-2"><input className="input" value={editUser.data.name} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, name: e.target.value } })} /></td>
-                            <td className="py-2"><input className="input" value={editUser.data.username} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, username: e.target.value } })} /></td>
+                            <td className="py-2"><input className="input" value={editUser.data.username} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, username: e.target.value.toLowerCase() } })} /></td>
                             <td className="py-2">
                               <div className="flex items-center gap-2">
                                 <input type={visiblePasswords[u.id] ? "text" : "password"} className="input w-full" value={editUser.data.password} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, password: e.target.value } })} />

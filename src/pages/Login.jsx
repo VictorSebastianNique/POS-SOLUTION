@@ -120,7 +120,7 @@ export default function Login({ isSuperAdminRoute }) {
                 style={{ paddingLeft: '2.5rem' }} 
                 placeholder="Ingresa tu usuario"
                 value={username}
-                onChange={e => setUsername(e.target.value)}
+                onChange={e => setUsername(e.target.value.toLowerCase())}
                 required 
               />
             </div>
