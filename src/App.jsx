@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Mozo from './pages/Mozo';
 import Cocina from './pages/Cocina';
@@ -83,7 +83,6 @@ const ThemeToggle = ({ theme, onToggle }) => {
 const RestrictedRoot = () => (
   <div className="container flex flex-col items-center justify-center animate-fade-in" style={{ minHeight: '100vh', textAlign: 'center' }}>
     <div className="card" style={{ maxWidth: '500px', padding: '3rem' }}>
-      {/* Decoración superior */}
       <div style={{
         width: '64px', height: '64px',
         background: 'var(--danger-bg)',
@@ -107,6 +106,36 @@ const RestrictedRoot = () => (
   </div>
 );
 
+/* ── SmartRoot para PWA ────────────────────────────────────── */
+const SmartRoot = () => {
+  const { currentUser, locations } = useStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Si el usuario ya está logueado, redirigir a su panel
+    if (currentUser) {
+      if (currentUser.role === 'superadmin' || currentUser.role === 'admin') navigate('/admin');
+      else if (currentUser.role === 'cajera') navigate('/caja');
+      else navigate(`/${currentUser.role}`);
+      return;
+    }
+
+    // Si no está logueado, buscar si tiene una sede previa guardada en localStorage
+    const locId = localStorage.getItem('currentLocationId');
+    if (locId && locations && locations.length > 0) {
+       const loc = locations.find(l => l.id === locId);
+       if (loc) {
+          const slug = loc.slug || loc.name.replace(/\s+/g, '');
+          navigate(`/login/${slug}`);
+          return;
+       }
+    }
+  }, [currentUser, locations, navigate]);
+
+  // Fallback si no hay sede guardada (ej. primera vez que abren la PWA desde la raíz)
+  return <RestrictedRoot />;
+};
+
 /* ── App Root ─────────────────────────────────────────────── */
 function App() {
   const { developerSettings } = useStore();
@@ -127,7 +156,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"                element={<RestrictedRoot />} />
+        <Route path="/"                element={<SmartRoot />} />
         <Route path="/login/:sedeSlug" element={<Login />} />
         <Route path="/super-admin"     element={isIncognito ? <RestrictedRoot /> : <Login isSuperAdminRoute={true} />} />
         <Route path="/dev-config"      element={<DeveloperConfig />} />
