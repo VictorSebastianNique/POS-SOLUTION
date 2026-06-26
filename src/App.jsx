@@ -8,6 +8,7 @@ import Admin from './pages/Admin';
 import Caja from './pages/Caja';
 import Kardex from './pages/Kardex';
 import DeveloperConfig from './pages/DeveloperConfig';
+import CustomerApp from './pages/CustomerApp';
 import { useStore } from './context/StoreContext';
 
 /* ── Reloj global ─────────────────────────────────────────── */
@@ -157,6 +158,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/"                element={<SmartRoot />} />
+        <Route path="/app"             element={<CustomerApp />} />
         <Route path="/login/:sedeSlug" element={<Login />} />
         <Route path="/super-admin"     element={isIncognito ? <RestrictedRoot /> : <Login isSuperAdminRoute={true} />} />
         <Route path="/dev-config"      element={<DeveloperConfig />} />

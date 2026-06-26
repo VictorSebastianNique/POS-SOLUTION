@@ -211,6 +211,74 @@
       "station": "cocina",
       "status": "ready",
       "timestamp": 1781934888445
+    },
+    {
+      "id": "1782460501554",
+      "type": "delivery",
+      "locationId": "San Andres",
+      "items": [
+        {
+          "item": {
+            "name": "CARNE DE CERDO ADOBADA",
+            "price": 30,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "efb90f1d-92a4-4206-9009-aa1416f4e1c0",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready"
+        },
+        {
+          "item": {
+            "name": "AJÍ DE GALLINA",
+            "price": 26,
+            "categoryId": "c3",
+            "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
+            "id": "7c763501-8278-40ed-bb31-72371ccf0a1c",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready"
+        },
+        {
+          "item": {
+            "name": "GASEOSA 500ML",
+            "price": 9,
+            "categoryId": "c1",
+            "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+            "noDiscount": false,
+            "id": "1782006198921",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "ready"
+        }
+      ],
+      "total": 74,
+      "status": "ready",
+      "customerId": "8ce4e0f7-d1b3-4310-9396-c91a637eb542",
+      "customerName": "Andre Ñique",
+      "customerPhone": "978698007",
+      "address": "Larco 123, urb la merced",
+      "timestamp": "2026-06-26T07:55:01.554Z",
+      "deliveryFee": 9,
+      "paymentData": {
+        "method": "yape",
+        "yapePhone": "1515021515",
+        "yapeOp": "123456789",
+        "cardNum": null,
+        "receipt": {
+          "type": "boleta",
+          "docNum": "75533456",
+          "razonSocial": "",
+          "fiscalAddress": ""
+        }
+      },
+      "receiptEmitted": true
     }
   ],
   "isBarActive": true,
@@ -249,7 +317,16 @@
       }
     ],
     "sales": [],
-    "incomes": [],
+    "incomes": [
+      {
+        "id": "200c4e3c-9c34-4fcd-87bf-381c600f443f",
+        "amount": 74,
+        "category": "Venta Online Delivery",
+        "details": "Venta App - Andre Ñique",
+        "paymentMethod": "yape",
+        "timestamp": 1782461549205
+      }
+    ],
     "expenses": []
   },
   "pastDays": [],
@@ -330,10 +407,12 @@
         "status": "sent",
         "timestamp": 1781934887750
       }
-    ]
+    ],
+    "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 2": []
   },
   "tableHeadcounts": {
-    "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1": 5
+    "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 1": 5,
+    "6d40ca85-4f4a-457c-99ce-68d93049c2c5-Mesa 2": 1
   },
   "companies": [
     {
@@ -348,7 +427,10 @@
       "id": "d32b0c80-ae34-4d15-b94b-93fc48582847"
     }
   ],
-  "menuStatus": {},
+  "menuStatus": {
+    "b014d147-1a3a-4f0a-a760-5ace407762a9": true,
+    "6bc9e7cc-6c86-40d9-b6d8-fb699d0667bb": false
+  },
   "kardexItems": [
     {
       "id": "k_cabrito_normal",

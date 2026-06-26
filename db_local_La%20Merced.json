@@ -523,6 +523,22 @@
         "details": "",
         "status": "sent",
         "timestamp": 1782022893581
+      },
+      {
+        "id": "ad47100d-a551-4d6f-abee-dc0c3accdb29",
+        "item": {
+          "name": "GASEOSA 500ML",
+          "price": 9,
+          "categoryId": "c1",
+          "subcategoryId": "6d4f4cf4-1115-4038-b933-9f6c433cb894",
+          "noDiscount": false,
+          "id": "1782006198921",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "new",
+        "timestamp": 1782456300187
       }
     ],
     "13aa6581-660e-4041-887a-cc068b1acb85-E15": [

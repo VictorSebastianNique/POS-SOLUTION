@@ -5,7 +5,9 @@
       "name": "San Andres",
       "brandName": "MOCHICA DE DOÑA FRESIA - SA",
       "address": "San Martin de Porres 154 Urb. San Andres",
-      "phone": "954721679"
+      "phone": "954721679",
+      "closeTime": "23:59",
+      "openTime": "00:00"
     },
     {
       "name": "La Merced",
@@ -1568,6 +1570,11 @@
               "kardexId": "k_pepian",
               "qty": 1
             }
+          ],
+          "availableDays": [
+            5,
+            6,
+            0
           ]
         },
         {
@@ -1642,7 +1649,12 @@
           "categoryId": "c3",
           "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
           "id": "f11c6aef-fbd0-4d5c-93dc-13777e32d3b5",
-          "active": true
+          "active": true,
+          "availableDays": [
+            5,
+            6,
+            0
+          ]
         },
         {
           "name": "SANCOCHADO ",
@@ -1650,7 +1662,11 @@
           "categoryId": "c3",
           "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
           "id": "42096681-86d4-43f9-bef5-2fc6cbc36643",
-          "active": true
+          "active": true,
+          "availableDays": [
+            3,
+            4
+          ]
         },
         {
           "name": "SHAMBAR",
@@ -1658,7 +1674,10 @@
           "categoryId": "c3",
           "subcategoryId": "a0319852-c193-4c4f-9a9c-f4b82ca11009",
           "id": "b014d147-1a3a-4f0a-a760-5ace407762a9",
-          "active": true
+          "active": true,
+          "availableDays": [
+            1
+          ]
         },
         {
           "name": "CHUPE DE CORVINA",
@@ -1820,7 +1839,12 @@
           "categoryId": "c2",
           "subcategoryId": "",
           "id": "a4a732f0-9a82-4d5b-9d57-4c11510b26b0",
-          "active": true
+          "active": true,
+          "availableDays": [
+            5,
+            6,
+            0
+          ]
         },
         {
           "name": "RISOTTO A LA H. C/N MILANESA",
@@ -2245,6 +2269,18 @@
       "id": "k_tollo",
       "name": "TOLLO",
       "category": "PESCADOS Y MARISCOS",
+      "active": true
+    }
+  ],
+  "customers": [
+    {
+      "id": "8ce4e0f7-d1b3-4310-9396-c91a637eb542",
+      "name": "Andre Ñique",
+      "phone": "978698007",
+      "pin": "150801",
+      "points": 37,
+      "level": "Bronce",
+      "totalSpent": 74,
       "active": true
     }
   ]

@@ -12,7 +12,7 @@ const IGV_RATE = 0.18;
 
 export default function Caja() {
   const navigate = useNavigate();
-  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, addIncome, addExpense , developerSettings, users, logAudit, locations } = useStore();
+  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, setOrders, addIncome, addExpense , developerSettings, users, logAudit, locations, updateOrderStatus } = useStore();
 
   const [selectedZone, setSelectedZone] = useState('all');
   
@@ -264,6 +264,45 @@ export default function Caja() {
       }
     });
   });
+
+  const pendingOnlineOrders = (orders || []).filter(o => o.status === 'pending_approval' || (o.paymentData && o.status === 'pending' && !o.receiptEmitted));
+  
+  const [selectedDeliveryOrder, setSelectedDeliveryOrder] = useState(null);
+  const [deliveryFee, setDeliveryFee] = useState('');
+
+  const handleApproveOnlineOrder = (order) => {
+    if (order.status === 'pending_approval') {
+      setSelectedDeliveryOrder(order);
+      setDeliveryFee('');
+    } else {
+      // Simulate emitting receipt for already paid online order
+      alert(`Comprobante emitido para pedido de ${order.customerName}.`);
+      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, receiptEmitted: true } : o));
+      
+      addIncome({
+        id: Date.now().toString(),
+        description: `Venta Online - ${order.customerName}`,
+        amount: order.total,
+        method: order.paymentData?.method || 'Transferencia',
+        type: 'Venta',
+        timestamp: new Date().toISOString()
+      });
+    }
+  };
+
+  const confirmDeliveryApproval = () => {
+    const fee = parseFloat(deliveryFee) || 0;
+    const updatedTotal = selectedDeliveryOrder.total + fee;
+    
+    setOrders(prev => prev.map(o => o.id === selectedDeliveryOrder.id ? {
+      ...o,
+      status: 'accepted_awaiting_payment',
+      deliveryFee: fee,
+      total: updatedTotal
+    } : o));
+    
+    setSelectedDeliveryOrder(null);
+  };
 
   const filteredTables = selectedZone === 'all'
     ? allActiveTables
@@ -533,6 +572,39 @@ export default function Caja() {
               </button>
             ))}
           </div>
+          
+          {pendingOnlineOrders.length > 0 && (
+            <div style={{ marginBottom: '1.5rem', background: 'rgba(255, 107, 0, 0.1)', padding: '1rem', borderRadius: '1rem', border: '1px solid var(--primary-color)' }}>
+              <h3 style={{ margin: '0 0 1rem 0', color: 'var(--primary-color)' }}>🔔 Pedidos Online ({pendingOnlineOrders.length})</h3>
+              <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                {pendingOnlineOrders.map(o => (
+                  <div key={o.id} style={{ background: 'var(--surface-color)', padding: '1rem', borderRadius: '0.5rem', minWidth: '250px', border: '1px solid var(--border-color)' }}>
+                    <p style={{ margin: '0 0 0.5rem', fontWeight: 700, display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{o.customerName}</span>
+                      <span style={{ color: o.type === 'delivery' ? 'var(--info-color)' : 'var(--warning-color)' }}>
+                        {o.type === 'delivery' ? 'Delivery' : 'Recojo'}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>{o.items.length} artículos • S/ {o.total.toFixed(2)}</p>
+                    {o.paymentData && (
+                      <p style={{ fontSize: '0.8rem', color: 'var(--success-color)', marginBottom: '0.5rem' }}>
+                        Pagado con: {o.paymentData.method.toUpperCase()} 
+                        {o.paymentData.yapeOp ? ` (Op: ${o.paymentData.yapeOp})` : ''}
+                      </p>
+                    )}
+                    <button 
+                      onClick={() => handleApproveOnlineOrder(o)} 
+                      className={`btn w-full ${o.status === 'pending_approval' ? 'btn-primary' : 'btn-success'}`} 
+                      style={{ padding: '0.5rem', background: o.status !== 'pending_approval' ? 'var(--success-color)' : '' }}
+                    >
+                      {o.status === 'pending_approval' ? 'Aprobar Delivery' : 'Emitir Comprobante'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '0.75rem', alignContent: 'start' }}>
             {filteredTables.length === 0 ? (
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-secondary)' }}>
@@ -1056,6 +1128,62 @@ export default function Caja() {
                 Continuar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DELIVERY APPROVAL MODAL ──────────────────────────────────────── */}
+      {selectedDeliveryOrder && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <h2 className="title" style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-primary)' }}>Aprobar Delivery</h2>
+              <button onClick={() => setSelectedDeliveryOrder(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={24} /></button>
+            </div>
+            
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h4 style={{ margin: '0 0 0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Datos del Cliente</h4>
+              <p style={{ margin: '0 0 0.2rem', fontWeight: 600, color: 'var(--text-primary)' }}>{selectedDeliveryOrder.customerName}</p>
+              <p style={{ margin: '0 0 0.2rem', color: 'var(--text-primary)' }}>📞 {selectedDeliveryOrder.customerPhone}</p>
+              <p style={{ margin: '0', color: 'var(--text-primary)', background: 'var(--surface-solid)', padding: '0.5rem', borderRadius: '0.5rem', marginTop: '0.5rem' }}>📍 {selectedDeliveryOrder.address}</p>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h4 style={{ margin: '0 0 0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Pedido ({selectedDeliveryOrder.items.length} items)</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {selectedDeliveryOrder.items.map((item, idx) => (
+                  <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <span>{item.quantity}x {item.item.name}</span>
+                    <span style={{ fontWeight: 600 }}>S/ {(item.item.price * item.quantity).toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <span>Subtotal Pedido</span>
+                <span>S/ {selectedDeliveryOrder.total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem', background: 'var(--surface-solid)', padding: '1rem', borderRadius: '0.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontWeight: 600 }}>Costo de Delivery (S/)</label>
+              <input 
+                type="number" 
+                className="input w-full" 
+                placeholder="Ej. 10.00" 
+                value={deliveryFee} 
+                onChange={e => setDeliveryFee(e.target.value)}
+                autoFocus
+                style={{ fontSize: '1.2rem', padding: '0.75rem', fontWeight: 700, color: 'var(--primary-color)' }}
+              />
+            </div>
+
+            <button 
+              className="btn btn-primary w-full" 
+              style={{ padding: '1rem', fontSize: '1.1rem', fontWeight: 700 }}
+              onClick={confirmDeliveryApproval}
+            >
+              Aprobar y Confirmar Precio
+            </button>
           </div>
         </div>
       )}

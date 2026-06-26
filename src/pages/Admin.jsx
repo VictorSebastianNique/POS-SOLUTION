@@ -5,6 +5,7 @@ import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlo
 import Metrics from './Metrics';
 import KardexConfigTab from '../components/KardexConfigTab';
 import MenuRecipeModal from '../components/MenuRecipeModal';
+import CrmTab from '../components/CrmTab';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function Admin() {
     categories, addCategory, updateCategory, deleteCategory,
     subcategories, addSubcategory, updateSubcategory, deleteSubcategory,
     menu, catalogs, setCatalogs, addCatalog, updateCatalog, deleteCatalog,
-    menuStatus, setMenuStatus,
+    menuStatus, setMenuStatus, updateMenuStatus,
     zones, addZone, updateZone, deleteZone,
     isBarActive, setIsBarActive,
     businessDay, pastDays, openDay, closeDay,
@@ -204,7 +205,7 @@ export default function Admin() {
   };
 
   // --- Menu State ---
-  const [newMenu, setNewMenu] = useState({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false });
+  const [newMenu, setNewMenu] = useState({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false, availableDays: [] });
   const [editMenu, setEditMenu] = useState(null);
   const [recipeMenu, setRecipeMenu] = useState(null);
   const [menuSearch, setMenuSearch] = useState('');
@@ -220,7 +221,7 @@ export default function Admin() {
     if (!newMenu.name || !newMenu.price || !newMenu.categoryId || !workingCatalog) return;
     const newItem = { ...newMenu, price: parseFloat(newMenu.price), id: Date.now().toString(), active: true };
     setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: [...c.items, newItem] } : c));
-    setNewMenu({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false });
+    setNewMenu({ name: '', price: '', categoryId: '', subcategoryId: '', noDiscount: false, availableDays: [] });
   };
   const saveEditMenu = () => {
     setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: c.items.map(i => i.id === editMenu.id ? { ...editMenu.data, price: parseFloat(editMenu.data.price) } : i) } : c));
@@ -408,6 +409,23 @@ export default function Admin() {
       {active ? <span className="flex items-center gap-1"><Check size={14}/> Activo</span> : <span className="flex items-center gap-1"><X size={14}/> Inactivo</span>}
     </button>
   );
+  const DaySelector = ({ selectedDays = [], onChange }) => {
+    const days = [{ id: 1, label: 'L' }, { id: 2, label: 'M' }, { id: 3, label: 'X' }, { id: 4, label: 'J' }, { id: 5, label: 'V' }, { id: 6, label: 'S' }, { id: 0, label: 'D' }];
+    const toggleDay = (d) => {
+      if (selectedDays.includes(d)) onChange(selectedDays.filter(day => day !== d));
+      else onChange([...selectedDays, d]);
+    };
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="subtitle" style={{ fontSize: '0.75rem' }}>Días Activos (Vacío = Todos)</label>
+        <div className="flex gap-1">
+          {days.map(d => (
+            <button type="button" key={d.id} onClick={() => toggleDay(d.id)} className={`btn ${selectedDays.includes(d.id) ? 'btn-primary' : 'btn-outline'}`} style={{ padding: '0.2rem 0.4rem', fontSize: '0.7rem', minWidth: '24px' }}>{d.label}</button>
+          ))}
+        </div>
+      </div>
+    );
+  };
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (window.innerWidth <= 1024) {
@@ -471,6 +489,7 @@ export default function Admin() {
           {isMobile && <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Menú Admin</div>}
           <button className={`btn ${activeTab === 'caja' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('caja')}>Caja y Reportes</button>
           <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('users')}>Usuarios</button>
+          <button className={`btn ${activeTab === 'crm' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('crm')}>⭐ CRM y Fidelización</button>
           <button className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('categories')}>Categorías</button>
           <button className={`btn ${activeTab === 'subcategories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('subcategories')}>Subcategorías</button>
           <button className={`btn ${activeTab === 'menu' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('menu')}>Platos / Menú</button>
@@ -775,6 +794,10 @@ export default function Admin() {
           )}
 
           {/* TAB: CATEGORIES */}
+          {activeTab === 'crm' && (
+            <CrmTab />
+          )}
+
           {activeTab === 'categories' && (
             <div className="animate-fade-in">
               <div className="card mb-6">
@@ -839,11 +862,13 @@ export default function Admin() {
                     const brandName = e.target.elements.brandName.value;
                     const address = e.target.elements.address.value;
                     const phone = e.target.elements.phone.value;
+                    const openTime = e.target.elements.openTime.value || '08:00';
+                    const closeTime = e.target.elements.closeTime.value || '22:00';
                     if (!name) return;
-                    addLocation({ name, brandName, address, phone, id: name });
+                    addLocation({ name, brandName, address, phone, openTime, closeTime, id: name });
                     e.target.reset();
                   }} 
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end"
                 >
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre Interno (Sede)</label>
@@ -861,7 +886,15 @@ export default function Admin() {
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Teléfono de la Sede</label>
                     <input name="phone" className="input mt-1 w-full" placeholder="Ej. 987654321" />
                   </div>
-                  <button type="submit" className="btn btn-primary h-full"><Plus size={20}/> Agregar Sede</button>
+                  <div>
+                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Hora Apertura</label>
+                    <input type="time" name="openTime" className="input mt-1 w-full" defaultValue="08:00" />
+                  </div>
+                  <div>
+                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Hora Cierre</label>
+                    <input type="time" name="closeTime" className="input mt-1 w-full" defaultValue="22:00" />
+                  </div>
+                  <button type="submit" className="btn btn-primary h-full md:col-span-2 lg:col-span-1"><Plus size={20}/> Agregar Sede</button>
                 </form>
               </div>
 
@@ -879,6 +912,8 @@ export default function Admin() {
                           <input className="input" placeholder="Marca (Ticket)" value={editLocation.brandName || ''} onChange={e => setEditLocation({...editLocation, brandName: e.target.value})} />
                           <input className="input" placeholder="Dirección" value={editLocation.address || ''} onChange={e => setEditLocation({...editLocation, address: e.target.value})} />
                           <input className="input" placeholder="Teléfono" value={editLocation.phone || ''} onChange={e => setEditLocation({...editLocation, phone: e.target.value})} />
+                          <div className="flex flex-col"><label className="subtitle" style={{fontSize: '0.75rem', marginBottom: '0.2rem'}}>Apertura</label><input type="time" className="input" value={editLocation.openTime || '08:00'} onChange={e => setEditLocation({...editLocation, openTime: e.target.value})} /></div>
+                          <div className="flex flex-col"><label className="subtitle" style={{fontSize: '0.75rem', marginBottom: '0.2rem'}}>Cierre</label><input type="time" className="input" value={editLocation.closeTime || '22:00'} onChange={e => setEditLocation({...editLocation, closeTime: e.target.value})} /></div>
                         </div>
                         <div className="flex gap-2 justify-end mt-2">
                           <button className="btn btn-outline" onClick={() => setEditLocation(null)}>Cancelar</button>
@@ -900,6 +935,7 @@ export default function Admin() {
                         <p className="subtitle mt-2" style={{ fontSize: '0.85rem' }}><strong>Marca:</strong> {loc.brandName || loc.name}</p>
                         <p className="subtitle" style={{ fontSize: '0.85rem' }}><strong>Dirección:</strong> {loc.address || 'No definida'}</p>
                         <p className="subtitle" style={{ fontSize: '0.85rem' }}><strong>Teléfono:</strong> {loc.phone || 'No definido'}</p>
+                        <p className="subtitle" style={{ fontSize: '0.85rem' }}><strong>Horario:</strong> {loc.openTime || '08:00'} - {loc.closeTime || '22:00'}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--primary-color)' }} onClick={() => setEditLocation(loc)}><Edit2 size={16}/></button>
@@ -1078,6 +1114,9 @@ export default function Admin() {
                     <input type="checkbox" checked={newMenu.noDiscount} onChange={e => setNewMenu({...newMenu, noDiscount: e.target.checked})} id="noDiscount" />
                     <label htmlFor="noDiscount" className="subtitle mb-0" style={{ fontSize: '0.8rem', cursor: 'pointer' }}>No permite descuento</label>
                   </div>
+                  <div style={{ height: '42px', display: 'flex', alignItems: 'flex-end', paddingBottom: '0.2rem' }}>
+                    <DaySelector selectedDays={newMenu.availableDays || []} onChange={days => setNewMenu({...newMenu, availableDays: days})} />
+                  </div>
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
                 </form>
               </div>
@@ -1122,6 +1161,7 @@ export default function Admin() {
                       <th className="pb-3 subtitle">Categoría</th>
                       <th className="pb-3 subtitle">Subcategoría</th>
                       <th className="pb-3 subtitle">Precio (S/)</th>
+                      <th className="pb-3 subtitle">Días</th>
                       <th className="pb-3 subtitle">Estado</th>
                       <th className="pb-3 subtitle" style={{ textAlign: 'right' }}>Acciones</th>
                     </tr>
@@ -1157,6 +1197,9 @@ export default function Admin() {
 
                               <td className="py-2"><input type="number" step="0.01" className="input" style={{ width: '100px' }} value={editMenu.data.price} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, price: e.target.value } })} /></td>
                               <td className="py-2">
+                                <DaySelector selectedDays={editMenu.data.availableDays || []} onChange={days => setEditMenu({ ...editMenu, data: { ...editMenu.data, availableDays: days } })} />
+                              </td>
+                              <td className="py-2">
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}>
                                   <input type="checkbox" checked={editMenu.data.noDiscount || false} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, noDiscount: e.target.checked } })} />
                                   Sin Dsc.
@@ -1173,6 +1216,9 @@ export default function Admin() {
                               <td className="py-4 text-secondary">{catName}</td>
                               <td className="py-4 text-secondary">{subcatName}</td>
                               <td className="py-4" style={{ color: 'var(--primary-color)' }}>S/{m.price.toFixed(2)}</td>
+                              <td className="py-4" style={{ fontSize: '0.75rem' }}>
+                                {(!m.availableDays || m.availableDays.length === 0 || m.availableDays.length === 7) ? 'Todos' : m.availableDays.map(d => ['D','L','M','X','J','V','S'][d]).join(', ')}
+                              </td>
                               <td className="py-4">
                                 <div className="flex flex-col gap-1">
                                   {isSuperAdmin && (
@@ -1188,7 +1234,7 @@ export default function Admin() {
                                   <button 
                                     className={`btn ${menuStatus[m.id] !== false ? 'btn-outline' : 'btn-danger'}`} 
                                     style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', minWidth: '90px' }}
-                                    onClick={() => setMenuStatus(prev => ({ ...prev, [m.id]: menuStatus[m.id] === false ? true : false }))}
+                                    onClick={() => updateMenuStatus({ ...menuStatus, [m.id]: menuStatus[m.id] === false ? true : false })}
                                   >
                                     {menuStatus[m.id] !== false ? <span className="flex items-center gap-1"><Check size={14}/> Local Activo</span> : <span className="flex items-center gap-1"><X size={14}/> Local Inactivo</span>}
                                   </button>

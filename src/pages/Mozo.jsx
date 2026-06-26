@@ -455,17 +455,33 @@ export default function Mozo() {
                     }
                     return m.active && menuStatus[m.id] !== false && m.categoryId === activeCategory && (activeSubcategory === '' || m.subcategoryId === activeSubcategory);
                   })
-                  .map(item => (
-                    <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1rem' }} onClick={() => openItemModal(item)}>
+                  .map(item => {
+                    const currentDay = new Date().getDay();
+                    const availableToday = !item.availableDays || item.availableDays.length === 0 || item.availableDays.includes(currentDay);
+                    return (
+                    <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1rem', opacity: availableToday ? 1 : 0.6, filter: availableToday ? 'none' : 'grayscale(1)' }} onClick={() => {
+                      if (!availableToday) {
+                        alert(`Este plato solo está disponible los días: ${item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}`);
+                        return;
+                      }
+                      if (menuStatus[item.id] === false) {
+                        alert("Este plato se acaba de agotar.");
+                        return;
+                      }
+                      openItemModal(item);
+                    }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <h3 style={{ fontWeight: 500, fontSize: '0.95rem', wordBreak: 'break-word' }}>{item.name}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 style={{ fontWeight: 500, fontSize: '0.95rem', wordBreak: 'break-word', margin: 0 }}>{item.name}</h3>
+                        </div>
+                        {!availableToday && <p style={{ fontSize: '0.75rem', color: 'var(--warning-color)', margin: '0.1rem 0 0.2rem', fontWeight: 700 }}>Solo: {item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}</p>}
                         <p className="subtitle" style={{ color: 'var(--primary-color)', marginTop: '0.2rem' }}>S/{item.price.toFixed(2)}</p>
                       </div>
-                      <div style={{ backgroundColor: 'var(--surface-hover)', padding: '0.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ backgroundColor: 'var(--surface-hover)', padding: '0.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: availableToday ? 1 : 0.4 }}>
                         <Plus size={18} className="text-primary-color" />
                       </div>
                     </div>
-                  ))}
+                  )})}
                 {menu.filter(m => {
                   const matchesSearch = (m.name || '').toLowerCase().includes(menuSearch.toLowerCase());
                   if (menuSearch) {

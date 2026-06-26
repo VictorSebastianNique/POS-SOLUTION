@@ -25,6 +25,7 @@ export const StoreProvider = ({ children }) => {
   const [menuStatus, setMenuStatus] = React.useState({});
   const [developerSettings, setDeveloperSettings] = React.useState({ isSuperAdminIncognito: false });
   const [kardexItems, setKardexItems] = React.useState([]);
+  const [customers, setCustomers] = React.useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -54,6 +55,7 @@ export const StoreProvider = ({ children }) => {
         }
         if (dataGlobal.developerSettings) setDeveloperSettings(dataGlobal.developerSettings);
         if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
+        if (dataGlobal.customers) setCustomers(dataGlobal.customers);
 
         const currentLocId = localStorage.getItem('currentLocationId');
         let localUsers = [];
@@ -115,13 +117,36 @@ export const StoreProvider = ({ children }) => {
           if (resLocal.ok) {
             const dataLocal = await resLocal.json();
             if (dataLocal.menuStatus) setMenuStatus(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.menuStatus) ? dataLocal.menuStatus : prev);
+            if (dataLocal.orders) setOrders(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.orders) ? dataLocal.orders : prev);
           }
         }
       } catch (e) {
         // Ignore polling errors
       }
-    }, 3000);
-    return () => clearInterval(interval);
+    }, 1000);
+    
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          const locId = localStorage.getItem('currentLocationId');
+          if (locId) {
+            const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store' });
+            if (resLocal.ok) {
+              const dataLocal = await resLocal.json();
+              if (dataLocal.menuStatus) setMenuStatus(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.menuStatus) ? dataLocal.menuStatus : prev);
+              if (dataLocal.orders) setOrders(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.orders) ? dataLocal.orders : prev);
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [loading]);
 
   const saveState = async (key, value, isGlobal = false) => {
@@ -141,6 +166,7 @@ export const StoreProvider = ({ children }) => {
   React.useEffect(() => { if (!loading && currentUser) saveState('currentUser', currentUser, true); }, [currentUser, loading]);
   React.useEffect(() => { if (!loading && locations.length > 0) saveState('locations', locations, true); }, [locations, loading]);
   React.useEffect(() => { if (!loading && kardexItems.length > 0) saveState('kardexItems', kardexItems, true); }, [kardexItems, loading]);
+  React.useEffect(() => { if (!loading && customers.length > 0) saveState('customers', customers, true); }, [customers, loading]);
   
   // Custom user saving to split superadmins and locals
   React.useEffect(() => { 
@@ -164,7 +190,6 @@ export const StoreProvider = ({ children }) => {
   React.useEffect(() => { if (!loading) saveState('activeTables', activeTables); }, [activeTables, loading]);
   React.useEffect(() => { if (!loading) saveState('tableHeadcounts', tableHeadcounts); }, [tableHeadcounts, loading]);
   React.useEffect(() => { if (!loading) saveState('companies', companies); }, [companies, loading]);
-  React.useEffect(() => { if (!loading) saveState('menuStatus', menuStatus); }, [menuStatus, loading]);
 
   if (loading) {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white' }}>Cargando sistema...</div>;
@@ -459,6 +484,35 @@ if (barCart.length > 0) {
     o.id === orderId ? { ...o, status: newStatus, completedAt: newStatus === 'ready' ? Date.now() : o.completedAt } : o
   ));
 
+  const registerOnlineSale = (order) => {
+    setBusinessDay(prev => ({
+      ...prev,
+      totalSales: (prev.totalSales || 0) + order.total,
+      sales: [...(prev.sales || []), {
+        id: uuidv4(),
+        tableKey: `online-${order.id}`,
+        waiter: 'App Cliente',
+        zone: order.type === 'delivery' ? 'Delivery' : 'Recojo',
+        table: 'App',
+        total: order.total,
+        timestamp: Date.now(),
+        headcount: 1,
+        items: order.items.map(c => ({ item: c.item.name, quantity: c.quantity, price: c.item.price })),
+        cartItems: order.items,
+        documentType: order.paymentData?.receipt?.type || 'boleta',
+        documentNumber: order.paymentData?.receipt?.docNum || '000000',
+        companyId: '',
+        companyName: 'Venta Online',
+        companyRuc: '',
+        customerDni: order.paymentData?.receipt?.docNum || '',
+        customerRuc: order.paymentData?.receipt?.docNum || '',
+        customerName: order.paymentData?.receipt?.razonSocial || order.customerName,
+        customerAddress: order.address || order.paymentData?.receipt?.fiscalAddress || '',
+        paymentMethod: order.paymentData?.method || 'online'
+      }]
+    }));
+  };
+
   const addIncome = (amount, category, details, paymentMethod) => {
     setBusinessDay(prev => ({
       ...prev,
@@ -491,21 +545,44 @@ if (barCart.length > 0) {
     }));
   };
 
+  const updateCustomerPoints = (customerId, pointsToAdd, totalSpentToAdd = 0) => {
+    setCustomers(prev => prev.map(c => {
+      if (c.id === customerId) {
+        const newPoints = (c.points || 0) + pointsToAdd;
+        const newSpent = (c.totalSpent || 0) + totalSpentToAdd;
+        let newLevel = 'Bronce';
+        if (newPoints >= 2000) newLevel = 'Platinum';
+        else if (newPoints >= 1000) newLevel = 'VIP';
+        else if (newPoints >= 500) newLevel = 'Oro';
+        else if (newPoints >= 200) newLevel = 'Plata';
+        
+        return { ...c, points: newPoints, totalSpent: newSpent, level: newLevel };
+      }
+      return c;
+    }));
+  };
+
   const addItem = (setter) => (item) => setter(prev => [...prev, { ...item, id: uuidv4(), active: true }]);
   const updateItem = (setter) => (id, updated) => setter(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
   const deleteItem = (setter) => (id) => setter(prev => prev.filter(item => item.id !== id));
 
   return (
     <StoreContext.Provider value={{
-      currentUser, login, logout, logAudit,
-      locations, addLocation: addItem(setLocations), updateLocation: updateItem(setLocations), deleteLocation: deleteItem(setLocations),
+      currentUser, setCurrentUser,
+      login, logout, logAudit,
       users, addUser: addItem(setUsers), updateUser: updateItem(setUsers), deleteUser: deleteItem(setUsers),
+      customers, addCustomer: addItem(setCustomers), updateCustomer: updateItem(setCustomers), deleteCustomer: deleteItem(setCustomers), updateCustomerPoints,
+      locations, addLocation: addItem(setLocations), updateLocation: updateItem(setLocations), deleteLocation: deleteItem(setLocations),
       categories, addCategory: addItem(setCategories), updateCategory: updateItem(setCategories), deleteCategory: deleteItem(setCategories),
       subcategories, addSubcategory: addItem(setSubcategories), updateSubcategory: updateItem(setSubcategories), deleteSubcategory: deleteItem(setSubcategories),
       menu: catalogs.find(c => c.active)?.items || [], catalogs, setCatalogs, addCatalog: addItem(setCatalogs), updateCatalog: updateItem(setCatalogs), deleteCatalog: deleteItem(setCatalogs),
-      menuStatus, setMenuStatus,
+      menuStatus, setMenuStatus, 
+      updateMenuStatus: async (newStatus) => {
+        setMenuStatus(newStatus);
+        await saveState('menuStatus', newStatus);
+      },
       zones, addZone: addItem(setZones), updateZone: updateItem(setZones), deleteZone: deleteItem(setZones),
-      orders, setOrders, updateOrderStatus, dispatchOrderItems, updateOrderItemStatus,
+      orders, setOrders, updateOrderStatus, dispatchOrderItems, updateOrderItemStatus, registerOnlineSale,
       isBarActive, setIsBarActive,
       businessDay, setBusinessDay, pastDays, setPastDays, openDay, closeDay,
       addIncome, addExpense,

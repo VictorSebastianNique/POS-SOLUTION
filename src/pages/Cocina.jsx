@@ -4,7 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { ChefHat, Check, Clock, Play, Send, Search, ToggleLeft, ToggleRight } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 
-const OrderCard = ({ order, currentTime, dispatchOrderItems }) => {
+const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch }) => {
   const [selectedItems, setSelectedItems] = useState([]);
 
   const toggleItem = (itemId) => {
@@ -28,13 +28,25 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems }) => {
 
   const handleDispatch = () => {
     if (selectedItems.length === 0) return;
+    
+    const willCompleteOrder = selectedItems.length === visibleItems.length;
+    if ((order.type === 'delivery' || order.type === 'recojo') && willCompleteOrder) {
+      setConfirmDispatch({
+        order,
+        itemIds: selectedItems,
+        callback: () => setSelectedItems([])
+      });
+      return;
+    }
+
     dispatchOrderItems(order.id, selectedItems);
     setSelectedItems([]);
   };
 
   // Filter out items that are already dispatched (ready)
 
-  const diff = Math.max(0, currentTime - order.timestamp);
+  const orderTime = new Date(order.timestamp).getTime() || Date.now();
+  const diff = Math.max(0, currentTime - orderTime);
   const mins = Math.floor(diff / 60000);
   const secs = Math.floor((diff % 60000) / 1000);
   const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -57,8 +69,12 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems }) => {
     <div className="card animate-fade-in flex flex-col" style={{ borderTop: `4px solid ${getStatusColor(order.status)}`, backgroundColor: 'var(--surface-color)', padding: '0.75rem', height: isMobile ? 'auto' : '100%', maxHeight: isMobile ? 'none' : '100%', overflow: isMobile ? 'visible' : 'hidden' }}>
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h3 className="title" style={{ fontSize: '1rem', lineHeight: 1 }}>Mesa {order.table}</h3>
-          <p className="subtitle" style={{ fontSize: '0.7rem' }}>{order.zone}</p>
+          {order.type === 'delivery' ? (
+            <h3 className="title" style={{ fontSize: '1rem', lineHeight: 1, color: 'var(--danger-color)' }}>DELIVERY: {order.customerName}</h3>
+          ) : (
+            <h3 className="title" style={{ fontSize: '1rem', lineHeight: 1 }}>Mesa {order.table}</h3>
+          )}
+          <p className="subtitle" style={{ fontSize: '0.7rem' }}>{order.type === 'delivery' ? order.customerPhone : order.zone}</p>
         </div>
         <div className="flex flex-col items-end">
           <span className="flex items-center gap-1" style={{ fontSize: '1rem', color: timeColor, fontWeight: 'bold' }}>
@@ -135,7 +151,8 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems }) => {
 
 export default function Cocina() {
   const navigate = useNavigate();
-  const { orders, setOrders, updateOrderStatus, dispatchOrderItems, currentUser, logout, categories, subcategories, menu, menuStatus, setMenuStatus , developerSettings } = useStore();
+  const { orders, setOrders, updateOrderStatus, dispatchOrderItems, currentUser, logout, categories, subcategories, menu, menuStatus, updateMenuStatus, developerSettings } = useStore();
+  const [confirmDispatch, setConfirmDispatch] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [activeStations, setActiveStations] = useState([]);
   const [windowSize, setWindowSize] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -227,7 +244,7 @@ export default function Cocina() {
 
   // ONLY SHOW COCINA ORDERS
   const cocinaOrders = orders
-    .filter(o => (!o.station || o.station === 'cocina') && o.status !== 'ready')
+    .filter(o => (!o.station || o.station === 'cocina') && o.status !== 'ready' && o.status !== 'pending_approval')
     .map(o => {
       if (activeStations.length === 0) return o;
       // Filter items based on selected subcategories
@@ -316,7 +333,13 @@ export default function Cocina() {
             }}
           >
             {cocinaOrders.map(o => (
-              <OrderCard key={o.id} order={o} currentTime={currentTime} dispatchOrderItems={dispatchOrderItems} />
+              <OrderCard 
+                key={o.id} 
+                order={o} 
+                currentTime={currentTime} 
+                dispatchOrderItems={dispatchOrderItems}
+                setConfirmDispatch={setConfirmDispatch}
+              />
             ))}
             {cocinaOrders.length === 0 && (
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', marginTop: '2rem' }}>
@@ -386,7 +409,7 @@ export default function Cocina() {
                           </div>
                           {/* Toggle button */}
                           <button
-                            onClick={() => setMenuStatus(prev => ({ ...prev, [m.id]: isActive ? false : true }))}
+                            onClick={() => updateMenuStatus({ ...menuStatus, [m.id]: isActive ? false : true })}
                             title={isActive ? 'Desactivar plato localmente' : 'Activar plato localmente'}
                             style={{ marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0, padding: '0.2rem' }}
                           >
@@ -407,6 +430,35 @@ export default function Cocina() {
                 No se encontraron platos con "{platosSearch}"
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {confirmDispatch && (
+        <div className="modal animate-fade-in" style={{ display: 'flex', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content animate-slide-up" style={{ maxWidth: '400px', backgroundColor: 'var(--surface-color)', padding: '2rem', borderRadius: '1rem', border: '1px solid var(--border-color)', width: '90%' }}>
+            <h3 style={{ marginTop: 0, color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '1.2rem' }}>Confirmar Despacho</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.5' }}>¿Estás seguro que sale ese pedido?</p>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button 
+                className="btn btn-secondary w-full"
+                style={{ padding: '0.8rem', fontWeight: 600 }}
+                onClick={() => setConfirmDispatch(null)}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn btn-primary w-full"
+                style={{ padding: '0.8rem', fontWeight: 600 }}
+                onClick={() => {
+                  dispatchOrderItems(confirmDispatch.order.id, confirmDispatch.itemIds);
+                  if (confirmDispatch.callback) confirmDispatch.callback();
+                  setConfirmDispatch(null);
+                }}
+              >
+                Confirmar
+              </button>
+            </div>
           </div>
         </div>
       )}
