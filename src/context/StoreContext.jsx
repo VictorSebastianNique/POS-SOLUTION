@@ -118,6 +118,7 @@ export const StoreProvider = ({ children }) => {
             const dataLocal = await resLocal.json();
             if (dataLocal.menuStatus) setMenuStatus(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.menuStatus) ? dataLocal.menuStatus : prev);
             if (dataLocal.orders) setOrders(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.orders) ? dataLocal.orders : prev);
+            if (dataLocal.businessDay) setBusinessDay(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.businessDay) ? dataLocal.businessDay : prev);
           }
         }
       } catch (e) {
@@ -135,6 +136,7 @@ export const StoreProvider = ({ children }) => {
               const dataLocal = await resLocal.json();
               if (dataLocal.menuStatus) setMenuStatus(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.menuStatus) ? dataLocal.menuStatus : prev);
               if (dataLocal.orders) setOrders(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.orders) ? dataLocal.orders : prev);
+              if (dataLocal.businessDay) setBusinessDay(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.businessDay) ? dataLocal.businessDay : prev);
             }
           }
         } catch (e) {
