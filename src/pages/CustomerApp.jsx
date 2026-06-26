@@ -165,16 +165,15 @@ export default function CustomerApp() {
 
   const handleOpenItemModal = (item) => {
     setPendingItem(item);
-    setItemQty('1');
+    setItemQty('');
     setItemDetails('');
   };
 
   const appendQty = (num) => {
-    if (itemQty === '0') setItemQty(num);
-    else if (itemQty.length < 3) setItemQty(prev => prev + num);
+    if (itemQty.length < 3) setItemQty(prev => prev + num);
   };
   
-  const clearQty = () => setItemQty('1');
+  const clearQty = () => setItemQty('');
 
   const confirmAddItem = () => {
     const qty = parseInt(itemQty) || 1;
@@ -776,7 +775,7 @@ export default function CustomerApp() {
                 <div style={{ flex: 1 }}>
                   <label className="subtitle" style={{ fontSize: '0.875rem' }}>Cantidad</label>
                   <div className="input mt-1 w-full text-center" style={{ fontSize: '2rem', padding: '1rem', fontWeight: 'bold' }}>
-                    {itemQty}
+                    {itemQty || '1'}
                   </div>
                   
                   {/* Numpad */}

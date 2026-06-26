@@ -173,19 +173,18 @@ export default function Mozo() {
   // V5 Add Item Flow
   const openItemModal = (item) => {
     setPendingItem(item);
-    setItemQty('1');
+    setItemQty('');
     setItemDetails('');
   };
 
   const appendQty = (num) => {
-    if (itemQty === '0' || itemQty === '1') setItemQty(num);
-    else setItemQty(itemQty + num);
+    if (itemQty.length < 3) setItemQty(prev => prev + num);
   };
-  const clearQty = () => setItemQty('1');
+  const clearQty = () => setItemQty('');
 
   const confirmAddItem = () => {
-    const qty = parseInt(itemQty);
-    if (isNaN(qty) || qty <= 0) return;
+    const qty = parseInt(itemQty) || 1;
+    if (qty <= 0) return;
 
     if (!tableHeadcounts[tableKey] && cart.length === 0) {
       setPendingHeadcount('1');
@@ -650,7 +649,7 @@ export default function Mozo() {
               <div style={{ flex: 1 }}>
                 <label className="subtitle" style={{ fontSize: '0.875rem' }}>Cantidad</label>
                 <div className="input mt-1 w-full text-center" style={{ fontSize: '2rem', padding: '1rem', fontWeight: 'bold' }}>
-                  {itemQty}
+                  {itemQty || '1'}
                 </div>
                 
                 {/* Numpad */}
