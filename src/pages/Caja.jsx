@@ -432,21 +432,6 @@ export default function Caja() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedTableKey, handleClose]);
 
-  const testSunatApi = async () => {
-    try {
-      alert('Enviando factura de prueba a Vercel...');
-      const res = await fetch('https://api-sunat-eq2r.vercel.app/api/emitir', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer CualquierContraseñaSegura123' },
-        body: JSON.stringify({ documentType: '03', total: 25.50 })
-      });
-      const data = await res.json();
-      alert('¡Respuesta exitosa de Vercel (SUNAT Stub)!\n' + JSON.stringify(data, null, 2));
-    } catch (e) {
-      alert('Error en prueba Vercel: ' + e.message);
-    }
-  };
-
   const handlePay = () => {
     if (!selectedTable || !canPay) return;
     const zone = zones.find(z => selectedTable.key.startsWith(`${z.id}-`));
@@ -552,11 +537,6 @@ export default function Caja() {
                   color: viewMode === 'usuarios' ? '#fff' : 'var(--text-secondary)'
                 }}
               >👥 Usuarios</button>
-              <button
-                onClick={testSunatApi}
-                style={{ padding: '0.35rem 0.8rem', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--info-color)' }}
-                title="Probar conexión con Vercel Serverless"
-              >☁️ Test SUNAT</button>
             </div>
             <span className="subtitle" style={{ fontSize: '0.78rem' }}><User size={13} style={{ display: 'inline', marginRight: '4px' }} />{currentUser.name}</span>
             {(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? (
