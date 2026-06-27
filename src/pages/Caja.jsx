@@ -173,9 +173,12 @@ export default function Caja() {
 
   const handlePrintPrecuenta = async () => {
     try {
-      const cajaIp = developerSettings?.printerIPs?.caja;
-      if (!cajaIp) {
-        alert("Configura la IP de la Caja en el Panel Developer primero.");
+      const currentLocId = localStorage.getItem('currentLocationId') || 'default';
+      const cajaAgentId = developerSettings?.printerIds?.[currentLocId]?.caja;
+      const printServerUrl = developerSettings?.printServerUrl;
+
+      if (!cajaAgentId || !printServerUrl) {
+        alert("Configura la URL del Servidor y el ID de la Caja para esta Sede en el Panel Developer primero.");
         return;
       }
       
@@ -197,28 +200,31 @@ export default function Caja() {
       const totalToPrint = itemsToPrint.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
       
       const payload = {
-        target: 'caja',
-        documentType: 'precuenta',
-        orderData: {
-          table: selectedTable.number,
-          waiter: selectedTable.waiter || 'Caja',
-          customerName,
-          total: totalToPrint,
-          items: itemsToPrint
+        locationId: currentLocId,
+        targetAgentId: cajaAgentId,
+        payload: {
+          documentType: 'precuenta',
+          orderData: {
+            table: selectedTable.number,
+            waiter: selectedTable.waiter || 'Caja',
+            customerName,
+            total: totalToPrint,
+            items: itemsToPrint
+          }
         }
       };
 
-      const res = await fetch(`http://${cajaIp}:8000/print`, {
+      const res = await fetch(`${printServerUrl}/dispatch-print`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       
-      if (!res.ok) throw new Error("Error en el servidor de impresión local");
+      if (!res.ok) throw new Error("Error en el servidor central de impresión");
       alert("Pre-cuenta enviada a la impresora.");
     } catch (e) {
       console.error(e);
-      alert("No se pudo conectar a la impresora de Caja. Revisa PrintAgent en la red local.");
+      alert("No se pudo conectar al servidor de impresión en la nube.");
     }
   };
 

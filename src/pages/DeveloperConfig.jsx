@@ -51,14 +51,30 @@ export default function DeveloperConfig() {
     }));
   };
 
-  const handlePrinterIPChange = (key, value) => {
-    setDeveloperSettings(prev => ({
-      ...prev,
-      printerIPs: {
-        ...(prev.printerIPs || {}),
-        [key]: value
-      }
-    }));
+  const [selectedPrinterLocation, setSelectedPrinterLocation] = useState('');
+
+  useEffect(() => {
+    if (locations.length > 0 && !selectedPrinterLocation) {
+      setSelectedPrinterLocation(locations[0].id);
+    }
+  }, [locations, selectedPrinterLocation]);
+
+  const handlePrinterIdChange = (key, value) => {
+    if (!selectedPrinterLocation) return;
+    setDeveloperSettings(prev => {
+      const currentIds = prev.printerIds || {};
+      const locIds = currentIds[selectedPrinterLocation] || { caja: '', barra: '', cocina: '' };
+      return {
+        ...prev,
+        printerIds: {
+          ...currentIds,
+          [selectedPrinterLocation]: {
+            ...locIds,
+            [key]: value
+          }
+        }
+      };
+    });
   };
 
   const adminModuleLabels = {
@@ -324,45 +340,78 @@ export default function DeveloperConfig() {
           {/* Card: Configuración de Impresoras */}
           <div className="card md-col-span-2" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
             <h2 className="title flex items-center gap-2 mb-4" style={{ fontSize: '1.1rem', color: '#fff' }}>
-              <Printer size={18} style={{ color: '#00ffcc' }} /> Configuración de Impresoras Térmicas (Red Local)
+              <Printer size={18} style={{ color: '#00ffcc' }} /> Configuración de Impresoras (Cloud-to-Local)
             </h2>
-            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem' }}>Ingresa la IP local de la computadora (PrintAgent) encargada de cada área.</p>
-            <div className="grid grid-cols-1 md-grid-cols-3 gap-4">
-              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#00ffcc' }}>Caja (Pre-cuentas)</p>
-                <input 
-                  type="text" 
-                  className="input w-full" 
-                  placeholder="Ej. 192.168.1.10"
-                  value={developerSettings.printerIPs?.caja || ''}
-                  onChange={(e) => handlePrinterIPChange('caja', e.target.value)}
-                  style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
-                />
-              </div>
-              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ffb84d' }}>Barra (Bebidas)</p>
-                <input 
-                  type="text" 
-                  className="input w-full" 
-                  placeholder="Ej. 192.168.1.11"
-                  value={developerSettings.printerIPs?.barra || ''}
-                  onChange={(e) => handlePrinterIPChange('barra', e.target.value)}
-                  style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
-                />
-              </div>
-              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ff4444' }}>Cocina (Platos)</p>
-                <input 
-                  type="text" 
-                  className="input w-full" 
-                  placeholder="Ej. 192.168.1.12"
-                  value={developerSettings.printerIPs?.cocina || ''}
-                  onChange={(e) => handlePrinterIPChange('cocina', e.target.value)}
-                  style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
-                />
-              </div>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '1rem', fontStyle: 'italic' }}>* Las aplicaciones web enviarán las comandas silenciosamente a los puertos :8000 de estas IPs.</p>
+            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem' }}>Ingresa los IDs de las computadoras (PrintAgents) encargadas de cada área por Sede.</p>
+            
+            {locations.length > 0 ? (
+              <>
+                <div className="mb-4">
+                  <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '0.5rem' }}>URL del Servidor de Impresión (Socket.io en Render):</label>
+                  <input 
+                    type="text" 
+                    className="input w-full" 
+                    placeholder="https://tu-print-server.onrender.com"
+                    value={developerSettings.printServerUrl || ''}
+                    onChange={(e) => setDeveloperSettings(prev => ({ ...prev, printServerUrl: e.target.value }))}
+                    style={{ backgroundColor: '#111', color: '#00ffcc', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '0.5rem' }}>Seleccionar Sede a configurar:</label>
+                  <select 
+                    className="input w-full md:w-1/2" 
+                    value={selectedPrinterLocation} 
+                    onChange={(e) => setSelectedPrinterLocation(e.target.value)}
+                    style={{ backgroundColor: '#000', color: '#fff', borderColor: '#333' }}
+                  >
+                    {locations.map(loc => (
+                      <option key={loc.id} value={loc.id}>{loc.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="grid grid-cols-1 md-grid-cols-3 gap-4">
+                  <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                    <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#00ffcc' }}>Caja (Pre-cuentas)</p>
+                    <input 
+                      type="text" 
+                      className="input w-full" 
+                      placeholder="Ej. caja_principal"
+                      value={developerSettings.printerIds?.[selectedPrinterLocation]?.caja || ''}
+                      onChange={(e) => handlePrinterIdChange('caja', e.target.value)}
+                      style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                  <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                    <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ffb84d' }}>Barra (Bebidas)</p>
+                    <input 
+                      type="text" 
+                      className="input w-full" 
+                      placeholder="Ej. barra_01"
+                      value={developerSettings.printerIds?.[selectedPrinterLocation]?.barra || ''}
+                      onChange={(e) => handlePrinterIdChange('barra', e.target.value)}
+                      style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                  <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                    <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ff4444' }}>Cocina (Platos)</p>
+                    <input 
+                      type="text" 
+                      className="input w-full" 
+                      placeholder="Ej. cocina_01"
+                      value={developerSettings.printerIds?.[selectedPrinterLocation]?.cocina || ''}
+                      onChange={(e) => handlePrinterIdChange('cocina', e.target.value)}
+                      style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                </div>
+                <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '1rem', fontStyle: 'italic' }}>* Los tickets serán enviados al servidor en Render y escuchados por los PrintAgents configurados con estos IDs.</p>
+              </>
+            ) : (
+              <p style={{ fontSize: '0.8rem', color: '#ff4444' }}>No hay sedes creadas. Crea una sede primero en el panel de SuperAdmin.</p>
+            )}
           </div>
 
           {/* Card 5: Almacenamiento y Limpieza */}

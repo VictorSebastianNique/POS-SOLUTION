@@ -246,20 +246,35 @@ export default function Mozo() {
     };
 
     const promises = [];
-    if (barraItems.length > 0 && developerSettings?.printerIPs?.barra) {
-      promises.push(fetch(`http://${developerSettings.printerIPs.barra}:8000/print`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...basePayload, target: 'barra', orderData: { ...basePayload.orderData, items: barraItems.map(c => ({ name: c.item.name, quantity: c.quantity, notes: c.details })) } })
-      }).catch(e => console.error("Error Barra print:", e)));
-    }
+    const currentLocId = localStorage.getItem('currentLocationId') || 'default';
+    const printServerUrl = developerSettings?.printServerUrl;
+    
+    if (printServerUrl) {
+      if (barraItems.length > 0 && developerSettings?.printerIds?.[currentLocId]?.barra) {
+        const barraAgentId = developerSettings.printerIds[currentLocId].barra;
+        promises.push(fetch(`${printServerUrl}/dispatch-print`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            locationId: currentLocId,
+            targetAgentId: barraAgentId,
+            payload: { ...basePayload, target: 'barra', orderData: { ...basePayload.orderData, items: barraItems.map(c => ({ name: c.item.name, quantity: c.quantity, notes: c.details })) } }
+          })
+        }).catch(e => console.error("Error Barra print:", e)));
+      }
 
-    if (cocinaItems.length > 0 && developerSettings?.printerIPs?.cocina) {
-      promises.push(fetch(`http://${developerSettings.printerIPs.cocina}:8000/print`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...basePayload, target: 'cocina', orderData: { ...basePayload.orderData, items: cocinaItems.map(c => ({ name: c.item.name, quantity: c.quantity, notes: c.details })) } })
-      }).catch(e => console.error("Error Cocina print:", e)));
+      if (cocinaItems.length > 0 && developerSettings?.printerIds?.[currentLocId]?.cocina) {
+        const cocinaAgentId = developerSettings.printerIds[currentLocId].cocina;
+        promises.push(fetch(`${printServerUrl}/dispatch-print`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            locationId: currentLocId,
+            targetAgentId: cocinaAgentId,
+            payload: { ...basePayload, target: 'cocina', orderData: { ...basePayload.orderData, items: cocinaItems.map(c => ({ name: c.item.name, quantity: c.quantity, notes: c.details })) } }
+          })
+        }).catch(e => console.error("Error Cocina print:", e)));
+      }
     }
 
     if (promises.length > 0) {

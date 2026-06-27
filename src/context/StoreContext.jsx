@@ -28,7 +28,8 @@ export const StoreProvider = ({ children }) => {
     metricsOnlySuperAdmin: false,
     billingMode: 'test',
     billingToken: '',
-    printerIPs: { caja: '', barra: '', cocina: '' },
+    printServerUrl: 'https://print-server-production-xxxx.onrender.com',
+    printerIds: {}, // Format: { locationId: { caja: '', barra: '', cocina: '' } }
     adminModules: { caja: true, users: true, crm: true, categories: true, subcategories: true, menu: true, kardex_config: true, zones: true, empresas: true, auditoria: true, locales: true }
   };
   const [developerSettings, setDeveloperSettings] = React.useState(defaultDevSettings);
@@ -64,8 +65,15 @@ export const StoreProvider = ({ children }) => {
         if (dataGlobal.developerSettings) {
           // Merge fetched settings with defaults to ensure new keys exist
           const mergedAdminModules = { ...defaultDevSettings.adminModules, ...(dataGlobal.developerSettings.adminModules || {}) };
-          const mergedPrinterIPs = { ...defaultDevSettings.printerIPs, ...(dataGlobal.developerSettings.printerIPs || {}) };
-          setDeveloperSettings({ ...defaultDevSettings, ...dataGlobal.developerSettings, adminModules: mergedAdminModules, printerIPs: mergedPrinterIPs });
+          
+          // Migración de IPs antiguas a IDs si es necesario, o mantener printerIds
+          let mergedPrinterIds = dataGlobal.developerSettings.printerIds || {};
+          // Si existía printerIPs pero no printerIds, lo convertimos al primer local o lo ignoramos
+          if (dataGlobal.developerSettings.printerIPs && Object.keys(mergedPrinterIds).length === 0 && loadedLocations.length > 0) {
+            mergedPrinterIds[loadedLocations[0].id] = dataGlobal.developerSettings.printerIPs;
+          }
+
+          setDeveloperSettings({ ...defaultDevSettings, ...dataGlobal.developerSettings, adminModules: mergedAdminModules, printerIds: mergedPrinterIds });
         }
         if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
         if (dataGlobal.customers) setCustomers(dataGlobal.customers);
