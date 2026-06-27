@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin, Cloud, HardDrive, RefreshCw, FileText, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin, Cloud, HardDrive, RefreshCw, FileText, AlertTriangle, Eye, EyeOff, Printer, LayoutDashboard } from 'lucide-react';
 
 export default function DeveloperConfig() {
   const navigate = useNavigate();
@@ -39,6 +39,40 @@ export default function DeveloperConfig() {
       ...prev,
       billingMode: prev.billingMode === 'production' ? 'test' : 'production'
     }));
+  };
+
+  const handleToggleAdminModule = (moduleKey) => {
+    setDeveloperSettings(prev => ({
+      ...prev,
+      adminModules: {
+        ...(prev.adminModules || {}),
+        [moduleKey]: !(prev.adminModules || {})[moduleKey]
+      }
+    }));
+  };
+
+  const handlePrinterIPChange = (key, value) => {
+    setDeveloperSettings(prev => ({
+      ...prev,
+      printerIPs: {
+        ...(prev.printerIPs || {}),
+        [key]: value
+      }
+    }));
+  };
+
+  const adminModuleLabels = {
+    caja: 'Caja y Reportes',
+    users: 'Usuarios',
+    crm: 'CRM y Fidelización',
+    categories: 'Categorías',
+    subcategories: 'Subcategorías',
+    menu: 'Platos / Menú',
+    kardex_config: 'Insumos Kardex',
+    zones: 'Zonas y Mesas',
+    empresas: 'Empresas (Facturación)',
+    auditoria: 'Auditoría',
+    locales: 'Locales / Sedes (Solo SuperAdmin)'
   };
 
   const [showToken, setShowToken] = useState(false);
@@ -258,6 +292,77 @@ export default function DeveloperConfig() {
                 <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '0.5rem' }}>El token se inyecta en el header de las peticiones hacia Nubefact.</p>
               </div>
             </div>
+          </div>
+
+          {/* Card: Control de Módulos (Feature Flags) */}
+          <div className="card md-col-span-2" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
+            <h2 className="title flex items-center gap-2 mb-4" style={{ fontSize: '1.1rem', color: '#fff' }}>
+              <LayoutDashboard size={18} style={{ color: '#ff44ff' }} /> Control de Módulos del Administrador (Feature Flags)
+            </h2>
+            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem' }}>Desactiva los módulos que no uses. Se ocultarán para todos los roles (incluyendo SuperAdmin).</p>
+            <div className="grid grid-cols-1 md-grid-cols-2 gap-3">
+              {Object.entries(adminModuleLabels).map(([key, label]) => {
+                const isActive = developerSettings.adminModules?.[key] !== false; // Default true
+                return (
+                  <div key={key} className="flex justify-between items-center p-2 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                    <span style={{ fontSize: '0.85rem', color: isActive ? '#fff' : '#666' }}>{label}</span>
+                    <button 
+                      onClick={() => handleToggleAdminModule(key)}
+                      style={{
+                        padding: '0.3rem 0.6rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.7rem',
+                        backgroundColor: isActive ? '#00ffcc' : '#333', color: isActive ? '#000' : '#888'
+                      }}
+                    >
+                      {isActive ? 'ACTIVO' : 'OCULTO'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card: Configuración de Impresoras */}
+          <div className="card md-col-span-2" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
+            <h2 className="title flex items-center gap-2 mb-4" style={{ fontSize: '1.1rem', color: '#fff' }}>
+              <Printer size={18} style={{ color: '#00ffcc' }} /> Configuración de Impresoras Térmicas (Red Local)
+            </h2>
+            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem' }}>Ingresa la IP local de la computadora (PrintAgent) encargada de cada área.</p>
+            <div className="grid grid-cols-1 md-grid-cols-3 gap-4">
+              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#00ffcc' }}>Caja (Pre-cuentas)</p>
+                <input 
+                  type="text" 
+                  className="input w-full" 
+                  placeholder="Ej. 192.168.1.10"
+                  value={developerSettings.printerIPs?.caja || ''}
+                  onChange={(e) => handlePrinterIPChange('caja', e.target.value)}
+                  style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ffb84d' }}>Barra (Bebidas)</p>
+                <input 
+                  type="text" 
+                  className="input w-full" 
+                  placeholder="Ej. 192.168.1.11"
+                  value={developerSettings.printerIPs?.barra || ''}
+                  onChange={(e) => handlePrinterIPChange('barra', e.target.value)}
+                  style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ff4444' }}>Cocina (Platos)</p>
+                <input 
+                  type="text" 
+                  className="input w-full" 
+                  placeholder="Ej. 192.168.1.12"
+                  value={developerSettings.printerIPs?.cocina || ''}
+                  onChange={(e) => handlePrinterIPChange('cocina', e.target.value)}
+                  style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '1rem', fontStyle: 'italic' }}>* Las aplicaciones web enviarán las comandas silenciosamente a los puertos :8000 de estas IPs.</p>
           </div>
 
           {/* Card 5: Almacenamiento y Limpieza */}

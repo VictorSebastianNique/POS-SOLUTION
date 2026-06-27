@@ -487,24 +487,43 @@ export default function Admin() {
           overflowY: isMobile ? 'auto' : undefined,
         }}>
           {isMobile && <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Menú Admin</div>}
-          <button className={`btn ${activeTab === 'caja' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('caja')}>Caja y Reportes</button>
-          <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('users')}>Usuarios</button>
-          <button className={`btn ${activeTab === 'crm' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('crm')}>⭐ CRM y Fidelización</button>
-          <button className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('categories')}>Categorías</button>
-          <button className={`btn ${activeTab === 'subcategories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('subcategories')}>Subcategorías</button>
-          <button className={`btn ${activeTab === 'menu' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('menu')}>Platos / Menú</button>
-          <button className={`btn ${activeTab === 'kardex_config' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('kardex_config')}>Insumos Kardex</button>
-          <button className={`btn ${activeTab === 'zones' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('zones')}>Zonas y Mesas</button>
-          <button className={`btn ${activeTab === 'empresas' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('empresas')}><Building2 size={15}/> Empresas</button>
+          {developerSettings?.adminModules?.caja !== false && (
+            <button className={`btn ${activeTab === 'caja' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('caja')}>Caja y Reportes</button>
+          )}
+          {developerSettings?.adminModules?.users !== false && (
+            <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('users')}>Usuarios</button>
+          )}
+          {developerSettings?.adminModules?.crm !== false && (
+            <button className={`btn ${activeTab === 'crm' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('crm')}>⭐ CRM y Fidelización</button>
+          )}
+          {developerSettings?.adminModules?.categories !== false && (
+            <button className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('categories')}>Categorías</button>
+          )}
+          {developerSettings?.adminModules?.subcategories !== false && (
+            <button className={`btn ${activeTab === 'subcategories' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('subcategories')}>Subcategorías</button>
+          )}
+          {developerSettings?.adminModules?.menu !== false && (
+            <button className={`btn ${activeTab === 'menu' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('menu')}>Platos / Menú</button>
+          )}
+          {developerSettings?.adminModules?.kardex_config !== false && (
+            <button className={`btn ${activeTab === 'kardex_config' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('kardex_config')}>Insumos Kardex</button>
+          )}
+          {developerSettings?.adminModules?.zones !== false && (
+            <button className={`btn ${activeTab === 'zones' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('zones')}>Zonas y Mesas</button>
+          )}
+          {developerSettings?.adminModules?.empresas !== false && (
+            <button className={`btn ${activeTab === 'empresas' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('empresas')}><Building2 size={15}/> Empresas</button>
+          )}
           
-          
-          {(!developerSettings?.metricsOnlySuperAdmin || isSuperAdmin) && (
+          {(!developerSettings?.metricsOnlySuperAdmin || isSuperAdmin) && developerSettings?.adminModules?.metrics !== false && (
             <button className={`btn ${activeTab === 'metrics' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('metrics')}><TrendingUp size={15}/> Business Intelligence (BI)</button>
           )}
 
-          <button className={`btn ${activeTab === 'auditoria' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('auditoria')}><ShieldAlert size={15}/> Auditoría</button>
+          {developerSettings?.adminModules?.auditoria !== false && (
+            <button className={`btn ${activeTab === 'auditoria' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('auditoria')}><ShieldAlert size={15}/> Auditoría</button>
+          )}
 
-          {isSuperAdmin && (
+          {isSuperAdmin && developerSettings?.adminModules?.locales !== false && (
             <button className={`btn ${activeTab === 'locales' ? 'btn-primary' : 'btn-outline'} w-full justify-start`} onClick={() => handleTabClick('locales')}><MapPin size={15}/> Locales / Sedes</button>
           )}
           

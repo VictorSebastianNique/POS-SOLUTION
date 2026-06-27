@@ -23,7 +23,15 @@ export const StoreProvider = ({ children }) => {
   const [tableHeadcounts, setTableHeadcounts] = React.useState({});
   const [companies, setCompanies] = React.useState([]);
   const [menuStatus, setMenuStatus] = React.useState({});
-  const [developerSettings, setDeveloperSettings] = React.useState({ isSuperAdminIncognito: false });
+  const defaultDevSettings = {
+    isSuperAdminIncognito: false,
+    metricsOnlySuperAdmin: false,
+    billingMode: 'test',
+    billingToken: '',
+    printerIPs: { caja: '', barra: '', cocina: '' },
+    adminModules: { caja: true, users: true, crm: true, categories: true, subcategories: true, menu: true, kardex_config: true, zones: true, empresas: true, auditoria: true, locales: true }
+  };
+  const [developerSettings, setDeveloperSettings] = React.useState(defaultDevSettings);
   const [kardexItems, setKardexItems] = React.useState([]);
   const [customers, setCustomers] = React.useState([]);
 
@@ -53,7 +61,12 @@ export const StoreProvider = ({ children }) => {
         } else {
           setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: [] }]);
         }
-        if (dataGlobal.developerSettings) setDeveloperSettings(dataGlobal.developerSettings);
+        if (dataGlobal.developerSettings) {
+          // Merge fetched settings with defaults to ensure new keys exist
+          const mergedAdminModules = { ...defaultDevSettings.adminModules, ...(dataGlobal.developerSettings.adminModules || {}) };
+          const mergedPrinterIPs = { ...defaultDevSettings.printerIPs, ...(dataGlobal.developerSettings.printerIPs || {}) };
+          setDeveloperSettings({ ...defaultDevSettings, ...dataGlobal.developerSettings, adminModules: mergedAdminModules, printerIPs: mergedPrinterIPs });
+        }
         if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
         if (dataGlobal.customers) setCustomers(dataGlobal.customers);
 
