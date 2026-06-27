@@ -226,9 +226,45 @@ export default function Mozo() {
     updateTableCart(tableKey, cart.filter(c => c.id !== cartItem.id));
   };
 
-  const handleSendOrder = () => {
-    if (cart.filter(c => c.status === 'new').length === 0) return;
+  const handleSendOrder = async () => {
+    const newItems = cart.filter(c => c.status === 'new');
+    if (newItems.length === 0) return;
+    
+    // Save to context state
     sendTableOrders(tableKey, cart, selectedZone.name, selectedTable, sessionWaiter.name);
+
+    // Split items for print logic
+    const barraItems = newItems.filter(c => (c.item.category || '').toLowerCase().includes('bebida') || (c.item.category || '').toLowerCase().includes('bar'));
+    const cocinaItems = newItems.filter(c => !((c.item.category || '').toLowerCase().includes('bebida') || (c.item.category || '').toLowerCase().includes('bar')));
+
+    const basePayload = {
+      documentType: 'comanda',
+      orderData: {
+        table: selectedTable.number,
+        waiter: sessionWaiter.name,
+      }
+    };
+
+    const promises = [];
+    if (barraItems.length > 0 && developerSettings?.printerIPs?.barra) {
+      promises.push(fetch(`http://${developerSettings.printerIPs.barra}:8000/print`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...basePayload, target: 'barra', orderData: { ...basePayload.orderData, items: barraItems.map(c => ({ name: c.item.name, quantity: c.quantity, notes: c.details })) } })
+      }).catch(e => console.error("Error Barra print:", e)));
+    }
+
+    if (cocinaItems.length > 0 && developerSettings?.printerIPs?.cocina) {
+      promises.push(fetch(`http://${developerSettings.printerIPs.cocina}:8000/print`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...basePayload, target: 'cocina', orderData: { ...basePayload.orderData, items: cocinaItems.map(c => ({ name: c.item.name, quantity: c.quantity, notes: c.details })) } })
+      }).catch(e => console.error("Error Cocina print:", e)));
+    }
+
+    if (promises.length > 0) {
+      await Promise.all(promises);
+    }
   };
 
   const handlePayTable = () => {

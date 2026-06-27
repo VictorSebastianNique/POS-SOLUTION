@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2 } from 'lucide-react';
+import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import PrintReceipt from '../components/PrintReceipt';
 import PageHeader from '../components/PageHeader';
@@ -170,6 +170,57 @@ export default function Caja() {
 
   const incomeCategories = ['Ingreso de Liquidez', 'Adelanto/Contratos', 'Otros Ingresos'];
   const expenseCategories = ['Pago a Proveedores', 'Compras Insumos', 'Pago de Personal', 'Otros Egresos'];
+
+  const handlePrintPrecuenta = async () => {
+    try {
+      const cajaIp = developerSettings?.printerIPs?.caja;
+      if (!cajaIp) {
+        alert("Configura la IP de la Caja en el Panel Developer primero.");
+        return;
+      }
+      
+      const selectedTable = selectedTableKey ? activeTables[selectedTableKey] : null;
+      if (!selectedTable) return;
+      
+      const tableCart = selectedTable.cart || [];
+      const itemsToPrint = tableCart.filter(c => selectedItemIds.includes(c.id)).map(c => ({
+        name: c.item.name,
+        quantity: c.quantity,
+        price: c.item.price
+      }));
+      
+      if (itemsToPrint.length === 0) {
+        alert("Selecciona al menos un producto para la pre-cuenta.");
+        return;
+      }
+      
+      const totalToPrint = itemsToPrint.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+      
+      const payload = {
+        target: 'caja',
+        documentType: 'precuenta',
+        orderData: {
+          table: selectedTable.number,
+          waiter: selectedTable.waiter || 'Caja',
+          customerName,
+          total: totalToPrint,
+          items: itemsToPrint
+        }
+      };
+
+      const res = await fetch(`http://${cajaIp}:8000/print`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) throw new Error("Error en el servidor de impresión local");
+      alert("Pre-cuenta enviada a la impresora.");
+    } catch (e) {
+      console.error(e);
+      alert("No se pudo conectar a la impresora de Caja. Revisa PrintAgent en la red local.");
+    }
+  };
 
   const [viewMode, setViewMode] = useState('mesas'); // 'mesas' | 'usuarios' | 'ventas'
 
@@ -963,6 +1014,16 @@ export default function Caja() {
                     ⚠️ Debes ingresar el motivo de esta operación interna.
                   </p>
                 )}
+
+                {/* Print Pre-cuenta button */}
+                <button
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.7rem', fontSize: '0.9rem', fontWeight: 600, backgroundColor: 'var(--surface-color)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'all 0.2s', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', marginBottom: '0.5rem' }}
+                  onClick={handlePrintPrecuenta}
+                  disabled={selectedItemIds.length === 0}
+                >
+                  <Printer size={18} style={{ color: 'var(--primary-color)' }} /> 
+                  IMPRIMIR PRE-CUENTA
+                </button>
 
                 {/* Pay button */}
                 <button
