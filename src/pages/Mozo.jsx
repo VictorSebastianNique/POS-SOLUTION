@@ -8,7 +8,7 @@ import PrintReceipt from '../components/PrintReceipt';
 
 export default function Mozo() {
   const navigate = useNavigate();
-  const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts, locations } = useStore();
+  const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts, locations, tableFamilies, setTableFamily } = useStore();
   
   const [showItemNotes, setShowItemNotes] = useState(false);
   const [activeItemForNotes, setActiveItemForNotes] = useState(null);
@@ -51,6 +51,9 @@ export default function Mozo() {
 
   // V5: Add Item Numpad Modal
   const [pendingItem, setPendingItem] = useState(null);
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
+  const [discountPin, setDiscountPin] = useState('');
+  const [confirmReservationModal, setConfirmReservationModal] = useState(null);
   const [itemQty, setItemQty] = useState('1');
   const [itemDetails, setItemDetails] = useState('');
 
@@ -151,6 +154,23 @@ export default function Mozo() {
     setAuthSelectedUser('');
     setAuthPassword('');
     setAuthError('');
+  };
+
+  const handleTableClick = (tKey, tableName, isReserved, familyName) => {
+    if (isReserved) {
+      setConfirmReservationModal({ tKey, tableName, familyName });
+    } else {
+      openTableAuth(tableName);
+    }
+  };
+
+  const confirmReservationAndOpenTable = () => {
+    if (confirmReservationModal) {
+      // Mark as seated, retaining family name
+      setTableFamily(confirmReservationModal.tKey, confirmReservationModal.familyName, 'seated');
+      openTableAuth(confirmReservationModal.tableName);
+      setConfirmReservationModal(null);
+    }
   };
 
   const handleTableAuth = (e) => {
@@ -398,8 +418,12 @@ export default function Mozo() {
                   const tKey = `${selectedZone.id}-${tableName}`;
                   const hasAccount = activeTables[tKey] && activeTables[tKey].length > 0;
                   const isLocked = activeTables[tKey]?.some(item => item.isRecovered);
-                  const borderColor = hasAccount ? (isLocked ? '#f59e0b' : 'var(--danger-color)') : 'var(--success-color)';
-                  const bgColor = hasAccount ? (isLocked ? 'rgba(245, 158, 11, 0.1)' : 'var(--danger-bg)') : 'var(--success-subtle)';
+                  
+                  const reservation = tableFamilies && tableFamilies[tKey];
+                  const isReserved = reservation && reservation.status === 'reserved' && !hasAccount;
+
+                  const borderColor = hasAccount ? (isLocked ? '#f59e0b' : 'var(--danger-color)') : (isReserved ? '#3b82f6' : 'var(--success-color)');
+                  const bgColor = hasAccount ? (isLocked ? 'rgba(245, 158, 11, 0.1)' : 'var(--danger-bg)') : (isReserved ? 'rgba(59, 130, 246, 0.1)' : 'var(--success-subtle)');
 
                   return (
                     <div 
@@ -411,12 +435,12 @@ export default function Mozo() {
                           alert("Esta mesa ha sido recuperada para re-facturación y está bloqueada por Caja. No se pueden tomar nuevos pedidos aquí.");
                           return;
                         }
-                        openTableAuth(tableName);
+                        handleTableClick(tKey, tableName, isReserved, reservation?.familyName);
                       }}
                     >
                       <span className="title text-center" style={{ fontSize: tableName.length > 3 ? '1.2rem' : '2rem', wordBreak: 'break-word', lineHeight: 1.2 }}>{tableName}</span>
                       <span style={{ position: 'absolute', bottom: '10px', fontSize: '0.75rem', color: borderColor, fontWeight: 600 }}>
-                        {hasAccount ? (isLocked ? 'BLOQUEADA (CAJA)' : `OCUPADA • ${getOccupiedTime(activeTables[tKey])}`) : 'LIBRE'}
+                        {hasAccount ? (isLocked ? 'BLOQUEADA (CAJA)' : `OCUPADA • ${getOccupiedTime(activeTables[tKey])}`) : (isReserved ? 'RESERVADA' : 'LIBRE')}
                       </span>
                     </div>
                   );

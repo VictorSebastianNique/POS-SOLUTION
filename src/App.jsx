@@ -9,6 +9,7 @@ import Caja from './pages/Caja';
 import Kardex from './pages/Kardex';
 import DeveloperConfig from './pages/DeveloperConfig';
 import CustomerApp from './pages/CustomerApp';
+import Anfitriona from './pages/Anfitriona';
 import { useStore } from './context/StoreContext';
 
 /* ── Reloj global ─────────────────────────────────────────── */
@@ -167,6 +168,7 @@ function App() {
         <Route path="/bar"             element={<Bar />} />
         <Route path="/admin"           element={<Admin />} />
         <Route path="/caja"            element={<Caja />} />
+        <Route path="/anfitriona"      element={<Anfitriona />} />
         <Route path="/kardex"          element={<Kardex />} />
       </Routes>
       <GlobalClock />

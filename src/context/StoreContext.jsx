@@ -23,6 +23,7 @@ export const StoreProvider = ({ children }) => {
   const [tableHeadcounts, setTableHeadcounts] = React.useState({});
   const [companies, setCompanies] = React.useState([]);
   const [menuStatus, setMenuStatus] = React.useState({});
+  const [tableFamilies, setTableFamilies] = React.useState({});
   const defaultDevSettings = {
     isSuperAdminIncognito: false,
     metricsOnlySuperAdmin: false,
@@ -95,8 +96,9 @@ export const StoreProvider = ({ children }) => {
              setTableHeadcounts(dataLocal.tableHeadcounts || {});
              setCompanies(dataLocal.companies || []);
              setMenuStatus(dataLocal.menuStatus || {});
+             setTableFamilies(dataLocal.tableFamilies || {});
           } else {
-             setZones([]); setOrders([]); setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] }); setPastDays([]); setActiveTables({}); setCompanies([]); setMenuStatus({});
+             setZones([]); setOrders([]); setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] }); setPastDays([]); setActiveTables({}); setCompanies({}); setMenuStatus({}); setTableFamilies({});
           }
         }
         
@@ -213,6 +215,7 @@ export const StoreProvider = ({ children }) => {
   React.useEffect(() => { if (!loading) saveState('activeTables', activeTables); }, [activeTables, loading]);
   React.useEffect(() => { if (!loading) saveState('tableHeadcounts', tableHeadcounts); }, [tableHeadcounts, loading]);
   React.useEffect(() => { if (!loading) saveState('companies', companies); }, [companies, loading]);
+  React.useEffect(() => { if (!loading) saveState('tableFamilies', tableFamilies); }, [tableFamilies, loading]);
 
   if (loading) {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white' }}>Cargando sistema...</div>;
@@ -426,9 +429,30 @@ if (barCart.length > 0) {
       if (remainingCart.length === 0) {
         delete next[tableKey];
         setTableHeadcounts(th => { const n = { ...th }; delete n[tableKey]; return n; });
+        setTableFamilies(tf => { const n = { ...tf }; delete n[tableKey]; return n; });
       } else {
         next[tableKey] = remainingCart;
       }
+      return next;
+    });
+  };
+
+  const closeTable = (tableKey) => {
+    setActiveTables(prev => {
+      const next = { ...prev };
+      delete next[tableKey];
+      return next;
+    });
+
+    setTableHeadcounts(prev => {
+      const next = { ...prev };
+      delete next[tableKey];
+      return next;
+    });
+
+    setTableFamilies(prev => {
+      const next = { ...prev };
+      delete next[tableKey];
       return next;
     });
   };
@@ -588,6 +612,21 @@ if (barCart.length > 0) {
   const addItem = (setter) => (item) => setter(prev => [...prev, { ...item, id: uuidv4(), active: true }]);
   const updateItem = (setter) => (id, updated) => setter(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
   const deleteItem = (setter) => (id) => setter(prev => prev.filter(item => item.id !== id));
+  
+  const setTableFamily = (tableKey, familyName, status) => {
+    if (!familyName) {
+      setTableFamilies(prev => {
+        const next = { ...prev };
+        delete next[tableKey];
+        return next;
+      });
+    } else {
+      setTableFamilies(prev => ({
+        ...prev,
+        [tableKey]: { familyName, status, timestamp: Date.now() }
+      }));
+    }
+  };
 
   return (
     <StoreContext.Provider value={{
@@ -614,7 +653,8 @@ if (barCart.length > 0) {
       companies, addCompany: addItem(setCompanies), updateCompany: updateItem(setCompanies), deleteCompany: deleteItem(setCompanies),
       developerSettings, setDeveloperSettings,
       kardexItems, addKardexItem: addItem(setKardexItems), updateKardexItem: updateItem(setKardexItems), deleteKardexItem: deleteItem(setKardexItems),
-      updateKardexData
+      updateKardexData,
+      tableFamilies, setTableFamily
     }}>
       {children}
     </StoreContext.Provider>

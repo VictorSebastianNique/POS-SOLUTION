@@ -719,6 +719,7 @@ export default function Admin() {
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Rol</label>
                     <select className="input mt-1" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} style={{ width: '130px' }}>
                       <option value="mozo">Mozo</option>
+                      <option value="anfitriona">Anfitriona</option>
                       <option value="cajera">Cajera</option>
                       <option value="cocina">Cocina</option>
                       <option value="bar">Bar</option>
@@ -763,6 +764,7 @@ export default function Admin() {
                             <td className="py-2">
                               <select className="input" value={editUser.data.role} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, role: e.target.value } })}>
                                 <option value="mozo">Mozo</option>
+                                <option value="anfitriona">Anfitriona</option>
                                 <option value="cajera">Cajera</option>
                                 <option value="cocina">Cocina</option>
                                 <option value="bar">Bar</option>
