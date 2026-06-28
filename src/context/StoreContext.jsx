@@ -30,7 +30,7 @@ export const StoreProvider = ({ children }) => {
     billingToken: '',
     printServerUrl: 'https://print-server-production-xxxx.onrender.com',
     printerIds: {}, // Format: { locationId: { caja: '', barra: '', cocina: '' } }
-    adminModules: { caja: true, users: true, crm: true, categories: true, subcategories: true, menu: true, kardex_config: true, zones: true, empresas: true, auditoria: true, locales: true }
+    adminModules: { metrics: true, caja: true, users: true, crm: true, categories: true, subcategories: true, menu: true, kardex_config: true, zones: true, empresas: true, auditoria: true, locales: true }
   };
   const [developerSettings, setDeveloperSettings] = React.useState(defaultDevSettings);
   const [kardexItems, setKardexItems] = React.useState([]);

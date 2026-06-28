@@ -78,6 +78,7 @@ export default function DeveloperConfig() {
   };
 
   const adminModuleLabels = {
+    metrics: 'Business Intelligence (BI)',
     caja: 'Caja y Reportes',
     users: 'Usuarios',
     crm: 'CRM y Fidelización',
