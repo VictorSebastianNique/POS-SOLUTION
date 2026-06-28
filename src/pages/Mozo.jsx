@@ -568,6 +568,29 @@ export default function Mozo() {
                   </div>
                 )}
               </div>
+              
+              {/* Floating "Enviar" Button (Mobile) */}
+              {cart.some(c => c.status === 'new') && isMobile && (
+                <button 
+                  className="btn btn-primary animate-fade-in"
+                  style={{
+                    position: 'absolute',
+                    bottom: '24px',
+                    right: '24px',
+                    padding: '1rem 1.5rem',
+                    borderRadius: '30px',
+                    boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)',
+                    zIndex: 50,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '1.1rem'
+                  }}
+                  onClick={handleSendOrder}
+                >
+                  🚀 Enviar ({cart.filter(c => c.status === 'new').length})
+                </button>
+              )}
             </div>
           )}
         </div>

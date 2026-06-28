@@ -7,6 +7,7 @@ export const useStore = () => useContext(StoreContext);
 
 export const StoreProvider = ({ children }) => {
   const [loading, setLoading] = React.useState(true);
+  const lastSaveTime = React.useRef(0);
 
   const [currentUser, setCurrentUser] = React.useState(null);
   const [locations, setLocations] = React.useState([]);
@@ -126,6 +127,7 @@ export const StoreProvider = ({ children }) => {
     if (loading) return;
     const interval = setInterval(async () => {
       try {
+        if (Date.now() - lastSaveTime.current < 2500) return;
         const resGlobal = await fetch(`/api/store/global?t=${Date.now()}`, { cache: 'no-store' });
         if (resGlobal.ok) {
           const dataGlobal = await resGlobal.json();
@@ -152,6 +154,7 @@ export const StoreProvider = ({ children }) => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
         try {
+          if (Date.now() - lastSaveTime.current < 2500) return;
           const locId = localStorage.getItem('currentLocationId');
           if (locId) {
             const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store' });
@@ -176,7 +179,8 @@ export const StoreProvider = ({ children }) => {
 
   const saveState = async (key, value, isGlobal = false) => {
     try {
-      const locId = localStorage.getItem('currentLocationId');
+      lastSaveTime.current = Date.now();
+      const locId = localStorage.getItem('currentLocationId') || 'default';
       const endpoint = isGlobal ? `/api/store/global/${key}` : `/api/store/local/${locId}/${key}`;
       await fetch(endpoint, {
         method: 'POST',
