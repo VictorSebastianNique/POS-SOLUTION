@@ -208,10 +208,38 @@ async function writeLocalData(locId, key, value) {
     );
   } else {
     const dbPath = path.resolve(ROOT_DIR, `db_local_${locId}.json`);
-    let localDb = {};
-    if (fs.existsSync(dbPath)) localDb = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-    localDb[key] = value;
-    fs.writeFileSync(dbPath, JSON.stringify(localDb, null, 2));
+    const data = fs.existsSync(dbPath) ? JSON.parse(fs.readFileSync(dbPath, 'utf-8')) : {};
+    data[key] = value;
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+  }
+}
+
+async function getSecureData() {
+  if (db) {
+    const doc = await db.collection('store').findOne({ _id: 'secure' });
+    if (doc) {
+      const { _id, ...rest } = doc;
+      return rest;
+    }
+    return {};
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, 'db_secure.json');
+    return fs.existsSync(dbPath) ? JSON.parse(fs.readFileSync(dbPath, 'utf-8')) : {};
+  }
+}
+
+async function writeSecureData(key, value) {
+  if (db) {
+    await db.collection('store').updateOne(
+      { _id: 'secure' },
+      { $set: { [key]: value } },
+      { upsert: true }
+    );
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, 'db_secure.json');
+    const data = fs.existsSync(dbPath) ? JSON.parse(fs.readFileSync(dbPath, 'utf-8')) : {};
+    data[key] = value;
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
   }
 }
 
@@ -258,6 +286,8 @@ module.exports = {
   writeGlobalData,
   getLocalData,
   writeLocalData,
+  getSecureData,
+  writeSecureData,
   appendAuditLog,
   getAuditLogs,
   getDb

@@ -5,10 +5,53 @@ import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin,
 
 export default function DeveloperConfig() {
   const navigate = useNavigate();
-  const { developerSettings, setDeveloperSettings, locations, users, orders, setOrders, setPastDays, setBusinessDay, pastDays } = useStore();
+  const { developerSettings, setDeveloperSettings, locations, users, orders, setOrders, setPastDays, setBusinessDay, pastDays, companies } = useStore();
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState('');
+
+  // Secure Billing States
+  const [secureBilling, setSecureBilling] = useState({});
+  const [selectedBillingCompany, setSelectedBillingCompany] = useState('');
+  const [companyCreds, setCompanyCreds] = useState({ provider: 'Vercel API', usuarioSOL: '', claveSOL: '', certificado: '' });
+  const [showClave, setShowClave] = useState(false);
+  const [billingSavedMsg, setBillingSavedMsg] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetch('/api/store/secure/billing')
+        .then(res => res.json())
+        .then(data => setSecureBilling(data || {}))
+        .catch(err => console.error('Error fetching secure billing:', err));
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (selectedBillingCompany && secureBilling[selectedBillingCompany]) {
+      setCompanyCreds(secureBilling[selectedBillingCompany]);
+    } else {
+      setCompanyCreds({ provider: 'Vercel API', usuarioSOL: '', claveSOL: '', certificado: '' });
+    }
+    setBillingSavedMsg('');
+  }, [selectedBillingCompany, secureBilling]);
+
+  const handleSaveBilling = async () => {
+    if (!selectedBillingCompany) return;
+    const newSecureBilling = { ...secureBilling, [selectedBillingCompany]: companyCreds };
+    setSecureBilling(newSecureBilling);
+    try {
+      await fetch('/api/store/secure/billing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSecureBilling)
+      });
+      setBillingSavedMsg('¡Guardado!');
+      setTimeout(() => setBillingSavedMsg(''), 3000);
+    } catch (e) {
+      console.error(e);
+      setBillingSavedMsg('Error al guardar');
+    }
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -290,23 +333,93 @@ export default function DeveloperConfig() {
               </div>
 
               <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Token de Integración (Bearer)</p>
-                <div style={{ position: 'relative' }}>
-                  <input 
-                    type={showToken ? 'text' : 'password'}
+                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#ffb84d' }}>Credenciales (Bóveda Segura)</p>
+                
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ fontSize: '0.75rem', color: '#888' }}>Seleccionar Empresa</label>
+                  <select 
                     className="input w-full"
-                    value={developerSettings.billingToken || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token'}
-                    readOnly
-                    style={{ backgroundColor: '#111', color: '#00ffcc', borderColor: '#333', paddingRight: '2.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
-                  />
-                  <button 
-                    onClick={() => setShowToken(!showToken)}
-                    style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}
+                    style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem' }}
+                    value={selectedBillingCompany}
+                    onChange={(e) => setSelectedBillingCompany(e.target.value)}
                   >
-                    {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+                    <option value="">-- Seleccione --</option>
+                    {(companies || []).map(c => (
+                      <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>
+                    ))}
+                  </select>
                 </div>
-                <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '0.5rem' }}>El token se inyecta en el header de las peticiones hacia Nubefact.</p>
+
+                {selectedBillingCompany && (
+                  <>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ fontSize: '0.75rem', color: '#888' }}>Proveedor API</label>
+                      <select 
+                        className="input w-full"
+                        style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem' }}
+                        value={companyCreds.provider}
+                        onChange={(e) => setCompanyCreds({...companyCreds, provider: e.target.value})}
+                      >
+                        <option value="Vercel API">API Vercel Propia</option>
+                        <option value="Nubefact">Nubefact</option>
+                      </select>
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ fontSize: '0.75rem', color: '#888' }}>Usuario SOL</label>
+                      <input 
+                        type="text"
+                        className="input w-full"
+                        placeholder="Ej. MODDATOS"
+                        value={companyCreds.usuarioSOL || ''}
+                        onChange={(e) => setCompanyCreds({...companyCreds, usuarioSOL: e.target.value})}
+                        style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem' }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ fontSize: '0.75rem', color: '#888' }}>Clave SOL</label>
+                      <div style={{ position: 'relative' }}>
+                        <input 
+                          type={showClave ? 'text' : 'password'}
+                          className="input w-full"
+                          placeholder="••••••••"
+                          value={companyCreds.claveSOL || ''}
+                          onChange={(e) => setCompanyCreds({...companyCreds, claveSOL: e.target.value})}
+                          style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem', paddingRight: '2.5rem' }}
+                        />
+                        <button 
+                          onClick={() => setShowClave(!showClave)}
+                          style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-30%)', background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}
+                        >
+                          {showClave ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ fontSize: '0.75rem', color: '#888' }}>Certificado (Base64) o Token API</label>
+                      <textarea 
+                        className="input w-full"
+                        placeholder="eyJhbGci..."
+                        rows={3}
+                        value={companyCreds.certificado || ''}
+                        onChange={(e) => setCompanyCreds({...companyCreds, certificado: e.target.value})}
+                        style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem', fontFamily: 'monospace', fontSize: '0.7rem' }}
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <button className="btn btn-primary" onClick={handleSaveBilling} style={{ flex: 1, padding: '0.5rem' }}>
+                        Guardar Credenciales
+                      </button>
+                      {billingSavedMsg && <span style={{ color: '#00ffcc', fontSize: '0.8rem', fontWeight: 'bold' }}>{billingSavedMsg}</span>}
+                    </div>
+                  </>
+                )}
+                {!selectedBillingCompany && (
+                  <p style={{ fontSize: '0.8rem', color: '#666', textAlign: 'center', marginTop: '1rem' }}>Seleccione una empresa para gestionar sus credenciales de forma segura.</p>
+                )}
               </div>
             </div>
           </div>

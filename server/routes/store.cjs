@@ -1,5 +1,5 @@
-﻿const express = require('express');
-const { getGlobalData, writeGlobalData, getLocalData, writeLocalData } = require('../db.cjs');
+const express = require('express');
+const { getGlobalData, writeGlobalData, getLocalData, writeLocalData, getSecureData, writeSecureData } = require('../db.cjs');
 
 const router = express.Router();
 
@@ -37,6 +37,26 @@ router.post('/global/:key', async (req, res, next) => {
 router.post('/local/:locId/:key', async (req, res, next) => {
   try {
     await writeLocalData(req.params.locId, req.params.key, req.body);
+    res.json({ success: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// GET SECURE BILLING
+router.get('/secure/billing', async (req, res, next) => {
+  try {
+    const data = await getSecureData();
+    res.json(data.billingCredentials || {});
+  } catch (e) {
+    next(e);
+  }
+});
+
+// POST SECURE BILLING
+router.post('/secure/billing', async (req, res, next) => {
+  try {
+    await writeSecureData('billingCredentials', req.body);
     res.json({ success: true });
   } catch (e) {
     next(e);
