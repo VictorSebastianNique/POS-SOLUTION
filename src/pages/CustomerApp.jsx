@@ -1,3 +1,4 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
@@ -6,6 +7,7 @@ import PageHeader from '../components/PageHeader';
 
 // --- Helper Funcs ---
 const getCategoryGradient = (catName) => {
+  const { showAlert } = useAlert();
   const name = catName.toLowerCase();
   if (name.includes('cafe') || name.includes('café') || name.includes('caliente')) return 'linear-gradient(135deg, #8B4513 0%, #D2691E 100%)';
   if (name.includes('postre') || name.includes('dulce') || name.includes('torta')) return 'linear-gradient(135deg, #FF69B4 0%, #FF1493 100%)';
@@ -132,7 +134,7 @@ export default function CustomerApp() {
     setTimeout(() => {
       setScanning(false);
       updateCustomerPoints(loggedCustomer.id, 10);
-      alert(`¡Check-in exitoso en la Mesa ${scannedTable}! Has ganado 10 puntos.`);
+      showAlert(`¡Check-in exitoso en la Mesa ${scannedTable}! Has ganado 10 puntos.`);
       setScannedTable('');
       setCurrentScreen('dashboard');
     }, 1500);
@@ -205,7 +207,7 @@ export default function CustomerApp() {
 
   const submitDeliveryOrder = (e) => {
     e.preventDefault();
-    if (!deliveryAddress) return alert('Ingresa tu dirección');
+    if (!deliveryAddress) return showAlert('Ingresa tu dirección');
     
     // Delivery sin pagar, va a caja para aprobación
     const newOrder = {
@@ -232,7 +234,7 @@ export default function CustomerApp() {
     
     if ((paymentMethod === 'yape' || paymentMethod === 'izipay') && receiptType === 'factura') {
       if (!docNum || !razonSocial || !fiscalAddress) {
-        return alert('Para factura, por favor completa RUC, Razón Social y Dirección Fiscal.');
+        return showAlert('Para factura, por favor completa RUC, Razón Social y Dirección Fiscal.');
       }
     }
 
@@ -283,7 +285,7 @@ export default function CustomerApp() {
   const handlePayApprovedDelivery = (orderId, method) => {
     if ((method === 'yape' || method === 'izipay') && receiptType === 'factura') {
       if (!docNum || !razonSocial || !fiscalAddress) {
-        return alert('Para factura, por favor completa RUC, Razón Social y Dirección Fiscal.');
+        return showAlert('Para factura, por favor completa RUC, Razón Social y Dirección Fiscal.');
       }
     }
 
@@ -648,13 +650,13 @@ export default function CustomerApp() {
                   return (
                     <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1.2rem', opacity: (isAgotado || !availableToday) ? 0.6 : 1, filter: (isAgotado || !availableToday) ? 'grayscale(1)' : 'none' }} onClick={() => {
                       if (!availableToday) {
-                        alert(`Este plato solo está disponible los días: ${item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}`);
+                        showAlert(`Este plato solo está disponible los días: ${item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}`);
                         return;
                       }
                       if (!isAgotado) {
                         handleOpenItemModal(item);
                       } else {
-                        alert("Este plato se encuentra agotado actualmente.");
+                        showAlert("Este plato se encuentra agotado actualmente.");
                       }
                     }}>
                       <div style={{ minWidth: 0, flex: 1, paddingRight: '1rem' }}>

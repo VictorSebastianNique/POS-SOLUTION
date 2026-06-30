@@ -1,3 +1,4 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
@@ -11,6 +12,7 @@ import html2canvas from 'html2canvas';
 const IGV_RATE = 0.18;
 
 export default function Caja() {
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, setOrders, addIncome, addExpense , developerSettings, users, logAudit, locations, updateOrderStatus } = useStore();
 
@@ -97,12 +99,12 @@ export default function Caja() {
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-          alert('El comprobante ha sido descargado. Puedes adjuntarlo en WhatsApp Web.');
+          showAlert('El comprobante ha sido descargado. Puedes adjuntarlo en WhatsApp Web.');
         }
       }, 'image/png');
     } catch (e) {
       console.error('Error al generar imagen:', e);
-      alert('Hubo un error al generar la imagen del comprobante.');
+      showAlert('Hubo un error al generar la imagen del comprobante.');
     } finally {
       setIsCapturing(false);
     }
@@ -178,7 +180,7 @@ export default function Caja() {
       const printServerUrl = developerSettings?.printServerUrl;
 
       if (!cajaAgentId || !printServerUrl) {
-        alert("Configura la URL del Servidor y el ID de la Caja para esta Sede en el Panel Developer primero.");
+        showAlert("Configura la URL del Servidor y el ID de la Caja para esta Sede en el Panel Developer primero.");
         return;
       }
       
@@ -193,7 +195,7 @@ export default function Caja() {
       }));
       
       if (itemsToPrint.length === 0) {
-        alert("Selecciona al menos un producto para la pre-cuenta.");
+        showAlert("Selecciona al menos un producto para la pre-cuenta.");
         return;
       }
       
@@ -221,10 +223,10 @@ export default function Caja() {
       });
       
       if (!res.ok) throw new Error("Error en el servidor central de impresión");
-      alert("Pre-cuenta enviada a la impresora.");
+      showAlert("Pre-cuenta enviada a la impresora.");
     } catch (e) {
       console.error(e);
-      alert("No se pudo conectar al servidor de impresión en la nube.");
+      showAlert("No se pudo conectar al servidor de impresión en la nube.");
     }
   };
 
@@ -333,7 +335,7 @@ export default function Caja() {
       setDeliveryFee('');
     } else {
       // Simulate emitting receipt for already paid online order
-      alert(`Comprobante emitido para pedido de ${order.customerName}.`);
+      showAlert(`Comprobante emitido para pedido de ${order.customerName}.`);
       setOrders(prev => prev.map(o => o.id === order.id ? { ...o, receiptEmitted: true } : o));
       
       addIncome({
@@ -768,10 +770,10 @@ export default function Caja() {
                 
                 {/* ── BOTONES DE DESCARGA E IMPRESIÓN ── */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => alert('Descargando XML...')}>
+                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => showAlert('Descargando XML...')}>
                     <FileText size={20} /> XML
                   </button>
-                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => alert('Descargando PDF...')}>
+                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => showAlert('Descargando PDF...')}>
                     <FileDown size={20} /> PDF
                   </button>
                   <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => window.print()}>

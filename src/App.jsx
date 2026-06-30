@@ -11,6 +11,7 @@ import DeveloperConfig from './pages/DeveloperConfig';
 import CustomerApp from './pages/CustomerApp';
 import Anfitriona from './pages/Anfitriona';
 import { useStore } from './context/StoreContext';
+import { AlertProvider } from './context/AlertContext';
 
 /* ── Reloj global ─────────────────────────────────────────── */
 const GlobalClock = () => {
@@ -156,7 +157,8 @@ function App() {
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
   return (
-    <BrowserRouter>
+    <AlertProvider>
+      <BrowserRouter>
       <Routes>
         <Route path="/"                element={<SmartRoot />} />
         <Route path="/app"             element={<CustomerApp />} />
@@ -174,6 +176,7 @@ function App() {
       <GlobalClock />
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
     </BrowserRouter>
+    </AlertProvider>
   );
 }
 

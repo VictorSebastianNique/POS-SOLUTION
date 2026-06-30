@@ -1,3 +1,4 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { LogOut, Save, ArrowLeft, ClipboardList } from 'lucide-react';
@@ -5,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 
 export default function Kardex() {
+  const { showAlert } = useAlert();
   const { businessDay, pastDays, kardexItems, updateKardexData, currentUser } = useStore();
   const navigate = useNavigate();
 
@@ -36,7 +38,7 @@ export default function Kardex() {
       }
     });
     setEditingData({}); // Clear local edits once saved
-    alert('Kardex guardado correctamente.');
+    showAlert('Kardex guardado correctamente.', 'success');
   };
 
   const activeKardexItems = useMemo(() => {

@@ -1,3 +1,4 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
@@ -8,6 +9,7 @@ import MenuRecipeModal from '../components/MenuRecipeModal';
 import CrmTab from '../components/CrmTab';
 
 export default function Admin() {
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { 
     currentUser, logout,
@@ -79,7 +81,7 @@ export default function Admin() {
 
   const handleOpenCloseDayModal = () => {
     if (Object.keys(activeTables).length > 0) {
-      alert('No puedes cerrar el día porque aún hay mesas con cuentas abiertas por cobrar.');
+      showAlert('No puedes cerrar el día porque aún hay mesas con cuentas abiertas por cobrar.');
       return;
     }
     setShowCloseDayModal(true);
@@ -275,7 +277,7 @@ export default function Admin() {
     const tKey = `${zone.id}-${tableName}`;
     
     if (activeTables[tKey] && activeTables[tKey].length > 0) {
-      alert(`No se puede eliminar la mesa "${tableName}" porque tiene una cuenta abierta. Por favor, cóbrala o anúlala primero.`);
+      showAlert(`No se puede eliminar la mesa "${tableName}" porque tiene una cuenta abierta. Por favor, cóbrala o anúlala primero.`);
       return;
     }
     
@@ -975,7 +977,7 @@ export default function Admin() {
                           style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
                           onClick={() => {
                             navigator.clipboard.writeText(loginLink);
-                            alert('¡Enlace copiado! Envíalo a los trabajadores de esta sede.');
+                            showAlert('¡Enlace copiado! Envíalo a los trabajadores de esta sede.');
                           }}
                         >
                           Copiar

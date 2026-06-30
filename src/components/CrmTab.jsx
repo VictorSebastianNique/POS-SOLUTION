@@ -1,8 +1,10 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { Award, Gift, Search, Star, Send, User } from 'lucide-react';
 
 export default function CrmTab() {
+  const { showAlert } = useAlert();
   const { customers } = useStore();
   const [search, setSearch] = useState('');
 
@@ -24,7 +26,7 @@ export default function CrmTab() {
 
   const handleSendOffer = (customer) => {
     // Simulated action
-    alert(`Se ha enviado una notificación Push / SMS a ${customer.name} (${customer.phone}) con un descuento especial por su nivel ${customer.level}.`);
+    showAlert(`Se ha enviado una notificación Push / SMS a ${customer.name} (${customer.phone}) con un descuento especial por su nivel ${customer.level}.`);
   };
 
   return (
@@ -54,7 +56,7 @@ export default function CrmTab() {
             <button 
               onClick={() => {
                 navigator.clipboard.writeText(`${window.location.origin}/app`);
-                alert('¡Enlace copiado al portapapeles!');
+                showAlert('¡Enlace copiado al portapapeles!');
               }}
               className="btn btn-primary" 
               style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}

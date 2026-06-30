@@ -1,3 +1,4 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
@@ -7,6 +8,7 @@ import PageHeader from '../components/PageHeader';
 import PrintReceipt from '../components/PrintReceipt';
 
 export default function Mozo() {
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts, locations, tableFamilies, setTableFamily } = useStore();
   
@@ -432,7 +434,7 @@ export default function Mozo() {
                       style={{ aspectRatio: '1', position: 'relative', border: `2px solid ${borderColor}`, backgroundColor: bgColor, padding: '1rem', opacity: isLocked ? 0.7 : 1, cursor: isLocked ? 'not-allowed' : 'pointer' }}
                       onClick={() => {
                         if (isLocked) {
-                          alert("Esta mesa ha sido recuperada para re-facturación y está bloqueada por Caja. No se pueden tomar nuevos pedidos aquí.");
+                          showAlert("Esta mesa ha sido recuperada para re-facturación y está bloqueada por Caja. No se pueden tomar nuevos pedidos aquí.");
                           return;
                         }
                         handleTableClick(tKey, tableName, isReserved, reservation?.familyName);
@@ -535,11 +537,11 @@ export default function Mozo() {
                     return (
                     <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1rem', opacity: availableToday ? 1 : 0.6, filter: availableToday ? 'none' : 'grayscale(1)' }} onClick={() => {
                       if (!availableToday) {
-                        alert(`Este plato solo está disponible los días: ${item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}`);
+                        showAlert(`Este plato solo está disponible los días: ${item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}`);
                         return;
                       }
                       if (menuStatus[item.id] === false) {
-                        alert("Este plato se acaba de agotar.");
+                        showAlert("Este plato se acaba de agotar.");
                         return;
                       }
                       openItemModal(item);

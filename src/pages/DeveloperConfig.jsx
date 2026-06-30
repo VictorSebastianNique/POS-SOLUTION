@@ -1,9 +1,11 @@
+import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin, Cloud, HardDrive, RefreshCw, FileText, AlertTriangle, Eye, EyeOff, Printer, LayoutDashboard } from 'lucide-react';
 
 export default function DeveloperConfig() {
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const { developerSettings, setDeveloperSettings, locations, users, orders, setOrders, setPastDays, setBusinessDay, pastDays, companies } = useStore();
   const [password, setPassword] = useState('');
@@ -158,7 +160,7 @@ export default function DeveloperConfig() {
       setPastDays([]);
       setOrders([]);
       setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] });
-      alert('✅ Historial de pruebas eliminado con éxito. El sistema está limpio.');
+      showAlert('✅ Historial de pruebas eliminado con éxito. El sistema está limpio.');
     }
   };
 
@@ -167,7 +169,7 @@ export default function DeveloperConfig() {
       localStorage.removeItem('currentUserData');
       localStorage.removeItem('currentLocationId');
       localStorage.removeItem('lastRole');
-      alert('Sesiones borradas.');
+      showAlert('Sesiones borradas.');
       navigate('/');
     }
   };
