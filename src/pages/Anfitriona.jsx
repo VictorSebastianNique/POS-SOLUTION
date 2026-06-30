@@ -65,10 +65,22 @@ export default function Anfitriona() {
     setSelectedTable(null);
   };
 
-  const getTableColorClass = (key) => {
-    if (activeTables[key] && activeTables[key].length > 0) return 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30';
-    if (tableFamilies[key] && tableFamilies[key].status === 'reserved') return 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30';
-    return 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20';
+  const getTableStyle = (key) => {
+    if (activeTables[key] && activeTables[key].length > 0) return {
+      backgroundColor: 'color-mix(in srgb, var(--danger-color) 15%, transparent)',
+      color: 'var(--danger-color)',
+      borderColor: 'color-mix(in srgb, var(--danger-color) 30%, transparent)'
+    };
+    if (tableFamilies[key] && tableFamilies[key].status === 'reserved') return {
+      backgroundColor: 'color-mix(in srgb, var(--info-color) 15%, transparent)',
+      color: 'var(--info-color)',
+      borderColor: 'color-mix(in srgb, var(--info-color) 30%, transparent)'
+    };
+    return {
+      backgroundColor: 'color-mix(in srgb, var(--success-color) 10%, transparent)',
+      color: 'var(--success-color)',
+      borderColor: 'color-mix(in srgb, var(--success-color) 20%, transparent)'
+    };
   };
 
   const assignedFamilies = Object.keys(tableFamilies).map(key => {
@@ -98,9 +110,9 @@ export default function Anfitriona() {
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="flex flex-wrap gap-4 mb-4">
-               <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded bg-green-500/20 border border-green-500/30"></div> Libre</div>
-               <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded bg-blue-500/20 border border-blue-500/30"></div> Reservada (Esperando pedido)</div>
-               <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded bg-red-500/20 border border-red-500/30"></div> Ocupada (Comiendo)</div>
+               <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--success-color) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--success-color) 20%, transparent)' }}></div> Libre</div>
+               <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--info-color) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--info-color) 30%, transparent)' }}></div> Reservada (Esperando pedido)</div>
+               <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--danger-color) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--danger-color) 30%, transparent)' }}></div> Ocupada (Comiendo)</div>
             </div>
 
             {zones.map((zone) => (
@@ -121,14 +133,20 @@ export default function Anfitriona() {
                         onClick={() => handleTableClick(zone.id, tableName)}
                         className={`
                           relative p-4 rounded-xl border text-center transition-all duration-300
-                          shadow-sm hover:shadow-md flex flex-col items-center justify-center min-h-[100px]
-                          ${getTableColorClass(key)}
+                          shadow-sm flex flex-col items-center justify-center
                         `}
+                        style={{ minHeight: '100px', ...getTableStyle(key) }}
                       >
                         <span className="text-2xl font-black mb-1">{tableName}</span>
                         {family && (
                           <div className="absolute bottom-2 left-0 w-full px-1">
-                            <div className={`text-[10px] font-bold truncate px-1 rounded-full ${occupied ? 'bg-red-500/30 text-red-100' : 'bg-blue-500/30 text-blue-100'}`}>
+                            <div 
+                              className="text-[10px] font-bold truncate px-1 rounded-full" 
+                              style={{ 
+                                backgroundColor: occupied ? 'color-mix(in srgb, var(--danger-color) 30%, transparent)' : 'color-mix(in srgb, var(--info-color) 30%, transparent)', 
+                                color: occupied ? 'var(--danger-color)' : 'var(--info-color)' 
+                              }}
+                            >
                               {family.familyName}
                             </div>
                           </div>
@@ -143,14 +161,14 @@ export default function Anfitriona() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-80 bg-slate-800 border-l border-slate-700 flex flex-col hidden lg:flex shadow-xl z-10 relative">
-          <div className="p-4 border-b border-slate-700 bg-slate-800/80 backdrop-blur-sm sticky top-0 z-10">
-            <h3 className="font-bold text-white flex items-center gap-2"><Users size={18} className="text-primary" /> Mesas Asignadas</h3>
-            <p className="text-xs text-slate-400 mt-1">Lista en vivo de familias</p>
+        <div className="w-80 flex flex-col hidden lg:flex shadow-xl z-10 relative" style={{ backgroundColor: 'var(--surface-solid)', borderLeft: '1px solid var(--border-color)' }}>
+          <div className="p-4 sticky top-0 z-10" style={{ backgroundColor: 'var(--surface-color)', borderBottom: '1px solid var(--border-color)' }}>
+            <h3 className="font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}><Users size={18} className="text-primary" /> Mesas Asignadas</h3>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Lista en vivo de familias</p>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
             {assignedFamilies.length === 0 ? (
-              <div className="text-center text-slate-500 py-10 text-sm">
+              <div className="text-center py-10 text-sm" style={{ color: 'var(--text-muted)' }}>
                 <Home size={32} className="mx-auto mb-2 opacity-20" />
                 No hay familias asignadas a ninguna mesa.
               </div>
@@ -158,15 +176,19 @@ export default function Anfitriona() {
               assignedFamilies.map((fam) => (
                 <div 
                   key={fam.key} 
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${fam.isOccupied ? 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20' : 'bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20'}`}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all`}
+                  style={{
+                    backgroundColor: fam.isOccupied ? 'color-mix(in srgb, var(--danger-color) 10%, transparent)' : 'color-mix(in srgb, var(--info-color) 10%, transparent)',
+                    borderColor: fam.isOccupied ? 'color-mix(in srgb, var(--danger-color) 20%, transparent)' : 'color-mix(in srgb, var(--info-color) 20%, transparent)'
+                  }}
                   onClick={() => handleTableClick(fam.zoneName, fam.tableNum)}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-white text-sm truncate pr-2">{fam.familyName}</span>
-                    <span className="text-xs font-mono bg-black/30 px-2 py-0.5 rounded text-slate-300 whitespace-nowrap">Mesa {fam.tableNum}</span>
+                    <span className="font-bold text-sm truncate pr-2" style={{ color: 'var(--text-primary)' }}>{fam.familyName}</span>
+                    <span className="text-xs font-mono px-2 py-0.5 rounded whitespace-nowrap" style={{ backgroundColor: 'rgba(0,0,0,0.3)', color: 'var(--text-secondary)' }}>Mesa {fam.tableNum}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400 capitalize">{fam.zoneName}</span>
+                    <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{fam.zoneName}</span>
                     {fam.isOccupied ? (
                       <span className="flex items-center gap-1 text-red-400"><CheckCircle size={12}/> Ocupada</span>
                     ) : (
@@ -182,14 +204,15 @@ export default function Anfitriona() {
 
       {/* Assignment Modal */}
       {selectedTable && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-700 overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-4 border-b border-slate-700 bg-slate-800/80 flex justify-between items-center">
-              <h3 className="font-bold text-white text-lg">Mesa {selectedTable.tableNum} <span className="text-slate-400 text-sm font-normal capitalize">({selectedTable.zoneName})</span></h3>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+          <div className="rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200" style={{ backgroundColor: 'var(--surface-solid)', border: '1px solid var(--border-color)' }}>
+            <div className="p-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)' }}>
+              <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Mesa {selectedTable.tableNum} <span className="text-sm font-normal capitalize" style={{ color: 'var(--text-secondary)' }}>({selectedTable.zoneName})</span></h3>
+              <button onClick={() => setSelectedTable(null)} style={{ color: 'var(--text-muted)' }} className="hover:text-white"><X size={20}/></button>
             </div>
             <div className="p-6">
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-400 mb-2">Nombre de la Familia / Reserva</label>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Nombre de la Familia / Reserva</label>
                 <input
                   type="text"
                   autoFocus
@@ -217,9 +240,10 @@ export default function Anfitriona() {
               </div>
               
               {selectedTable.familyData && !selectedTable.isOccupied && (
-                <div className="mt-4 pt-4 border-t border-slate-700">
+                <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
                    <button 
-                    className="btn bg-slate-700 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border-none w-full flex items-center justify-center gap-2"
+                    className="btn w-full flex items-center justify-center gap-2"
+                    style={{ backgroundColor: 'transparent', color: 'var(--danger-color)', border: '1px solid var(--danger-color)' }}
                     onClick={() => { setTableFamily(selectedTable.key, null); setSelectedTable(null); }}
                   >
                     <Trash2 size={16} /> Liberar Mesa
