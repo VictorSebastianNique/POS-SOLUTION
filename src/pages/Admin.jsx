@@ -458,6 +458,7 @@ export default function Admin() {
             <div className="flex items-center gap-2 mr-4" style={{ borderRight: '1px solid var(--border-color)', paddingRight: '1rem' }}>
               <p className="subtitle mr-1" style={{ fontSize: '0.8rem' }}>Supervisar:</p>
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => navigate('/mozo')}><Eye size={14}/> Mozo</button>
+              <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => navigate('/anfitriona')}><Eye size={14}/> Anfitriona</button>
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => navigate('/cocina')}><Eye size={14}/> Cocina</button>
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => navigate('/bar')}><Eye size={14}/> Bar</button>
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => navigate('/caja')}><Eye size={14}/> Caja</button>
@@ -561,6 +562,7 @@ export default function Admin() {
               <div className="flex flex-col gap-1">
                 <p className="subtitle" style={{ fontSize: '0.75rem', marginBottom: '0.5rem' }}>Supervisar:</p>
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/mozo')}><Eye size={14}/> Mozo</button>
+                <button className="btn btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/anfitriona')}><Eye size={14}/> Anfitriona</button>
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/cocina')}><Eye size={14}/> Cocina</button>
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/bar')}><Eye size={14}/> Bar</button>
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => navigate('/caja')}><Eye size={14}/> Caja</button>
