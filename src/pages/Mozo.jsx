@@ -146,7 +146,7 @@ export default function Mozo() {
 
   const tableKey = selectedZone && selectedTable ? `${selectedZone.id}-${selectedTable}` : null;
   const cart = tableKey ? (activeTables[tableKey] || []) : [];
-  const total = cart.reduce((sum, c) => sum + (c.item.price * c.quantity), 0);
+  const total = cart.reduce((sum, c) => sum + (c.item.price * (c.quantity || 1)), 0);
 
   // V5 Auth Flow
   const openTableAuth = (tableName) => {
@@ -233,7 +233,7 @@ export default function Mozo() {
     setTableHeadcounts(prev => ({ ...prev, [tableKey]: hc }));
     setShowHeadcountModal(false);
     if (pendingItem) {
-      proceedAddItem(parseInt(itemQty));
+      proceedAddItem(parseInt(itemQty) || 1);
     }
   };
 
@@ -619,8 +619,8 @@ export default function Mozo() {
               cart.map(c => (
                 <div key={c.id} className="flex flex-col gap-1 p-3 mb-3" style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--bg-color)', position: 'relative' }}>
                   <div className="flex justify-between items-center">
-                    <h4 style={{ fontWeight: 500, fontSize: '0.9rem' }}>{c.quantity}x {c.item.name}</h4>
-                    <p className="subtitle" style={{ color: 'var(--primary-color)' }}>S/{(c.item.price * c.quantity).toFixed(2)}</p>
+                    <h4 style={{ fontWeight: 500, fontSize: '0.9rem' }}>{c.quantity || 1}x {c.item.name}</h4>
+                    <p className="subtitle" style={{ color: 'var(--primary-color)' }}>S/{(c.item.price * (c.quantity || 1)).toFixed(2)}</p>
                   </div>
                   
                   {c.details && <p style={{ fontSize: '0.8rem', color: 'var(--warning-color)', fontStyle: 'italic', marginBottom: '0.2rem' }}>Nota: {c.details}</p>}
