@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Users, LogOut, CheckCircle, Clock, Trash2, Home } from 'lucide-react';
-import TopNav from '../components/TopNav';
+import PageHeader from '../components/PageHeader';
 
 export default function Anfitriona() {
   const { currentUser, logout, zones, activeTables, tableFamilies, setTableFamily, developerSettings } = useStore();
@@ -80,11 +80,12 @@ export default function Anfitriona() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-sans pb-20">
-      <TopNav 
+      <PageHeader 
+        icon={<Users size={28} color="#fff" />}
         title="Anfitriona"
         subtitle={currentUser.name}
         badge={(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Modo Supervisor' : null}
-        rightElement={
+        actions={
           <button onClick={handleLogout} className="btn btn-outline text-xs px-3 py-1 flex items-center gap-2">
             <LogOut size={14} />
             <span className="hidden sm:inline">{(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : 'Cerrar Sesión'}</span>
