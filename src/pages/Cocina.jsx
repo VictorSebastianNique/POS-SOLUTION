@@ -66,7 +66,7 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
-    <div className="card animate-fade-in flex flex-col" style={{ borderTop: `4px solid ${getStatusColor(order.status)}`, backgroundColor: 'var(--surface-color)', padding: '0.75rem', height: isMobile ? 'auto' : '100%', maxHeight: isMobile ? 'none' : '100%', overflow: isMobile ? 'visible' : 'hidden' }}>
+    <div className="card animate-fade-in flex flex-col" style={{ borderTop: `4px solid ${getStatusColor(order.status)}`, backgroundColor: 'var(--surface-color)', padding: '0.75rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="flex justify-between items-start mb-2">
         <div>
           {order.type === 'delivery' ? (
@@ -104,7 +104,7 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch 
           {allSelected ? 'Deseleccionar todo' : 'Seleccionar todo'} ({visibleItems.length})
         </span>
       </div>
-      <div className={isMobile ? "" : "flex-1 mb-2"} style={isMobile ? { marginBottom: '0.5rem' } : { overflowY: 'auto', paddingRight: '4px' }}>
+      <div className="flex-1 mb-2" style={{ overflowY: 'auto', paddingRight: '4px', minHeight: '80px' }}>
         <ul style={{ listStyleType: 'none', padding: 0 }}>
           {visibleItems.map((c, i) => {
             const isChecked = selectedItems.includes(c.id);
@@ -328,7 +328,7 @@ export default function Cocina() {
             style={{ 
               display: 'grid', 
               gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
-              gridAutoRows: windowSize.w <= 768 ? 'auto' : (windowSize.h < 500 ? '280px' : `calc((100vh - 180px) / 4)`), 
+              gridAutoRows: windowSize.w <= 768 ? 'auto' : 'minmax(280px, auto)', 
               gap: windowSize.w <= 768 ? '0.5rem' : '1rem',
             }}
           >
