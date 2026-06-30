@@ -110,23 +110,22 @@ export default function Anfitriona() {
                   {zone.name}
                 </h2>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                  {Array.from({ length: zone.tables }).map((_, idx) => {
-                    const tableNum = idx + 1;
-                    const key = `${zone.name}-${tableNum}`;
+                  {zone.tables && zone.tables.map((tableName, idx) => {
+                    const key = `${zone.id}-${tableName}`;
                     const family = tableFamilies[key];
                     const occupied = activeTables[key] && activeTables[key].length > 0;
                     
                     return (
                       <button
                         key={idx}
-                        onClick={() => handleTableClick(zone.name, tableNum)}
+                        onClick={() => handleTableClick(zone.id, tableName)}
                         className={`
                           relative p-4 rounded-xl border text-center transition-all duration-300
                           shadow-sm hover:shadow-md flex flex-col items-center justify-center min-h-[100px]
                           ${getTableColorClass(key)}
                         `}
                       >
-                        <span className="text-2xl font-black mb-1">{tableNum}</span>
+                        <span className="text-2xl font-black mb-1">{tableName}</span>
                         {family && (
                           <div className="absolute bottom-2 left-0 w-full px-1">
                             <div className={`text-[10px] font-bold truncate px-1 rounded-full ${occupied ? 'bg-red-500/30 text-red-100' : 'bg-blue-500/30 text-blue-100'}`}>

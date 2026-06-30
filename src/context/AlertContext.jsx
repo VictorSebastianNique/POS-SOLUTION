@@ -72,7 +72,7 @@ export const AlertProvider = ({ children }) => {
             zIndex: 99999, 
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            backgroundColor: 'rgba(0, 0, 0, 0.4)'
+            backgroundColor: 'transparent'
           }}
         >
           <div className="card animate-slide-up" style={{ width: '90%', maxWidth: '400px', textAlign: 'center', padding: '2.5rem 2rem', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', border: '1px solid var(--border-color)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>

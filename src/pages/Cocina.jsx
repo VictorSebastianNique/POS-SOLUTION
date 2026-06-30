@@ -324,11 +324,13 @@ export default function Cocina() {
           )}
 
           <div 
-            className="flex-1 p-4 pt-2 overflow-y-auto"
+            className="flex-1 p-4 pt-2 overflow-y-auto custom-scrollbar"
             style={{ 
               display: 'grid', 
               gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
-              gridAutoRows: windowSize.w <= 768 ? 'auto' : 'minmax(280px, auto)', 
+              gridAutoRows: 'max-content',
+              alignContent: 'start',
+              alignItems: 'start',
               gap: windowSize.w <= 768 ? '0.5rem' : '1rem',
             }}
           >
