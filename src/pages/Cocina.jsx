@@ -190,12 +190,14 @@ export default function Cocina() {
           setOrders(localOrders => {
             const serverOrders = data.orders;
             const result = [...localOrders];
+            let changed = false;
 
             serverOrders.forEach(serverOrder => {
               const localIdx = result.findIndex(o => o.id === serverOrder.id);
               if (localIdx === -1) {
                 // Truly new order from another device/tab — add it
                 result.push(serverOrder);
+                changed = true;
               } else {
                 // Existing order: merge items, keeping local 'ready' status
                 const localOrder = result[localIdx];
@@ -211,15 +213,21 @@ export default function Cocina() {
                 const allItems = [...mergedItems, ...localOnlyItems];
                 const allReady = allItems.every(i => i.status === 'ready');
 
-                result[localIdx] = {
+                const newMergedOrder = {
                   ...serverOrder,
                   items: allItems,
                   status: allReady ? 'ready' : serverOrder.status
                 };
+
+                // Only update if something actually changed to prevent infinite upload loops
+                if (JSON.stringify(localOrder) !== JSON.stringify(newMergedOrder)) {
+                  result[localIdx] = newMergedOrder;
+                  changed = true;
+                }
               }
             });
 
-            return result;
+            return changed ? result : localOrders;
           });
         }
       } catch (e) {

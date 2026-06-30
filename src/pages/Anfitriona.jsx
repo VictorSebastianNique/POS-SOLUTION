@@ -88,7 +88,7 @@ export default function Anfitriona() {
         actions={
           <button onClick={handleLogout} className="btn btn-outline text-xs px-3 py-1 flex items-center gap-2">
             <LogOut size={14} />
-            <span className="hidden sm:inline">{(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : 'Cerrar Sesión'}</span>
+            <span className="inline">{(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : 'Cerrar Sesión'}</span>
           </button>
         }
       />

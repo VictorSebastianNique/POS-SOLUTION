@@ -96,6 +96,7 @@ export const AlertProvider = ({ children }) => {
             </h2>
             
             <button 
+              type="button"
               className="btn w-full justify-center mt-4" 
               style={{ 
                 padding: '0.9rem', 
