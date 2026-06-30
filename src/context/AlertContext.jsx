@@ -62,15 +62,20 @@ export const AlertProvider = ({ children }) => {
       {children}
       {alertState.isOpen && (
         <div 
-          className="modal-overlay animate-fade-in" 
+          className="animate-fade-in" 
           style={{ 
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 99999, 
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             backgroundColor: 'rgba(0, 0, 0, 0.4)'
           }}
         >
-          <div className="modal-content animate-slide-up" style={{ maxWidth: '400px', textAlign: 'center', padding: '2.5rem 2rem' }}>
+          <div className="card animate-slide-up" style={{ width: '90%', maxWidth: '400px', textAlign: 'center', padding: '2.5rem 2rem', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', border: '1px solid var(--border-color)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
             <div style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 

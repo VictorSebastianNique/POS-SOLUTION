@@ -79,7 +79,7 @@ export default function Anfitriona() {
   }).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-300 font-sans pb-20">
+    <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)' }}>
       <PageHeader 
         icon={<Users size={28} color="#fff" />}
         title="Anfitriona"
@@ -93,10 +93,10 @@ export default function Anfitriona() {
         }
       />
 
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex flex-1 overflow-hidden">
         {/* Main Map Area */}
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-          <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+          <div className="max-w-5xl mx-auto space-y-6">
             <div className="flex flex-wrap gap-4 mb-4">
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded bg-green-500/20 border border-green-500/30"></div> Libre</div>
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded bg-blue-500/20 border border-blue-500/30"></div> Reservada (Esperando pedido)</div>

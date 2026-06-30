@@ -70,11 +70,11 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch 
       <div className="flex justify-between items-start mb-2">
         <div>
           {order.type === 'delivery' ? (
-            <h3 className="title" style={{ fontSize: '1rem', lineHeight: 1, color: 'var(--danger-color)' }}>DELIVERY: {order.customerName}</h3>
+            <h3 className="title" style={{ fontSize: '1.05rem', lineHeight: 1.2, margin: 0, padding: 0, marginBottom: '2px' }}>DELIVERY: {order.customerName}</h3>
           ) : (
-            <h3 className="title" style={{ fontSize: '1rem', lineHeight: 1 }}>Mesa {order.table}</h3>
+            <h3 className="title" style={{ fontSize: '1.1rem', lineHeight: 1.2, margin: 0, padding: 0, marginBottom: '2px' }}>Mesa {order.table}</h3>
           )}
-          <p className="subtitle" style={{ fontSize: '0.7rem' }}>{order.type === 'delivery' ? order.customerPhone : order.zone}</p>
+          <p className="subtitle" style={{ fontSize: '0.75rem', margin: 0, padding: 0 }}>{order.type === 'delivery' ? order.customerPhone : order.zone}</p>
         </div>
         <div className="flex flex-col items-end">
           <span className="flex items-center gap-1" style={{ fontSize: '1rem', color: timeColor, fontWeight: 'bold' }}>
