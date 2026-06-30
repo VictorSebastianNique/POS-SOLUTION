@@ -91,7 +91,7 @@ export default function Anfitriona() {
   }).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)' }}>
+    <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)', overflow: 'hidden' }}>
       <PageHeader 
         icon={<Users size={28} color="#fff" />}
         title="Anfitriona"
@@ -105,10 +105,10 @@ export default function Anfitriona() {
         }
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1" style={{ minHeight: 0, overflow: 'hidden' }}>
         {/* Main Map Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
-          <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6" style={{ height: '100%' }}>
+          <div className="max-w-5xl mx-auto space-y-6 pb-20">
             <div className="flex flex-wrap gap-4 mb-4">
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--success-color) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--success-color) 20%, transparent)' }}></div> Libre</div>
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--info-color) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--info-color) 30%, transparent)' }}></div> Reservada (Esperando pedido)</div>
