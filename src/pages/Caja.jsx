@@ -2,7 +2,7 @@ import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer } from 'lucide-react';
+import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import PrintReceipt from '../components/PrintReceipt';
 import PageHeader from '../components/PageHeader';
@@ -14,7 +14,7 @@ const IGV_RATE = 0.18;
 export default function Caja() {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, orders, setOrders, addIncome, addExpense , developerSettings, users, logAudit, locations, updateOrderStatus } = useStore();
+  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, pastDays, orders, setOrders, addIncome, addExpense , developerSettings, users, logAudit, locations, updateOrderStatus, openCaja, closeCaja, menu, updateTableCart } = useStore();
 
   const [selectedZone, setSelectedZone] = useState('all');
   
@@ -27,6 +27,11 @@ export default function Caja() {
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [selectedTableKey, setSelectedTableKey] = useState(null);
   const [selectedItemIds, setSelectedItemIds] = useState([]);
+  const [selectedQuantities, setSelectedQuantities] = useState({});
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [menuSearch, setMenuSearch] = useState('');
+
+
 
   // Billing state
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
@@ -157,10 +162,105 @@ export default function Caja() {
   };
 
   // Payment state
-  const [paymentMethod, setPaymentMethod] = useState('efectivo');
-  const [amountReceived, setAmountReceived] = useState('');
+  const [payments, setPayments] = useState([]);
+  const [currentPaymentMethod, setCurrentPaymentMethod] = useState('efectivo');
+  const [currentAmountReceived, setCurrentAmountReceived] = useState('');
   const [paid, setPaid] = useState(false);
   const [paidDoc, setPaidDoc] = useState(null);
+
+  // Arqueo Ciego State
+  const [showCloseCajaModal, setShowCloseCajaModal] = useState(false);
+  const [fondoInicialInput, setFondoInicialInput] = useState('');
+  const [aperturaStep, setAperturaStep] = useState('input'); // 'input' | 'justificarExceso' | 'recontarFaltante' | 'justificarFaltante'
+  const [aperturaDiff, setAperturaDiff] = useState(0);
+  const [aperturaJustificacion, setAperturaJustificacion] = useState('');
+
+  const [efectivoGavetaInput, setEfectivoGavetaInput] = useState('');
+  const [justificacionInput, setJustificacionInput] = useState('');
+  const [diferenciaCaja, setDiferenciaCaja] = useState(null);
+
+  const handleValidateApertura = () => {
+    const val = parseFloat(fondoInicialInput);
+    if (isNaN(val) || val < 0) {
+      showAlert('Ingresa un monto válido para el fondo inicial.');
+      return;
+    }
+    
+    const lastDay = pastDays && pastDays.length > 0 ? pastDays[pastDays.length - 1] : null;
+    let expectedFondo = 0;
+    
+    if (lastDay && lastDay.cajaDetails?.status === 'closed') {
+      expectedFondo = lastDay.cajaDetails.efectivoDeclarado || 0;
+    } else {
+      openCaja(val, 0, '');
+      return;
+    }
+
+    const diff = val - expectedFondo;
+    if (diff > 0) {
+      setAperturaDiff(diff);
+      setAperturaStep('justificarExceso');
+    } else if (diff < 0) {
+      setAperturaDiff(diff);
+      setAperturaStep('recontarFaltante');
+    } else {
+      openCaja(val, 0, '');
+    }
+  };
+
+  const handleOpenConDescuadre = () => {
+    if (!aperturaJustificacion.trim()) {
+      showAlert('La justificación es obligatoria.');
+      return;
+    }
+    openCaja(parseFloat(fondoInicialInput), aperturaDiff, aperturaJustificacion);
+    setAperturaStep('input');
+    setAperturaDiff(0);
+    setAperturaJustificacion('');
+  };
+
+  const handleOpenCajaSubmit = () => {
+    handleValidateApertura();
+  };
+
+  const handleCalculateCloseCaja = () => {
+    const declarado = parseFloat(efectivoGavetaInput);
+    if (isNaN(declarado) || declarado < 0) {
+      showAlert('Ingresa un monto válido para el efectivo físico.');
+      return;
+    }
+
+    // Calcular el teórico (solo efectivo, simplificado)
+    const fondoInicial = businessDay.cajaDetails?.fondoInicial || 0;
+    const ventasEfectivo = (businessDay.sales || [])
+      .filter(s => s.paymentMethod === 'efectivo' || (s.payments && s.payments.some(p => p.method === 'efectivo')))
+      .reduce((sum, s) => {
+        if (s.payments) return sum + s.payments.filter(p => p.method === 'efectivo').reduce((a, b) => a + b.amount, 0);
+        return sum + s.total;
+      }, 0);
+    const ingresosEfectivo = (businessDay.incomes || []).filter(i => i.paymentMethod === 'efectivo').reduce((sum, i) => sum + i.amount, 0);
+    const egresosEfectivo = (businessDay.expenses || []).filter(e => e.paymentMethod === 'efectivo').reduce((sum, e) => sum + e.amount, 0);
+    const teoricoEfectivo = fondoInicial + ventasEfectivo + ingresosEfectivo - egresosEfectivo;
+
+    const diff = declarado - teoricoEfectivo;
+    if (diff !== 0) {
+      setDiferenciaCaja(diff);
+    } else {
+      closeCaja(declarado, '', 0);
+      setShowCloseCajaModal(false);
+    }
+  };
+
+  const handleConfirmCloseCaja = () => {
+    if (!justificacionInput.trim()) {
+      showAlert('La justificación es obligatoria si hay descuadre.');
+      return;
+    }
+    closeCaja(parseFloat(efectivoGavetaInput), justificacionInput, diferenciaCaja);
+    setShowCloseCajaModal(false);
+    setDiferenciaCaja(null);
+    setJustificacionInput('');
+  };
 
   // Flow modal state
   const [showFlowModal, setShowFlowModal] = useState(false);
@@ -389,7 +489,10 @@ export default function Caja() {
   };
 
   // ── Tax calculations (Peru) ───────────────────────────────────
-  const itemsToPay = selectedTable ? selectedTable.cart.filter(c => selectedItemIds.includes(c.id)) : [];
+  const itemsToPay = selectedTable ? selectedTable.cart.filter(c => selectedItemIds.includes(c.id)).map(c => ({
+    ...c,
+    quantity: parseFloat(selectedQuantities[c.id]) || c.quantity
+  })) : [];
   const subtotalBeforeDiscount = itemsToPay.reduce((s, c) => s + c.item.price * c.quantity, 0);
   const subtotal = Math.max(0, subtotalBeforeDiscount - appliedDiscount);
   const valorVenta = parseFloat(((subtotal) / (1 + IGV_RATE)).toFixed(2));
@@ -426,26 +529,23 @@ export default function Caja() {
     });
   };
 
-  // ── Payment ───────────────────────────────────────────────────
-  const change = paymentMethod === 'efectivo' ? parseFloat(amountReceived || 0) - totalPagar : 0;
-  const canPay = selectedItemIds.length > 0 && 
-    (documentType === 'pedido' ? internalReason.trim().length > 0 : 
-      (documentType === 'factura' ? (customerRuc && customerRuc.length === 11 && customerName.trim()) : true) &&
-      (paymentMethod !== 'efectivo' || parseFloat(amountReceived || 0) >= totalPagar)
-    ) && (documentType === 'pedido' || selectedCompanyId);
-
   const handleOpenTable = (tableKey) => {
     setSelectedTableKey(tableKey);
     const table = allActiveTables.find(t => t.key === tableKey);
     setSelectedItemIds(table ? table.cart.map(c => c.id) : []);
+    const initialQtys = {};
+    if (table) { table.cart.forEach(c => initialQtys[c.id] = c.quantity); }
+    setSelectedQuantities(initialQtys);
+    setDiscountType('percent');
     setDocumentType('boleta');
     setCustomerDni('');
     setCustomerRuc('');
     setCustomerName('');
     setCustomerAddress('');
     setInternalReason('');
-    setPaymentMethod('efectivo');
-    setAmountReceived('');
+    setPayments([]);
+    setCurrentPaymentMethod('efectivo');
+    setCurrentAmountReceived('');
     setPaid(false);
     setPaidDoc(null);
     setAppliedDiscount(0);
@@ -455,11 +555,32 @@ export default function Caja() {
 
   useEffect(() => {
     if (documentType === 'pedido') {
-      setPaymentMethod('cortesia');
-    } else if (paymentMethod === 'cortesia' || paymentMethod === 'merma' || paymentMethod === 'consumo') {
-      setPaymentMethod('efectivo');
+      setCurrentPaymentMethod('cortesia');
+    } else if (currentPaymentMethod === 'cortesia' || currentPaymentMethod === 'merma' || currentPaymentMethod === 'consumo') {
+      setCurrentPaymentMethod('efectivo');
     }
   }, [documentType]);
+
+  const handleAddProduct = (item) => {
+    const table = allActiveTables.find(t => t.key === selectedTableKey);
+    if (!table) return;
+    
+    const newItem = {
+      id: Date.now().toString(),
+      item,
+      quantity: 1,
+      notes: ''
+    };
+    
+    const newCart = [...table.cart, newItem];
+    updateTableCart(selectedTableKey, newCart);
+    
+    setSelectedItemIds(prev => [...prev, newItem.id]);
+    setSelectedQuantities(prev => ({ ...prev, [newItem.id]: 1 }));
+    
+    setShowAddMenu(false);
+    setMenuSearch('');
+  };
 
   const handleClose = () => { 
     if (window.location.hash === '#cobrar') {
@@ -491,12 +612,45 @@ export default function Caja() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedTableKey, handleClose]);
 
+  const handleAddPayment = () => {
+    const amt = parseFloat(currentAmountReceived);
+    if (!amt || amt <= 0) return;
+    setPayments([...payments, { method: currentPaymentMethod, amount: amt }]);
+    setCurrentAmountReceived('');
+  };
+
+  const removePayment = (index) => {
+    const newPayments = [...payments];
+    newPayments.splice(index, 1);
+    setPayments(newPayments);
+  };
+
+  const sumPayments = payments.reduce((sum, p) => sum + p.amount, 0);
+  const remainingTotal = Math.max(0, totalPagar - sumPayments);
+  const assumedAmt = currentPaymentMethod === 'efectivo' ? 0 : remainingTotal;
+  const currentAmt = currentAmountReceived === '' ? assumedAmt : (parseFloat(currentAmountReceived) || 0);
+
+  const totalPaid = sumPayments + currentAmt;
+  const cashPaid = payments.filter(p => p.method === 'efectivo').reduce((sum, p) => sum + p.amount, 0) + (currentPaymentMethod === 'efectivo' ? currentAmt : 0);
+  const change = Math.max(0, totalPaid - totalPagar);
+
+  const canPay = selectedItemIds.length > 0 && 
+    (documentType === 'pedido' ? internalReason.trim().length > 0 : 
+      (documentType === 'factura' ? (customerRuc && customerRuc.length === 11 && customerName.trim()) : true) &&
+      (totalPaid >= totalPagar - 0.01) // Allow tiny float differences
+    ) && (documentType === 'pedido' || selectedCompanyId);
+
   const handlePay = () => {
     if (!selectedTable || !canPay) return;
     const zone = zones.find(z => selectedTable.key.startsWith(`${z.id}-`));
     const zoneId = zone ? zone.id : '';
     const tableNum = zone ? selectedTable.key.replace(`${zone.id}-`, '') : selectedTable.key;
     const docNumber = getDocNumber();
+
+    const finalPayments = [...payments];
+    if (currentAmt > 0) {
+      finalPayments.push({ method: currentPaymentMethod, amount: currentAmt });
+    }
 
     const billingInfo = {
       documentType, documentNumber: docNumber,
@@ -508,7 +662,8 @@ export default function Caja() {
       customerAddress: customerAddress,
       internalReason: documentType === 'pedido' ? internalReason : '',
       valorVenta, igv, totalPagar,
-      paymentMethod,
+      paymentMethod: finalPayments.length > 0 ? finalPayments[0].method : 'efectivo',
+      payments: finalPayments,
     };
 
     const tableOrders = (orders || []).filter(o => o.zone === zone?.name && String(o.table) === String(tableNum));
@@ -531,10 +686,10 @@ export default function Caja() {
 
   // ── Numpad ────────────────────────────────────────────────────
   const handleNumpad = (val) => {
-    if (val === 'C') { setAmountReceived(''); return; }
-    if (val === '.' && amountReceived.includes('.')) return;
-    if (val === '.' && amountReceived === '') { setAmountReceived('0.'); return; }
-    setAmountReceived(prev => (prev === '0' && val !== '.') ? val : prev + val);
+    if (val === 'C') { setCurrentAmountReceived(''); return; }
+    if (val === '.' && currentAmountReceived.includes('.')) return;
+    if (val === '.' && currentAmountReceived === '') { setCurrentAmountReceived('0.'); return; }
+    setCurrentAmountReceived(prev => (prev === '0' && val !== '.') ? val : prev + val);
   };
 
   const payMethods = [
@@ -574,6 +729,15 @@ export default function Caja() {
         badgeColor="var(--warning-color)"
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {businessDay?.cajaDetails?.isOpen && (
+              <button 
+                className="btn btn-outline" 
+                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: 'var(--danger-color)', borderColor: 'var(--danger-color)' }}
+                onClick={() => setShowCloseCajaModal(true)}
+              >
+                Cerrar Turno (Caja)
+              </button>
+            )}
             <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
               <button
                 onClick={() => setViewMode('mesas')}
@@ -896,12 +1060,25 @@ export default function Caja() {
 
                 {/* ── SECCIÓN 3: Detalle de Productos ── */}
                 <div style={{ backgroundColor: 'var(--bg-color)', borderRadius: 'var(--border-radius-sm)', padding: '0.85rem', marginBottom: '0.75rem' }}>
-                  <p style={sectionTitle}>Detalle del Pedido</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                    <p style={{ ...sectionTitle, borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>Detalle del Pedido</p>
+                    <button onClick={() => setShowAddMenu(true)} style={{ background: 'none', border: `1px solid var(--primary-color)`, color: 'var(--primary-color)', padding: '0.2rem 0.5rem', borderRadius: 'var(--border-radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                      <Plus size={12} /> Añadir Plato
+                    </button>
+                  </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
                         <th style={{ textAlign: 'center', padding: '0.3rem 0.25rem' }}>
-                          <input type="checkbox" style={{ cursor: 'pointer' }} checked={selectedItemIds.length === selectedTable.cart.length && selectedTable.cart.length > 0} onChange={e => setSelectedItemIds(e.target.checked ? selectedTable.cart.map(c => c.id) : [])} />
+                          <input type="checkbox" style={{ cursor: 'pointer' }} checked={selectedItemIds.length === selectedTable.cart.length && selectedTable.cart.length > 0} onChange={e => {
+                            const isChecked = e.target.checked;
+                            setSelectedItemIds(isChecked ? selectedTable.cart.map(c => c.id) : []);
+                            if (isChecked) {
+                              const qtys = {};
+                              selectedTable.cart.forEach(c => qtys[c.id] = c.quantity);
+                              setSelectedQuantities(qtys);
+                            }
+                          }} />
                         </th>
                         <th style={{ textAlign: 'left', padding: '0.3rem 0.25rem', fontWeight: 600 }}>
                           Plato <span style={{fontSize: '0.7rem', color: 'var(--primary-color)', marginLeft: '0.5rem'}}>({selectedItemIds.length}/{selectedTable.cart.length} sel.)</span>
@@ -912,17 +1089,47 @@ export default function Caja() {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedTable.cart.map((c, i) => (
-                        <tr key={c.id} style={{ borderBottom: '1px dashed var(--border-color)', opacity: selectedItemIds.includes(c.id) ? 1 : 0.4 }}>
-                          <td style={{ padding: '0.35rem 0.25rem', textAlign: 'center' }}>
-                            <input type="checkbox" style={{ cursor: 'pointer' }} checked={selectedItemIds.includes(c.id)} onChange={e => setSelectedItemIds(prev => e.target.checked ? [...prev, c.id] : prev.filter(id => id !== c.id))} />
-                          </td>
-                          <td style={{ padding: '0.35rem 0.25rem', fontWeight: 500 }}>{c.item.name}</td>
-                          <td style={{ padding: '0.35rem 0.25rem', textAlign: 'center', color: 'var(--primary-color)', fontWeight: 600 }}>{c.quantity}</td>
-                          <td style={{ padding: '0.35rem 0.25rem', textAlign: 'right' }}>S/{c.item.price.toFixed(2)}</td>
-                          <td style={{ padding: '0.35rem 0.25rem', textAlign: 'right', fontWeight: 600 }}>S/{(c.item.price * c.quantity).toFixed(2)}</td>
-                        </tr>
-                      ))}
+                      {selectedTable.cart.map((c, i) => {
+                        const rowQty = selectedItemIds.includes(c.id) ? (parseFloat(selectedQuantities[c.id]) || c.quantity) : c.quantity;
+                        return (
+                          <tr key={c.id} style={{ borderBottom: '1px dashed var(--border-color)', opacity: selectedItemIds.includes(c.id) ? 1 : 0.4 }}>
+                            <td style={{ padding: '0.35rem 0.25rem', textAlign: 'center' }}>
+                              <input type="checkbox" style={{ cursor: 'pointer' }} checked={selectedItemIds.includes(c.id)} onChange={e => {
+                                const isChecked = e.target.checked;
+                                setSelectedItemIds(prev => isChecked ? [...prev, c.id] : prev.filter(id => id !== c.id));
+                                if (isChecked) setSelectedQuantities(prev => ({ ...prev, [c.id]: c.quantity }));
+                              }} />
+                            </td>
+                            <td style={{ padding: '0.35rem 0.25rem', fontWeight: 500 }}>{c.item.name}</td>
+                            <td style={{ padding: '0.35rem 0.25rem', textAlign: 'center', color: 'var(--primary-color)', fontWeight: 600 }}>
+                              {selectedItemIds.includes(c.id) ? (
+                                <input 
+                                  type="number" 
+                                  min="0.1" 
+                                  step="0.1" 
+                                  max={c.quantity} 
+                                  value={selectedQuantities[c.id] !== undefined ? selectedQuantities[c.id] : c.quantity}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setSelectedQuantities(prev => ({ ...prev, [c.id]: val }));
+                                  }}
+                                  onBlur={(e) => {
+                                    let val = parseFloat(e.target.value);
+                                    if (isNaN(val) || val <= 0) val = 0.1;
+                                    if (val > c.quantity) val = c.quantity;
+                                    setSelectedQuantities(prev => ({ ...prev, [c.id]: val }));
+                                  }}
+                                  style={{ width: '50px', padding: '0.2rem', textAlign: 'center', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                                />
+                              ) : (
+                                c.quantity
+                              )}
+                            </td>
+                            <td style={{ padding: '0.35rem 0.25rem', textAlign: 'right' }}>S/{c.item.price.toFixed(2)}</td>
+                            <td style={{ padding: '0.35rem 0.25rem', textAlign: 'right', fontWeight: 600 }}>S/{(c.item.price * rowQty).toFixed(2)}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
 
@@ -964,50 +1171,78 @@ export default function Caja() {
                   {/* Payment method */}
                   <div style={{ backgroundColor: 'var(--bg-color)', borderRadius: 'var(--border-radius-sm)', padding: '0.85rem' }}>
                     <p style={sectionTitle}>{documentType === 'pedido' ? 'Tipo de Operación Interna' : 'Forma de Pago'}</p>
+
+                    {/* Pagos añadidos previamente */}
+                    {payments.length > 0 && (
+                      <div style={{ marginBottom: '0.8rem' }}>
+                        {payments.map((p, idx) => (
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--surface-color)', padding: '0.4rem 0.6rem', borderRadius: 'var(--border-radius-sm)', marginBottom: '0.3rem', border: '1px solid var(--border-color)' }}>
+                            <span style={{ fontSize: '0.8rem', textTransform: 'capitalize' }}>{p.method}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span style={{ fontWeight: 600 }}>S/{p.amount.toFixed(2)}</span>
+                              <button onClick={() => removePayment(idx)} style={{ background: 'none', border: 'none', color: 'var(--danger-color)', cursor: 'pointer' }}><X size={14} /></button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.6rem' }}>
                       {(documentType === 'pedido' ? internalPayMethods : payMethods).map(m => (
-                        <button key={m.id} onClick={() => setPaymentMethod(m.id)}
-                          style={{ flex: 1, padding: '0.5rem 0.3rem', borderRadius: 'var(--border-radius-sm)', border: `2px solid ${paymentMethod === m.id ? m.color : 'var(--border-color)'}`, backgroundColor: paymentMethod === m.id ? `${m.color}20` : 'transparent', color: paymentMethod === m.id ? m.color : 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.72rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', transition: 'all 0.15s' }}
+                        <button key={m.id} onClick={() => setCurrentPaymentMethod(m.id)}
+                          style={{ flex: 1, padding: '0.5rem 0.3rem', borderRadius: 'var(--border-radius-sm)', border: `2px solid ${currentPaymentMethod === m.id ? m.color : 'var(--border-color)'}`, backgroundColor: currentPaymentMethod === m.id ? `${m.color}20` : 'transparent', color: currentPaymentMethod === m.id ? m.color : 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.72rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', transition: 'all 0.15s' }}
                         >
                           <m.icon size={16} />{m.label}
                         </button>
                       ))}
                     </div>
 
-                    {paymentMethod === 'efectivo' && (
-                      <>
-                        <label style={labelStyle}>Monto recibido</label>
-                        <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--surface-color)', border: `2px solid ${parseFloat(amountReceived || 0) >= totalPagar ? 'var(--success-color)' : 'var(--border-color)'}`, borderRadius: 'var(--border-radius-sm)', padding: '0.5rem 0.75rem', marginBottom: '0.5rem', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>S/</span>
-                          <span style={{ fontSize: '1.4rem', fontWeight: 700, color: parseFloat(amountReceived || 0) >= totalPagar ? 'var(--success-color)' : 'var(--text-primary)' }}>
-                            {amountReceived || '0'}
-                          </span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.3rem', marginBottom: '0.4rem' }}>
-                          {['1','2','3','4','5','6','7','8','9','.','0','C'].map(n => (
-                            <button key={n} onClick={() => handleNumpad(n)}
-                              style={{ padding: '0.5rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', backgroundColor: n === 'C' ? 'rgba(255,71,87,0.12)' : 'var(--surface-color)', color: n === 'C' ? 'var(--danger-color)' : 'var(--text-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
-                            >{n}</button>
-                          ))}
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                          {[10, 20, 50, 100].map(amt => (
-                            <button key={amt} onClick={() => setAmountReceived(String(amt))}
-                              style={{ flex: 1, padding: '0.35rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 500 }}
-                            >S/{amt}</button>
-                          ))}
-                          <button onClick={() => setAmountReceived(totalPagar.toFixed(2))}
-                            style={{ flex: 1, padding: '0.35rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--primary-color)', backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--primary-color)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
-                          >Exacto</button>
-                        </div>
-                        {parseFloat(amountReceived || 0) >= totalPagar && (
-                          <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid var(--success-color)', borderRadius: 'var(--border-radius-sm)', padding: '0.4rem 0.75rem' }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--success-color)' }}>Vuelto</span>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--success-color)' }}>S/{change.toFixed(2)}</span>
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+                        <label style={{...labelStyle, marginBottom: 0}}>Monto a agregar</label>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Restante: S/{Math.max(0, totalPagar - totalPaid).toFixed(2)}</span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--surface-color)', border: `2px solid ${totalPaid >= totalPagar - 0.01 ? 'var(--success-color)' : 'var(--border-color)'}`, borderRadius: 'var(--border-radius-sm)', padding: '0.5rem 0.75rem', marginBottom: '0.5rem', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>S/</span>
+                        <span style={{ fontSize: '1.4rem', fontWeight: 700, color: totalPaid >= totalPagar - 0.01 ? 'var(--success-color)' : 'var(--text-primary)' }}>
+                          {currentAmountReceived !== '' ? currentAmountReceived : (currentPaymentMethod === 'efectivo' ? '0' : remainingTotal.toFixed(2))}
+                        </span>
+                      </div>
+                      
+                      {currentPaymentMethod === 'efectivo' && (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.3rem', marginBottom: '0.4rem' }}>
+                            {['1','2','3','4','5','6','7','8','9','.','0','C'].map(n => (
+                              <button key={n} onClick={() => handleNumpad(n)}
+                                style={{ padding: '0.5rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', backgroundColor: n === 'C' ? 'rgba(255,71,87,0.12)' : 'var(--surface-color)', color: n === 'C' ? 'var(--danger-color)' : 'var(--text-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+                              >{n}</button>
+                            ))}
                           </div>
-                        )}
-                      </>
-                    )}
+                          <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                            {[10, 20, 50, 100].map(amt => (
+                              <button key={amt} onClick={() => setCurrentAmountReceived(String(amt))}
+                                style={{ flex: 1, padding: '0.35rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 500 }}
+                              >S/{amt}</button>
+                            ))}
+                            <button onClick={() => setCurrentAmountReceived(remainingTotal.toFixed(2))}
+                              style={{ flex: 1, padding: '0.35rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--primary-color)', backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--primary-color)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
+                            >Exacto</button>
+                          </div>
+                        </>
+                      )}
+
+                      <button onClick={handleAddPayment} style={{ width: '100%', padding: '0.5rem', backgroundColor: 'var(--bg-color)', border: '1px dashed var(--border-color)', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 600 }}>
+                        <Plus size={14} /> Agregar otro pago
+                      </button>
+
+                      {totalPaid >= totalPagar && change > 0 && cashPaid > 0 && (
+                        <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid var(--success-color)', borderRadius: 'var(--border-radius-sm)', padding: '0.5rem 0.75rem' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--success-color)' }}>Vuelto a entregar</span>
+                          <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--success-color)' }}>S/{change.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </>
                   </div>
                 </div>
 
@@ -1256,6 +1491,284 @@ export default function Caja() {
           </div>
         </div>
       )}
+
+      {/* Arqueo Ciego Modal */}
+      {showCloseCajaModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <button onClick={() => setShowCloseCajaModal(false)} style={{ position: 'absolute', right: '1.25rem', top: '1.25rem', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 10 }}>
+              <X size={20} />
+            </button>
+            
+            {/* Ambient Background Glows */}
+            <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(255,107,0,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+            <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(255,107,0,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+
+            <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(255,107,0,0.2), rgba(255,107,0,0.05))', color: 'var(--primary-color)', marginBottom: '1.25rem', border: '1px solid rgba(255,107,0,0.3)', boxShadow: '0 0 25px rgba(255,107,0,0.2)' }}>
+                <DollarSign size={36} />
+              </div>
+              <h2 className="title" style={{ fontSize: '1.75rem', marginBottom: '0.5rem', background: 'linear-gradient(to right, #fff, #ffd8a8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Cierre de Turno</h2>
+              <p className="subtitle" style={{ fontSize: '0.95rem' }}>Arqueo Ciego: Digita el monto físico (efectivo) que hay actualmente en tu gaveta.</p>
+            </div>
+            
+            <div style={{ marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+              <label style={{ ...labelStyle, fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>Monto Físico (Efectivo)</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary-color)', fontWeight: 'bold', fontSize: '1.2rem', zIndex: 2 }}>S/</span>
+                <input
+                  type="number"
+                  step="0.10"
+                  className="input text-center"
+                  placeholder="0.00"
+                  style={{ width: '100%', paddingLeft: '3rem', fontSize: '1.5rem', fontWeight: 700, height: '3.8rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,107,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
+                  value={efectivoGavetaInput}
+                  onChange={(e) => setEfectivoGavetaInput(e.target.value)}
+                  disabled={diferenciaCaja !== null}
+                />
+              </div>
+            </div>
+
+            {diferenciaCaja !== null && (
+              <div style={{ padding: '1.25rem', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 'var(--border-radius)', border: `1px solid ${diferenciaCaja < 0 ? 'var(--danger-color)' : 'var(--success-color)'}`, marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
+                <p style={{ color: diferenciaCaja < 0 ? 'var(--danger-color)' : 'var(--success-color)', fontWeight: 'bold', fontSize: '1.25rem', textAlign: 'center', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  {diferenciaCaja < 0 ? '¡Faltante de Caja!' : '¡Sobrante de Caja!'}
+                </p>
+                <p style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 800, color: diferenciaCaja < 0 ? 'var(--danger-color)' : 'var(--success-color)', marginBottom: '0.5rem' }}>
+                  S/ {Math.abs(diferenciaCaja).toFixed(2)}
+                </p>
+                <p style={{ fontSize: '0.8rem', textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                  El sistema detectó una diferencia con el saldo teórico de ventas del día.
+                </p>
+                <label style={{ ...labelStyle, color: 'var(--text-secondary)' }}>Justificación Obligatoria</label>
+                <textarea
+                  className="input w-full"
+                  rows="3"
+                  placeholder="Explica el motivo exacto del descuadre..."
+                  value={justificacionInput}
+                  onChange={(e) => setJustificacionInput(e.target.value)}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', resize: 'none' }}
+                ></textarea>
+              </div>
+            )}
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              {diferenciaCaja === null ? (
+                <button 
+                  className="btn btn-primary w-full justify-center" 
+                  onClick={handleCalculateCloseCaja}
+                  style={{ padding: '0.9rem', fontSize: '1.1rem', fontWeight: 600, boxShadow: '0 4px 15px rgba(255,107,0,0.3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                >
+                  Calcular y Cerrar Caja
+                </button>
+              ) : (
+                <button 
+                  className="btn btn-danger w-full justify-center" 
+                  onClick={handleConfirmCloseCaja}
+                  style={{ padding: '0.9rem', fontSize: '1.1rem', fontWeight: 600, boxShadow: '0 4px 15px rgba(239,68,68,0.3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                >
+                  Confirmar Descuadre y Cerrar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddMenu && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--border-radius)', width: '100%', maxWidth: '450px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Añadir Producto</h3>
+              <button onClick={() => setShowAddMenu(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={18} /></button>
+            </div>
+            
+            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <input 
+                type="text" 
+                placeholder="Buscar producto por nombre..." 
+                value={menuSearch}
+                onChange={e => setMenuSearch(e.target.value)}
+                autoFocus
+                style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            
+            <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {(menu || [])
+                .filter(m => m.active && (m.name || '').toLowerCase().includes(menuSearch.toLowerCase()))
+                .map(item => (
+                  <button 
+                    key={item.id}
+                    onClick={() => handleAddProduct(item)}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
+                    onMouseOver={e => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>{item.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{item.categoryId}</div>
+                    </div>
+                    <div style={{ fontWeight: 700, color: 'var(--primary-color)' }}>S/{item.price.toFixed(2)}</div>
+                  </button>
+              ))}
+              {menuSearch && menu.filter(m => m.active && (m.name || '').toLowerCase().includes(menuSearch.toLowerCase())).length === 0 && (
+                <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                  No se encontraron productos que coincidan.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── APERTURA DE CAJA MODAL ── */}
+      {!businessDay?.cajaDetails?.isOpen && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            
+            {/* Ambient Background Glows */}
+            <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+            <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+
+            {aperturaStep === 'input' && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))', color: 'var(--success-color)', marginBottom: '1.25rem', border: '1px solid rgba(16,185,129,0.3)', boxShadow: '0 0 25px rgba(16,185,129,0.2)' }}>
+                    <DollarSign size={36} />
+                  </div>
+                  <h2 className="title" style={{ fontSize: '1.75rem', marginBottom: '0.5rem', background: 'linear-gradient(to right, #fff, #a7f3d0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Apertura de Caja</h2>
+                  <p className="subtitle" style={{ fontSize: '0.95rem' }}>Para comenzar a cobrar, ingresa el fondo de caja con el que inicias tu turno.</p>
+                </div>
+                
+                <div style={{ marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+                  <label style={{ ...labelStyle, fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>Fondo Inicial (S/)</label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--success-color)', fontWeight: 'bold', fontSize: '1.2rem', zIndex: 2 }}>S/</span>
+                    <input 
+                      type="number" 
+                      step="0.10"
+                      className="input"
+                      style={{ paddingLeft: '3rem', fontSize: '1.4rem', fontWeight: 700, height: '3.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(16,185,129,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
+                      value={fondoInicialInput}
+                      onChange={e => setFondoInicialInput(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleOpenCajaSubmit()}
+                      placeholder="0.00"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <button 
+                    className="btn btn-success w-full justify-center" 
+                    style={{ padding: '0.9rem', fontSize: '1.1rem', fontWeight: 600, boxShadow: '0 4px 15px rgba(16,185,129,0.3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                    onClick={handleOpenCajaSubmit}
+                    disabled={!fondoInicialInput || parseFloat(fondoInicialInput) < 0}
+                  >
+                    Validar Caja
+                  </button>
+                  {(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? (
+                    <button 
+                      className="btn btn-outline w-full justify-center" 
+                      style={{ padding: '0.8rem', fontSize: '0.95rem', marginTop: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
+                      onClick={handleLogout}
+                    >
+                      Volver al Admin
+                    </button>
+                  ) : (
+                    <button 
+                      className="btn btn-outline w-full justify-center" 
+                      style={{ padding: '0.8rem', fontSize: '0.95rem', marginTop: '1rem', color: 'var(--danger-color)', borderColor: 'rgba(239,68,68,0.3)' }}
+                      onClick={handleLogout}
+                    >
+                      Cerrar Sesión
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+
+            {aperturaStep === 'justificarExceso' && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(234,179,8,0.2), rgba(234,179,8,0.05))', color: 'var(--warning-color)', marginBottom: '1.25rem', border: '1px solid rgba(234,179,8,0.3)', boxShadow: '0 0 25px rgba(234,179,8,0.2)' }}>
+                    <AlertTriangle size={36} />
+                  </div>
+                  <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--warning-color)' }}>Sobra Dinero</h2>
+                  <p className="subtitle" style={{ fontSize: '0.95rem' }}>Estás iniciando con <strong>S/ {Math.abs(aperturaDiff).toFixed(2)} MÁS</strong> del efectivo declarado en el cierre anterior.</p>
+                </div>
+                
+                <div style={{ marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
+                  <label style={{ ...labelStyle, fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>Justificación del excedente (Obligatorio)</label>
+                  <input 
+                    type="text" 
+                    className="input"
+                    style={{ ...inputStyle, width: '100%', background: 'rgba(0,0,0,0.2)' }}
+                    value={aperturaJustificacion}
+                    onChange={e => setAperturaJustificacion(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && aperturaJustificacion.trim() && handleOpenConDescuadre()}
+                    placeholder="Ej. Sencillo agregado..."
+                    autoFocus
+                  />
+                </div>
+                
+                <div style={{ display: 'flex', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
+                  <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setAperturaStep('input')}>Volver</button>
+                  <button className="btn btn-warning" style={{ flex: 1 }} onClick={handleOpenConDescuadre} disabled={!aperturaJustificacion.trim()}>Abrir Caja</button>
+                </div>
+              </>
+            )}
+
+            {aperturaStep === 'recontarFaltante' && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05))', color: 'var(--danger-color)', marginBottom: '1.25rem', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 0 25px rgba(239,68,68,0.2)' }}>
+                    <AlertTriangle size={36} />
+                  </div>
+                  <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--danger-color)' }}>Falta Dinero</h2>
+                  <p className="subtitle" style={{ fontSize: '0.95rem' }}>Estás iniciando con <strong>S/ {Math.abs(aperturaDiff).toFixed(2)} MENOS</strong> del efectivo declarado en el cierre anterior.</p>
+                  <p className="subtitle" style={{ fontSize: '0.85rem', marginTop: '0.5rem', color: 'var(--text-secondary)' }}>Por favor vuelve a contar el dinero o indica si se realizó un retiro de ganancias.</p>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', zIndex: 1 }}>
+                  <button className="btn btn-primary w-full" style={{ padding: '0.9rem', fontSize: '1rem' }} onClick={() => setAperturaStep('input')}>Volver a Contar</button>
+                  <button className="btn btn-outline w-full" style={{ padding: '0.9rem', fontSize: '1rem', borderColor: 'rgba(239,68,68,0.3)', color: 'var(--danger-color)' }} onClick={() => setAperturaStep('justificarFaltante')}>Sigue Faltando / Hubo Retiro</button>
+                </div>
+              </>
+            )}
+
+            {aperturaStep === 'justificarFaltante' && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
+                  <h2 className="title" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: 'var(--danger-color)' }}>Justificar Diferencia</h2>
+                  <p className="subtitle" style={{ fontSize: '0.85rem' }}>Ingresa el motivo del faltante o si se retiró dinero.</p>
+                </div>
+                
+                <div style={{ marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
+                  <input 
+                    type="text" 
+                    className="input"
+                    style={{ ...inputStyle, width: '100%', background: 'rgba(0,0,0,0.2)' }}
+                    value={aperturaJustificacion}
+                    onChange={e => setAperturaJustificacion(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && aperturaJustificacion.trim() && handleOpenConDescuadre()}
+                    placeholder="Ej. Retiro de ganancias S/200..."
+                    autoFocus
+                  />
+                </div>
+                
+                <div style={{ display: 'flex', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
+                  <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setAperturaStep('recontarFaltante')}>Volver</button>
+                  <button className="btn btn-danger" style={{ flex: 1 }} onClick={handleOpenConDescuadre} disabled={!aperturaJustificacion.trim()}>Abrir Caja</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

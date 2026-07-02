@@ -18,7 +18,7 @@ export const StoreProvider = ({ children }) => {
   const [zones, setZones] = React.useState([]);
   const [orders, setOrders] = React.useState([]);
   const [isBarActive, setIsBarActive] = React.useState(true);
-  const [businessDay, setBusinessDay] = React.useState({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] });
+  const [businessDay, setBusinessDay] = React.useState({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [], cajaDetails: { isOpen: false, fondoInicial: 0, efectivoDeclarado: 0, diferencia: 0, justificacion: '', status: 'closed' } });
   const [pastDays, setPastDays] = React.useState([]);
   const [activeTables, setActiveTables] = React.useState({});
   const [tableHeadcounts, setTableHeadcounts] = React.useState({});
@@ -91,7 +91,7 @@ export const StoreProvider = ({ children }) => {
              setZones(dataLocal.zones || []);
              setOrders(dataLocal.orders || []);
              setIsBarActive(dataLocal.isBarActive !== undefined ? dataLocal.isBarActive : true);
-             setBusinessDay(dataLocal.businessDay || { isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] });
+             setBusinessDay(dataLocal.businessDay || { isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [], cajaDetails: { isOpen: false, fondoInicial: 0, efectivoDeclarado: 0, diferencia: 0, justificacion: '', status: 'closed' } });
              setPastDays(dataLocal.pastDays || []);
              setActiveTables(dataLocal.activeTables || {});
              setTableHeadcounts(dataLocal.tableHeadcounts || {});
@@ -287,7 +287,37 @@ export const StoreProvider = ({ children }) => {
   };
 
   // V3 Actions: Day
-  const openDay = () => setBusinessDay({ id: uuidv4(), isOpen: true, startTime: Date.now(), totalSales: 0, voids: [], sales: [], incomes: [], expenses: [] });
+  const openDay = () => setBusinessDay({ id: uuidv4(), isOpen: true, startTime: Date.now(), totalSales: 0, voids: [], sales: [], incomes: [], expenses: [], cajaDetails: { isOpen: false, fondoInicial: 0, efectivoDeclarado: 0, diferencia: 0, justificacion: '', status: 'closed' } });
+
+  const openCaja = (fondoInicial, aperturaDiferencia = 0, aperturaJustificacion = '') => {
+    setBusinessDay(prev => ({
+      ...prev,
+      cajaDetails: {
+        ...(prev.cajaDetails || {}),
+        isOpen: true,
+        fondoInicial: parseFloat(fondoInicial) || 0,
+        aperturaDiferencia,
+        aperturaJustificacion,
+        openTime: Date.now(),
+        status: 'open'
+      }
+    }));
+  };
+
+  const closeCaja = (efectivoDeclarado, justificacion, diferencia) => {
+    setBusinessDay(prev => ({
+      ...prev,
+      cajaDetails: {
+        ...(prev.cajaDetails || {}),
+        isOpen: false,
+        efectivoDeclarado: parseFloat(efectivoDeclarado) || 0,
+        diferencia: parseFloat(diferencia) || 0,
+        justificacion: justificacion || '',
+        closeTime: Date.now(),
+        status: 'counted'
+      }
+    }));
+  };
   const updateKardexData = (kardexId, data) => {
     setBusinessDay(prev => {
       const nextKardex = { ...(prev.kardex || {}) };
@@ -428,8 +458,17 @@ if (barCart.length > 0) {
     setActiveTables(prev => {
       const next = { ...prev };
       const currentCart = next[tableKey] || [];
-      const paidIds = cartDetails.map(c => c.id);
-      const remainingCart = currentCart.filter(c => !paidIds.includes(c.id));
+      
+      const paidQuantities = {};
+      cartDetails.forEach(c => { paidQuantities[c.id] = (paidQuantities[c.id] || 0) + c.quantity; });
+      
+      const remainingCart = currentCart.map(c => {
+        if (paidQuantities[c.id]) {
+          return { ...c, quantity: Math.max(0, c.quantity - paidQuantities[c.id]) };
+        }
+        return c;
+      }).filter(c => c.quantity > 0.001); // Handle small floating point remaining
+      
       if (remainingCart.length === 0) {
         delete next[tableKey];
         setTableHeadcounts(th => { const n = { ...th }; delete n[tableKey]; return n; });
@@ -461,7 +500,7 @@ if (barCart.length > 0) {
     });
   };
 
-  const voidSaleAndReopenTable = (saleId, reason, adminUser, targetTableKey = null) => {
+  const voidSaleAndReopenTable = async (saleId, reason, adminUser, targetTableKey = null) => {
     const saleToVoid = (businessDay.sales || []).find(s => s.id === saleId);
     if (!saleToVoid) return { success: false, error: 'Venta no encontrada.' };
     
@@ -472,7 +511,38 @@ if (barCart.length > 0) {
       return { success: false, error: `No se puede reabrir la cuenta porque la mesa seleccionada está ocupada actualmente. Transfiera la mesa actual a otra primero.` };
     }
     
-    logAudit('ANULACION_VENTA', { saleId, reason, admin: adminUser.name, amount: saleToVoid.total });
+    // Llamar a SUNAT si es Boleta o Factura
+    let sunatTicket = null;
+    if (saleToVoid.documentType === 'boleta' || saleToVoid.documentType === 'factura') {
+      try {
+        const apiUrl = developerSettings?.printServerUrl || 'http://localhost:3000';
+        const res = await fetch(`${apiUrl}/api/anular`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            saleId: saleToVoid.id,
+            documentType: saleToVoid.documentType,
+            documentNumber: saleToVoid.documentNumber,
+            total: saleToVoid.total,
+            reason: reason,
+            customerRuc: saleToVoid.companyRuc || saleToVoid.customerRuc,
+            customerName: saleToVoid.companyName || saleToVoid.customerName,
+            date: new Date().toISOString()
+          })
+        });
+        
+        if (!res.ok) {
+           console.warn("API de anulación SUNAT falló, pero continuaremos internamente.");
+        } else {
+           const data = await res.json();
+           if (data.ticket) sunatTicket = data.ticket;
+        }
+      } catch (err) {
+         console.warn("No se pudo conectar a la API de anulación SUNAT.", err);
+      }
+    }
+
+    logAudit('ANULACION_VENTA', { saleId, reason, admin: adminUser.name, amount: saleToVoid.total, sunatTicket });
     setBusinessDay(prev => {
       const nextKardex = { ...(prev.kardex || {}) };
       
@@ -499,7 +569,8 @@ if (barCart.length > 0) {
           admin: adminUser.name,
           timestamp: Date.now(),
           tableKey: saleToVoid.tableKey,
-          amount: saleToVoid.total
+          amount: saleToVoid.total,
+          sunatTicket
         }]
       };
     });
@@ -529,6 +600,115 @@ if (barCart.length > 0) {
     });
 
     return { success: true };
+  };
+
+  const issueCreditNote = async (saleId, refundAmount, itemsToRefund, reason, adminUser, refacturar = false, targetTableKey = null) => {
+    let sale = null;
+    let isHistorical = false;
+    let pastDayIndex = -1;
+
+    if (businessDay && businessDay.sales) {
+      sale = businessDay.sales.find(s => s.id === saleId);
+    }
+
+    if (!sale && pastDays) {
+      for (let i = 0; i < pastDays.length; i++) {
+        const found = (pastDays[i].sales || []).find(s => s.id === saleId);
+        if (found) {
+          sale = found;
+          isHistorical = true;
+          pastDayIndex = i;
+          break;
+        }
+      }
+    }
+
+    if (!sale) return { success: false, error: 'Venta no encontrada.' };
+
+    let sunatTicket = null;
+    if (sale.documentType === 'boleta' || sale.documentType === 'factura') {
+      try {
+        const apiUrl = developerSettings?.printServerUrl || 'http://localhost:3000';
+        const res = await fetch(`${apiUrl}/api/nota-credito`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            saleId: sale.id,
+            documentType: sale.documentType,
+            documentNumber: sale.documentNumber,
+            refundAmount,
+            itemsToRefund,
+            reason,
+            date: new Date().toISOString()
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ticket) sunatTicket = data.ticket;
+        }
+      } catch (err) {
+        console.warn("No se pudo conectar a la API SUNAT para Nota de Crédito.", err);
+      }
+    }
+
+    const creditNoteData = {
+      id: uuidv4(),
+      date: Date.now(),
+      amount: refundAmount,
+      reason,
+      admin: adminUser.name,
+      items: itemsToRefund,
+      sunatTicket
+    };
+
+    logAudit('NOTA_CREDITO', { saleId, reason, admin: adminUser.name, amount: refundAmount, sunatTicket, isHistorical });
+
+    if (!isHistorical) {
+      setBusinessDay(prev => ({
+        ...prev,
+        totalSales: prev.totalSales - refundAmount,
+        sales: prev.sales.map(s => s.id === saleId ? {
+          ...s,
+          hasCreditNote: true,
+          creditNotes: [...(s.creditNotes || []), creditNoteData]
+        } : s)
+      }));
+    } else {
+      setBusinessDay(prev => ({
+        ...prev,
+        totalSales: prev.totalSales - refundAmount
+      }));
+      setPastDays(prev => {
+        const newPast = [...prev];
+        newPast[pastDayIndex] = {
+          ...newPast[pastDayIndex],
+          sales: newPast[pastDayIndex].sales.map(s => s.id === saleId ? {
+            ...s,
+            hasCreditNote: true,
+            creditNotes: [...(s.creditNotes || []), creditNoteData]
+          } : s)
+        };
+        return newPast;
+      });
+    }
+
+    if (refacturar) {
+      const finalTableKey = targetTableKey || sale.tableKey;
+      setActiveTables(prev => {
+        const next = { ...prev };
+        const currentCart = next[finalTableKey] || [];
+        const restoredCartItems = itemsToRefund.map(c => ({
+          ...c,
+          id: uuidv4(),
+          status: 'sent',
+          isRecovered: true
+        }));
+        next[finalTableKey] = [...currentCart, ...restoredCartItems];
+        return next;
+      });
+    }
+
+    return { success: true, ticket: sunatTicket, sale };
   };
 
   const updateOrderStatus = (orderId, newStatus) => setOrders(prev => prev.map(o => 
@@ -650,9 +830,9 @@ if (barCart.length > 0) {
       zones, addZone: addItem(setZones), updateZone: updateItem(setZones), deleteZone: deleteItem(setZones),
       orders, setOrders, updateOrderStatus, dispatchOrderItems, updateOrderItemStatus, registerOnlineSale,
       isBarActive, setIsBarActive,
-      businessDay, setBusinessDay, pastDays, setPastDays, openDay, closeDay,
+      businessDay, setBusinessDay, pastDays, setPastDays, openDay, closeDay, openCaja, closeCaja,
       addIncome, addExpense,
-      activeTables, setActiveTables, updateTableCart, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable,
+      activeTables, setActiveTables, updateTableCart, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable, issueCreditNote,
       tableHeadcounts, setTableHeadcounts,
       companies, addCompany: addItem(setCompanies), updateCompany: updateItem(setCompanies), deleteCompany: deleteItem(setCompanies),
       developerSettings, setDeveloperSettings,

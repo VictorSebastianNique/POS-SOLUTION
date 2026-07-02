@@ -294,6 +294,21 @@ export default function Admin() {
     csv += `Fecha de apertura:,"${dateStr}"\n`;
     csv += `Fecha de cierre:,"${endTimeStr}"\n\n`;
 
+    if (day.cajaDetails && day.cajaDetails.status !== 'closed') {
+      csv += `ARQUEO DE CAJA (Cajero)\n`;
+      csv += `Fondo Inicial:,"S/ ${(day.cajaDetails.fondoInicial || 0).toFixed(2)}"\n`;
+      if (day.cajaDetails.status === 'counted') {
+        csv += `Efectivo Declarado:,"S/ ${(day.cajaDetails.efectivoDeclarado || 0).toFixed(2)}"\n`;
+        csv += `Diferencia (Sobrante/Faltante):,"S/ ${(day.cajaDetails.diferencia || 0).toFixed(2)}"\n`;
+        if (day.cajaDetails.justificacion) {
+          csv += `Justificación Descuadre:,"${day.cajaDetails.justificacion}"\n`;
+        }
+      } else {
+        csv += `Efectivo Declarado:,PENDIENTE\n`;
+      }
+      csv += `\n\n`;
+    }
+
     let grandTotalSoles = 0;
     const paymentMethodsSummary = {}; // To store totals by payment method
 
@@ -592,18 +607,43 @@ export default function Admin() {
                     <Unlock size={48} style={{ color: 'var(--success-color)', marginBottom: '1rem' }} />
                     <h2 className="title" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Día Abierto</h2>
                     <p className="subtitle mb-6">El sistema está recibiendo pedidos.</p>
-                    
-                    <div className="flex gap-6 mb-8 w-full justify-center">
-                      <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '200px' }}>
-                        <p className="subtitle">Ventas Acumuladas</p>
-                        <h3 className="title text-primary-color" style={{ fontSize: '2rem' }}>S/{businessDay.totalSales.toFixed(2)}</h3>
+                    <div className="flex gap-4 mb-8 w-full justify-center flex-wrap">
+                      <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '150px' }}>
+                        <p className="subtitle" style={{ fontSize: '0.8rem' }}>Ventas Acumuladas</p>
+                        <h3 className="title text-primary-color" style={{ fontSize: '1.5rem' }}>S/{businessDay.totalSales.toFixed(2)}</h3>
                       </div>
-                      <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '200px' }}>
-                        <p className="subtitle">Anulaciones</p>
-                        <h3 className="title" style={{ fontSize: '2rem', color: 'var(--danger-color)' }}>{businessDay.voids?.length || 0}</h3>
+                      <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '150px' }}>
+                        <p className="subtitle" style={{ fontSize: '0.8rem' }}>Fondo Inicial (Cajero)</p>
+                        <h3 className="title" style={{ fontSize: '1.5rem', color: 'var(--warning-color)' }}>
+                          S/{(businessDay.cajaDetails?.fondoInicial || 0).toFixed(2)}
+                        </h3>
+                      </div>
+                      <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '150px' }}>
+                        <p className="subtitle" style={{ fontSize: '0.8rem' }}>Efectivo Declarado</p>
+                        <h3 className="title" style={{ fontSize: '1.5rem', color: businessDay.cajaDetails?.status === 'counted' ? 'var(--success-color)' : 'var(--text-secondary)' }}>
+                          {businessDay.cajaDetails?.status === 'counted' ? `S/${(businessDay.cajaDetails.efectivoDeclarado || 0).toFixed(2)}` : 'PENDIENTE'}
+                        </h3>
+                      </div>
+                      {businessDay.cajaDetails?.status === 'counted' && (
+                        <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '150px' }}>
+                          <p className="subtitle" style={{ fontSize: '0.8rem' }}>Descuadre</p>
+                          <h3 className="title" style={{ fontSize: '1.5rem', color: (businessDay.cajaDetails.diferencia || 0) < 0 ? 'var(--danger-color)' : 'var(--success-color)' }}>
+                            S/{(businessDay.cajaDetails.diferencia || 0).toFixed(2)}
+                          </h3>
+                        </div>
+                      )}
+                      <div className="card" style={{ backgroundColor: 'var(--bg-color)', minWidth: '150px' }}>
+                        <p className="subtitle" style={{ fontSize: '0.8rem' }}>Anulaciones</p>
+                        <h3 className="title" style={{ fontSize: '1.5rem', color: 'var(--danger-color)' }}>{businessDay.voids?.length || 0}</h3>
                       </div>
                     </div>
-
+                    {businessDay.cajaDetails?.justificacion && (
+                      <div style={{ padding: '1rem', backgroundColor: 'var(--bg-color)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--danger-color)', marginBottom: '1.5rem', width: '100%', maxWidth: '600px', textAlign: 'left' }}>
+                        <p style={{ fontWeight: 'bold', color: 'var(--danger-color)', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Justificación de Descuadre:</p>
+                        <p style={{ color: 'var(--text-primary)', fontStyle: 'italic' }}>"{businessDay.cajaDetails.justificacion}"</p>
+                      </div>
+                    )}
+                    
                     <button className="btn btn-danger" style={{ padding: '1rem 3rem', fontSize: '1.1rem' }} onClick={handleOpenCloseDayModal}>
                       Cerrar Día y Guardar Reporte
                     </button>

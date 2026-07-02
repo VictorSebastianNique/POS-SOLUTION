@@ -904,7 +904,25 @@
   },
   "developerSettings": {
     "isSuperAdminIncognito": true,
-    "metricsOnlySuperAdmin": false
+    "metricsOnlySuperAdmin": false,
+    "billingMode": "test",
+    "billingToken": "",
+    "printServerUrl": "https://print-server-production-xxxx.onrender.com",
+    "printerIds": {},
+    "adminModules": {
+      "metrics": true,
+      "caja": true,
+      "users": true,
+      "crm": true,
+      "categories": true,
+      "subcategories": true,
+      "menu": true,
+      "kardex_config": true,
+      "zones": true,
+      "empresas": true,
+      "auditoria": true,
+      "locales": true
+    }
   },
   "catalogs": [
     {

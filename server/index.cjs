@@ -16,6 +16,14 @@ app.use(express.json({ limit: '10mb', strict: false }));
 // Montar rutas de API
 app.use('/api/store', storeRoutes);
 
+app.post('/api/anular', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Simulación de anulación exitosa. (Stub)',
+    ticket: '15912385102'
+  });
+});
+
 // Servir estáticos en producción
 app.use(express.static(DIST_DIR));
 
