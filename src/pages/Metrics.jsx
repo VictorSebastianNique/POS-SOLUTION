@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
-  AreaChart, Area, PieChart, Pie, Cell, ComposedChart
+  AreaChart, Area, PieChart, Pie, Cell, ComposedChart, Line
 } from 'recharts';
 import {
   TrendingUp, Users, DollarSign, Clock, Award,
