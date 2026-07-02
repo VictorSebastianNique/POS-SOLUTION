@@ -66,7 +66,7 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
-    <div className="card animate-fade-in flex flex-col" style={{ borderTop: `4px solid ${getStatusColor(order.status)}`, backgroundColor: 'var(--surface-color)', padding: '0.75rem', height: '320px', display: 'flex', flexDirection: 'column' }}>
+    <div className="card animate-fade-in flex flex-col" style={{ borderTop: `4px solid ${getStatusColor(order.status)}`, backgroundColor: 'var(--surface-color)', padding: '0.75rem', height: '270px', display: 'flex', flexDirection: 'column' }}>
       <div className="flex justify-between items-start mb-2">
         <div>
           {order.type === 'delivery' ? (
