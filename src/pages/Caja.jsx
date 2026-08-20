@@ -131,13 +131,11 @@ export default function Caja() {
     const fetchExchangeRate = async () => {
       try {
         const token = developerSettings?.peruApiToken || '';
-        if (!token) return;
         const res = await fetch('/api/peru/tipo-cambio', {
-          headers: { 'x-api-token': token }
+          headers: token ? { 'x-api-token': token } : {}
         });
         if (res.ok) {
           const data = await res.json();
-          // La API de Decolecta suele devolver { "compra": x, "venta": y, "fecha": ... }
           setExchangeRate(data);
         }
       } catch (err) {
