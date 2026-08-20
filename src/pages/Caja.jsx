@@ -1331,9 +1331,23 @@ export default function Caja() {
                       </div>
                     )}
                     {exchangeRate && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', fontSize: '0.75rem', color: 'var(--info-color)' }}>
-                        <span>TC (SUNAT):</span>
-                        <span style={{ fontWeight: 600 }}>C: {exchangeRate.compra} | V: {exchangeRate.venta}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', padding: '0.6rem', marginTop: '0.5rem', backgroundColor: 'var(--bg-color-secondary)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                            💵 T.C. SUNAT
+                          </span>
+                          <span>{exchangeRate.date}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
+                          <div>
+                            <span style={{ color: 'var(--text-secondary)', marginRight: '0.3rem' }}>Compra:</span>
+                            <span style={{ fontWeight: 700, color: 'var(--success-color)' }}>S/ {Number(exchangeRate.buy_price).toFixed(3)}</span>
+                          </div>
+                          <div>
+                            <span style={{ color: 'var(--text-secondary)', marginRight: '0.3rem' }}>Venta:</span>
+                            <span style={{ fontWeight: 700, color: 'var(--primary-color)' }}>S/ {Number(exchangeRate.sell_price).toFixed(3)}</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', marginTop: '0.25rem', borderTop: '2px solid var(--border-color)', fontSize: '1rem', fontWeight: 700 }}>
