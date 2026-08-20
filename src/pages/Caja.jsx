@@ -124,23 +124,46 @@ export default function Caja() {
 
   const [isSearchingDni, setIsSearchingDni] = useState(false);
   const [isSearchingRuc, setIsSearchingRuc] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState(null);
+
+  // Cargar tipo de cambio al abrir caja
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const token = developerSettings?.peruApiToken || '';
+        if (!token) return;
+        const res = await fetch('/api/peru/tipo-cambio', {
+          headers: { 'x-api-token': token }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // La API de Decolecta suele devolver { "compra": x, "venta": y, "fecha": ... }
+          setExchangeRate(data);
+        }
+      } catch (err) {
+        console.error('Error fetching exchange rate:', err);
+      }
+    };
+    fetchExchangeRate();
+  }, [developerSettings?.peruApiToken]);
 
   const handleSearchDni = async () => {
     if (!customerDni || customerDni.length !== 8) return;
     setIsSearchingDni(true);
     try {
       const token = developerSettings?.peruApiToken || '';
-      const res = await fetch(`https://api.apis.net.pe/v2/reniec/dni?numero=${customerDni}`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      const res = await fetch(`/api/peru/dni/${customerDni}`, {
+        headers: token ? { 'x-api-token': token } : {}
       });
       if (res.ok) {
         const data = await res.json();
         setCustomerName(`${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}`);
       } else {
-        setCustomerName('JUAN PEREZ (DNI ENCONTRADO)');
+        const err = await res.json();
+        setCustomerName(`Error: ${err.error || 'DNI no encontrado'}`);
       }
     } catch (error) {
-      setCustomerName('JUAN PEREZ (DNI ENCONTRADO)');
+      setCustomerName('Error de conexión');
     }
     setIsSearchingDni(false);
   };
@@ -150,20 +173,22 @@ export default function Caja() {
     setIsSearchingRuc(true);
     try {
       const token = developerSettings?.peruApiToken || '';
-      const res = await fetch(`https://api.apis.net.pe/v2/sunat/ruc?numero=${customerRuc}`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      // Se le puede pasar ?full=true para información extendida si se desea
+      const res = await fetch(`/api/peru/ruc/${customerRuc}?full=true`, {
+        headers: token ? { 'x-api-token': token } : {}
       });
       if (res.ok) {
         const data = await res.json();
         setCustomerName(data.razonSocial);
         setCustomerAddress(data.direccion || '');
       } else {
-        setCustomerName('EMPRESA DE PRUEBA S.A.C.');
-        setCustomerAddress('AV. LOS INCAS 123');
+        const err = await res.json();
+        setCustomerName(`Error: ${err.error || 'RUC no encontrado'}`);
+        setCustomerAddress('');
       }
     } catch (error) {
-      setCustomerName('EMPRESA DE PRUEBA S.A.C.');
-      setCustomerAddress('AV. LOS INCAS 123');
+      setCustomerName('Error de conexión');
+      setCustomerAddress('');
     }
     setIsSearchingRuc(false);
   };
@@ -1305,6 +1330,12 @@ export default function Caja() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', fontSize: '0.82rem', color: 'var(--danger-color)' }}>
                         <span>Descuento Aplicado:</span>
                         <span style={{ fontWeight: 600 }}>-S/{appliedDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {exchangeRate && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', fontSize: '0.75rem', color: 'var(--info-color)' }}>
+                        <span>TC (SUNAT):</span>
+                        <span style={{ fontWeight: 600 }}>C: {exchangeRate.compra} | V: {exchangeRate.venta}</span>
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', marginTop: '0.25rem', borderTop: '2px solid var(--border-color)', fontSize: '1rem', fontWeight: 700 }}>

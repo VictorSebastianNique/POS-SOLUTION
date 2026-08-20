@@ -5,6 +5,7 @@ const path = require('path');
 const { initMongo, seedMongo, appendAuditLog, getAuditLogs } = require('./db.cjs');
 const authRoutes = require('./routes/auth.cjs');
 const storeRoutes = require('./routes/store.cjs');
+const peruApiRoutes = require('./routes/peruApi.cjs');
 const { requireAuth } = require('./middleware/auth.cjs');
 
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 
 // Rutas de API Protegidas
 app.use('/api/store', requireAuth, storeRoutes);
+app.use('/api/peru', peruApiRoutes);
 
 // Rutas de Auditoría
 app.get('/api/audit/logs', requireAuth, async (req, res, next) => {
