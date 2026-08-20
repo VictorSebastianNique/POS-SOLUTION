@@ -130,13 +130,25 @@ export default function Caja() {
   useEffect(() => {
     const fetchExchangeRate = async () => {
       try {
+        const today = new Date().toISOString().split('T')[0];
+        const cached = localStorage.getItem('cachedExchangeRate');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.date === today && parsed.data) {
+            setExchangeRate(parsed.data);
+            return;
+          }
+        }
+
         const token = developerSettings?.peruApiToken || '';
         const res = await fetch('/api/peru/tipo-cambio', {
           headers: token ? { 'x-api-token': token } : {}
         });
         if (res.ok) {
-          const data = await res.json();
+          const payload = await res.json();
+          const data = payload.data || payload;
           setExchangeRate(data);
+          localStorage.setItem('cachedExchangeRate', JSON.stringify({ date: today, data: data }));
         }
       } catch (err) {
         console.error('Error fetching exchange rate:', err);
