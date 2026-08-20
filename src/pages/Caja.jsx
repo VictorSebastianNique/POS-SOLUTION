@@ -154,8 +154,13 @@ export default function Caja() {
         headers: token ? { 'x-api-token': token } : {}
       });
       if (res.ok) {
-        const data = await res.json();
-        setCustomerName(`${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}`);
+        const payload = await res.json();
+        const data = payload.data || payload;
+        const nombres = data.nombres || data.nombre || data.nombres_completos || '';
+        const apePat = data.apellidoPaterno || data.apellido_paterno || '';
+        const apeMat = data.apellidoMaterno || data.apellido_materno || '';
+        const fullName = `${nombres} ${apePat} ${apeMat}`.trim();
+        setCustomerName(fullName || 'Nombre no encontrado');
       } else {
         const err = await res.json();
         setCustomerName(`Error: ${err.error || 'DNI no encontrado'}`);
@@ -176,9 +181,12 @@ export default function Caja() {
         headers: token ? { 'x-api-token': token } : {}
       });
       if (res.ok) {
-        const data = await res.json();
-        setCustomerName(data.razonSocial);
-        setCustomerAddress(data.direccion || '');
+        const payload = await res.json();
+        const data = payload.data || payload;
+        const razonSocial = data.razonSocial || data.razon_social || data.nombre_o_razon_social || '';
+        const direccion = data.direccion || data.direccion_completa || '';
+        setCustomerName(razonSocial || 'Razón social no encontrada');
+        setCustomerAddress(direccion || '');
       } else {
         const err = await res.json();
         setCustomerName(`Error: ${err.error || 'RUC no encontrado'}`);
