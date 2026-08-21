@@ -165,7 +165,7 @@ export default function Caja() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
         },
         body: JSON.stringify({
           documentType: type,
@@ -189,7 +189,7 @@ export default function Caja() {
     setIsSearchingDni(true);
     try {
       const localRes = await fetch(`/api/customers/${customerDni}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
       });
       if (localRes.ok) {
         const localData = await localRes.json();
@@ -222,7 +222,7 @@ export default function Caja() {
           // Auto-guardado silencioso para futuras búsquedas
           fetch('/api/customers', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` },
             body: JSON.stringify({ documentType: 'DNI', documentNumber: customerDni, name: fullName, address: '' })
           }).catch(e => console.log('Silent auto-save failed', e));
         } else {
@@ -243,7 +243,7 @@ export default function Caja() {
     setIsSearchingRuc(true);
     try {
       const localRes = await fetch(`/api/customers/${customerRuc}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
       });
       if (localRes.ok) {
         const localData = await localRes.json();
@@ -270,7 +270,7 @@ export default function Caja() {
         if (razonSocial) {
           fetch('/api/customers', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` },
             body: JSON.stringify({ documentType: 'RUC', documentNumber: customerRuc, name: razonSocial, address: direccion })
           }).catch(e => console.log('Silent auto-save failed', e));
         }
