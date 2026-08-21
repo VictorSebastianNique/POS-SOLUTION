@@ -47,6 +47,7 @@ export default function Caja() {
   const [customerRuc, setCustomerRuc] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
+  const [customerSource, setCustomerSource] = useState(null); // 'local' | 'api' | null
   const [internalReason, setInternalReason] = useState('');
 
   const [isCapturing, setIsCapturing] = useState(false);
@@ -194,6 +195,7 @@ export default function Caja() {
       if (localRes.ok) {
         const localData = await localRes.json();
         setCustomerName(localData.name);
+        setCustomerSource('local');
         setIsSearchingDni(false);
         return;
       }
@@ -219,6 +221,7 @@ export default function Caja() {
 
         if (fullName) {
           setCustomerName(fullName);
+          setCustomerSource('api');
           // Auto-guardado silencioso para futuras búsquedas
           fetch('/api/customers', {
             method: 'POST',
@@ -249,6 +252,7 @@ export default function Caja() {
         const localData = await localRes.json();
         setCustomerName(localData.name);
         setCustomerAddress(localData.address || '');
+        setCustomerSource('local');
         setIsSearchingRuc(false);
         return;
       }
@@ -265,6 +269,7 @@ export default function Caja() {
         const direccion = data.direccion || data.direccion_completa || '';
         setCustomerName(razonSocial || 'Razón social no encontrada');
         setCustomerAddress(direccion || '');
+        if (razonSocial) setCustomerSource('api');
 
         // Auto-guardado silencioso para futuras búsquedas
         if (razonSocial) {
@@ -731,6 +736,7 @@ export default function Caja() {
     setCustomerRuc('');
     setCustomerName('');
     setCustomerAddress('');
+    setCustomerSource(null);
     setInternalReason('');
     setPayments([]);
     setCurrentPaymentMethod('efectivo');
@@ -1246,7 +1252,14 @@ export default function Caja() {
                     <div style={{ display: 'grid', gap: '0.5rem' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                         <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 2 : 1 }}>
-                          <label style={labelStyle}>Nombres y Apellidos</label>
+                          <label style={{...labelStyle, display: 'flex', justifyContent: 'space-between'}}>
+                            Nombres y Apellidos
+                            {customerSource && (
+                              <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', backgroundColor: customerSource === 'local' ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)', color: customerSource === 'local' ? '#22c55e' : '#3b82f6', fontWeight: 600 }}>
+                                {customerSource === 'local' ? '✓ Base Local' : '⚡ RENIEC'}
+                              </span>
+                            )}
+                          </label>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <input style={{ ...inputStyle, flex: 1 }} placeholder="Nombre completo" value={customerName} onChange={e => setCustomerName(e.target.value)} />
                             <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={() => handleSaveCustomer('DNI')} title="Guardar Cliente">
@@ -1269,7 +1282,14 @@ export default function Caja() {
                     <div style={{ display: 'grid', gap: '0.5rem' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                         <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 2 : 1 }}>
-                          <label style={labelStyle}>Razón Social <span style={{ color: 'var(--danger-color)' }}>*</span></label>
+                          <label style={{...labelStyle, display: 'flex', justifyContent: 'space-between'}}>
+                            <span>Razón Social <span style={{ color: 'var(--danger-color)' }}>*</span></span>
+                            {customerSource && (
+                              <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', backgroundColor: customerSource === 'local' ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)', color: customerSource === 'local' ? '#22c55e' : '#3b82f6', fontWeight: 600 }}>
+                                {customerSource === 'local' ? '✓ Base Local' : '⚡ SUNAT'}
+                              </span>
+                            )}
+                          </label>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <input style={{ ...inputStyle, flex: 1 }} placeholder="EMPRESA S.A.C." value={customerName} onChange={e => setCustomerName(e.target.value)} />
                             <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={() => handleSaveCustomer('RUC')} title="Guardar Cliente">
