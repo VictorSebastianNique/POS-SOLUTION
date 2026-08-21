@@ -838,6 +838,15 @@ export default function Caja() {
 
   const handlePay = () => {
     if (!selectedTable || !canPay) return;
+    
+    // SUNAT VALIDATION: Boletas >= 700 require DNI and Name
+    if (documentType === 'boleta' && totalPagar >= 700) {
+      if (!customerDni || !customerName) {
+        showAlert('Por normativa de SUNAT, las boletas a partir de S/ 700 requieren el DNI y Nombre del cliente.', 'warning');
+        return;
+      }
+    }
+
     const zone = zones.find(z => selectedTable.key.startsWith(`${z.id}-`));
     const zoneId = zone ? zone.id : '';
     const tableNum = zone ? selectedTable.key.replace(`${zone.id}-`, '') : selectedTable.key;
