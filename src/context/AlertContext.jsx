@@ -69,7 +69,7 @@ export const AlertProvider = ({ children }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 99999, 
+            zIndex: 9999999, 
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             backgroundColor: 'transparent'
