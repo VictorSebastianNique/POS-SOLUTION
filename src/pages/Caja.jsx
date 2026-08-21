@@ -209,15 +209,18 @@ export default function Caja() {
         const apePat = data.apellidoPaterno || data.apellido_paterno || '';
         const apeMat = data.apellidoMaterno || data.apellido_materno || '';
         const fullName = `${nombres} ${apePat} ${apeMat}`.trim();
-        setCustomerName(fullName || 'Nombre no encontrado');
-
-        // Auto-guardado silencioso para futuras búsquedas
+        
         if (fullName) {
+          setCustomerName(fullName);
+          // Auto-guardado silencioso para futuras búsquedas
           fetch('/api/customers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
             body: JSON.stringify({ documentType: 'DNI', documentNumber: customerDni, name: fullName, address: '' })
           }).catch(e => console.log('Silent auto-save failed', e));
+        } else {
+          // Mostrar raw JSON para debug
+          setCustomerName(`DBG: ${JSON.stringify(payload).substring(0, 100)}`);
         }
       } else {
         const err = await res.json();
