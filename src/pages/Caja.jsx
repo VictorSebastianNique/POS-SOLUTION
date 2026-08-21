@@ -157,10 +157,47 @@ export default function Caja() {
     fetchExchangeRate();
   }, [developerSettings?.peruApiToken]);
 
+  const handleSaveCustomer = async (type) => {
+    const docNum = type === 'DNI' ? customerDni : customerRuc;
+    if (!docNum || !customerName.trim()) return;
+    try {
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          documentType: type,
+          documentNumber: docNum,
+          name: customerName,
+          address: customerAddress
+        })
+      });
+      if (res.ok) {
+        showAlert('Cliente guardado en base de datos local');
+      } else {
+        showAlert('Error al guardar cliente');
+      }
+    } catch (err) {
+      showAlert('Error de conexión al guardar cliente');
+    }
+  };
+
   const handleSearchDni = async () => {
     if (!customerDni || customerDni.length !== 8) return;
     setIsSearchingDni(true);
     try {
+      const localRes = await fetch(`/api/customers/${customerDni}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (localRes.ok) {
+        const localData = await localRes.json();
+        setCustomerName(localData.name);
+        setIsSearchingDni(false);
+        return;
+      }
+
       const token = developerSettings?.peruApiToken || '';
       const res = await fetch(`/api/peru/dni/${customerDni}`, {
         headers: token ? { 'x-api-token': token } : {}
@@ -187,6 +224,17 @@ export default function Caja() {
     if (!customerRuc || customerRuc.length !== 11) return;
     setIsSearchingRuc(true);
     try {
+      const localRes = await fetch(`/api/customers/${customerRuc}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (localRes.ok) {
+        const localData = await localRes.json();
+        setCustomerName(localData.name);
+        setCustomerAddress(localData.address || '');
+        setIsSearchingRuc(false);
+        return;
+      }
+
       const token = developerSettings?.peruApiToken || '';
       // Se le puede pasar ?full=true para información extendida si se desea
       const res = await fetch(`/api/peru/ruc/${customerRuc}?full=true`, {
@@ -1172,7 +1220,12 @@ export default function Caja() {
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                         <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 2 : 1 }}>
                           <label style={labelStyle}>Nombres y Apellidos</label>
-                          <input style={inputStyle} placeholder="Nombre completo" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input style={{ ...inputStyle, flex: 1 }} placeholder="Nombre completo" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                            <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={() => handleSaveCustomer('DNI')} title="Guardar Cliente">
+                              <Save size={16} />
+                            </button>
+                          </div>
                         </div>
                         <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 1 : 2 }}>
                           <label style={labelStyle}>DNI (opcional)</label>
@@ -1190,7 +1243,12 @@ export default function Caja() {
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                         <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 2 : 1 }}>
                           <label style={labelStyle}>Razón Social <span style={{ color: 'var(--danger-color)' }}>*</span></label>
-                          <input style={inputStyle} placeholder="EMPRESA S.A.C." value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input style={{ ...inputStyle, flex: 1 }} placeholder="EMPRESA S.A.C." value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                            <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={() => handleSaveCustomer('RUC')} title="Guardar Cliente">
+                              <Save size={16} />
+                            </button>
+                          </div>
                         </div>
                         <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 1 : 2 }}>
                           <label style={labelStyle}>Nº RUC <span style={{ color: 'var(--danger-color)' }}>*</span></label>
