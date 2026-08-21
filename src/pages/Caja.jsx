@@ -210,6 +210,15 @@ export default function Caja() {
         const apeMat = data.apellidoMaterno || data.apellido_materno || '';
         const fullName = `${nombres} ${apePat} ${apeMat}`.trim();
         setCustomerName(fullName || 'Nombre no encontrado');
+
+        // Auto-guardado silencioso para futuras búsquedas
+        if (fullName) {
+          fetch('/api/customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: JSON.stringify({ documentType: 'DNI', documentNumber: customerDni, name: fullName, address: '' })
+          }).catch(e => console.log('Silent auto-save failed', e));
+        }
       } else {
         const err = await res.json();
         setCustomerName(`Error: ${err.error || 'DNI no encontrado'}`);
@@ -247,6 +256,15 @@ export default function Caja() {
         const direccion = data.direccion || data.direccion_completa || '';
         setCustomerName(razonSocial || 'Razón social no encontrada');
         setCustomerAddress(direccion || '');
+
+        // Auto-guardado silencioso para futuras búsquedas
+        if (razonSocial) {
+          fetch('/api/customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: JSON.stringify({ documentType: 'RUC', documentNumber: customerRuc, name: razonSocial, address: direccion })
+          }).catch(e => console.log('Silent auto-save failed', e));
+        }
       } else {
         const err = await res.json();
         setCustomerName(`Error: ${err.error || 'RUC no encontrado'}`);
