@@ -205,11 +205,18 @@ export default function Caja() {
       if (res.ok) {
         const payload = await res.json();
         const data = payload.data || payload;
-        const nombres = data.nombres || data.nombre || data.nombres_completos || '';
-        const apePat = data.apellidoPaterno || data.apellido_paterno || '';
-        const apeMat = data.apellidoMaterno || data.apellido_materno || '';
-        const fullName = `${nombres} ${apePat} ${apeMat}`.trim();
         
+        // Decolecta new field names
+        const nombres = data.nombres || data.nombre || data.first_name || '';
+        const apePat = data.apellidoPaterno || data.apellido_paterno || data.first_last_name || '';
+        const apeMat = data.apellidoMaterno || data.apellido_materno || data.second_last_name || '';
+        
+        // Fallback a full_name si existe
+        let fullName = `${nombres} ${apePat} ${apeMat}`.trim();
+        if (!fullName && data.full_name) {
+          fullName = data.full_name;
+        }
+
         if (fullName) {
           setCustomerName(fullName);
           // Auto-guardado silencioso para futuras búsquedas
@@ -219,8 +226,7 @@ export default function Caja() {
             body: JSON.stringify({ documentType: 'DNI', documentNumber: customerDni, name: fullName, address: '' })
           }).catch(e => console.log('Silent auto-save failed', e));
         } else {
-          // Mostrar raw JSON para debug
-          setCustomerName(`DBG: ${JSON.stringify(payload).substring(0, 100)}`);
+          setCustomerName('Nombre no encontrado');
         }
       } else {
         const err = await res.json();
