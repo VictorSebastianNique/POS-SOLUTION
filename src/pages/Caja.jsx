@@ -1168,15 +1168,22 @@ export default function Caja() {
                       <input style={{ ...inputStyle, fontSize: '0.9rem' }} placeholder="Ej. Invitación a mesa 1, Caída de plato..." value={internalReason} onChange={e => setInternalReason(e.target.value)} required />
                     </div>
                   ) : documentType === 'boleta' ? (
-                    <div>
-                      <label style={labelStyle}>DNI (opcional)</label>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input style={{ ...inputStyle, flex: 1 }} placeholder="00000000" maxLength={8} value={customerDni} onChange={e => setCustomerDni(e.target.value.replace(/\D/g, ''))} onKeyDown={e => e.key === 'Enter' && handleSearchDni()} />
-                        <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={handleSearchDni} disabled={isSearchingDni}>
-                          {isSearchingDni ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                        </button>
+                    <div style={{ display: 'grid', gap: '0.5rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: '0.5rem', alignItems: 'end' }}>
+                        <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 2 : 1 }}>
+                          <label style={labelStyle}>Nombres y Apellidos</label>
+                          <input style={inputStyle} placeholder="Nombre completo" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                        </div>
+                        <div style={{ width: '100%', minWidth: isMobile ? undefined : '160px', order: isMobile ? 1 : 2 }}>
+                          <label style={labelStyle}>DNI (opcional)</label>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input style={{ ...inputStyle, flex: 1 }} placeholder="00000000" maxLength={8} value={customerDni} onChange={e => setCustomerDni(e.target.value.replace(/\D/g, ''))} onKeyDown={e => e.key === 'Enter' && handleSearchDni()} />
+                            <button className="btn btn-outline" style={{ padding: '0.4rem 0.6rem' }} onClick={handleSearchDni} disabled={isSearchingDni}>
+                              {isSearchingDni ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      {customerName && <p style={{ fontSize: '0.8rem', marginTop: '0.4rem', color: 'var(--text-secondary)' }}><strong>Nombre:</strong> {customerName}</p>}
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gap: '0.5rem' }}>
