@@ -5,7 +5,7 @@ export default function PrintOptionModal({ onClose, onPrintLocal, onPrintRemote,
   return (
     <div style={{
       position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)',
-      backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex',
+      backdropFilter: 'blur(8px)', zIndex: 9999999, display: 'flex',
       alignItems: 'center', justifyContent: 'center', padding: '1rem'
     }}>
       <div className="card animate-fade-in" style={{
