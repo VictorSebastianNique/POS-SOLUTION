@@ -41,7 +41,11 @@ export const StoreProvider = ({ children }) => {
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('jwtToken');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+    const devPass = localStorage.getItem('devPassword');
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (devPass) headers['x-dev-password'] = devPass;
+    return headers;
   };
 
   React.useEffect(() => {

@@ -73,8 +73,19 @@ export default function DeveloperConfig() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (password === 'devmaster2026') {
+      localStorage.setItem('devPassword', password);
       setIsAuthenticated(true);
       setError('');
+      
+      // Intentar recargar la configuracion global ahora que tenemos el pase de desarrollador
+      fetch('/api/store/global', { headers: { 'x-dev-password': password } })
+        .then(res => res.json())
+        .then(data => {
+          if (data.developerSettings) {
+            setDeveloperSettings(prev => ({ ...prev, ...data.developerSettings }));
+          }
+        }).catch(err => console.log('Error silente obteniendo config', err));
+        
     } else {
       setError('Clave maestra incorrecta');
     }
@@ -234,7 +245,7 @@ export default function DeveloperConfig() {
           <h1 className="title flex items-center gap-3" style={{ color: '#00ffcc', fontSize: '1.75rem' }}>
             <Server size={28} /> System Config [DEV]
           </h1>
-          <button className="btn btn-outline" style={{ borderColor: '#333', color: '#888' }} onClick={() => navigate('/')}>
+          <button className="btn btn-outline" style={{ borderColor: '#333', color: '#888' }} onClick={() => { localStorage.removeItem('devPassword'); navigate('/'); }}>
             Salir
           </button>
         </div>
