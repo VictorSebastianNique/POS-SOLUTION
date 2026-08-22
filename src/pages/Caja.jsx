@@ -427,11 +427,18 @@ export default function Caja() {
         showAlert("Selecciona al menos un producto para la pre-cuenta.");
         return;
       }
+      const currentLocId = localStorage.getItem('currentLocationId');
+      const currentLocation = locations?.find(l => l.id === currentLocId) || {};
+      
       const doc = {
         documentType: 'precuenta',
         tableNumber: selectedTable.table,
+        waiterName: selectedTable.cart?.[0]?.waiter || 'Caja',
         totalPagar: itemsToPrint.reduce((acc, c) => acc + (c.item.price * (selectedQuantities[c.id] || c.quantity)), 0),
-        cartDetails: itemsToPrint.map(c => ({ item: c.item, quantity: (selectedQuantities[c.id] || c.quantity), price: c.item.price }))
+        items: itemsToPrint.map(c => ({ item: c.item, quantity: (selectedQuantities[c.id] || c.quantity), price: c.item.price })),
+        brandName: currentLocation.brandName || currentLocation.name,
+        locationAddress: currentLocation.address,
+        locationPhone: currentLocation.phone
       };
       setLocalPrintDoc(doc);
       setTimeout(() => { window.print(); setLocalPrintDoc(null); }, 300);
