@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { useAlert } from '../context/AlertContext';
 import { Package, ScanBarcode, Barcode, Plus, Save, Printer, ArrowLeft, RefreshCw, Camera, ArrowDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import CustomSelect from '../components/CustomSelect';
 import { QRCodeSVG } from 'qrcode.react';
@@ -26,7 +26,6 @@ export default function Inventario() {
   const [showScanner, setShowScanner] = useState(false);
   const [scannerTarget, setScannerTarget] = useState(null);
   const [printData, setPrintData] = useState(null);
-
   const [showConsumeModal, setShowConsumeModal] = useState(false);
   const [consumeForm, setConsumeForm] = useState({ product_barcode: '', quantity: 1, reason: 'MERMA / DESPERDICIO' });
 
@@ -96,6 +95,11 @@ export default function Inventario() {
     }
   };
 
+  const generateInternalBarcode = () => {
+    const code = `INT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    setCatalogForm(prev => ({ ...prev, barcode: code }));
+  };
+
   const handleConsume = async (e) => {
     e.preventDefault();
     try {
@@ -117,13 +121,8 @@ export default function Inventario() {
         showAlert('Error al registrar salida', 'error');
       }
     } catch (e) {
-      showAlert('Error de conexiÃ³n', 'error');
+      showAlert('Error de conexión', 'error');
     }
-  };
-
-  const generateInternalBarcode = () => {
-    const code = `INT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    setCatalogForm(prev => ({ ...prev, barcode: code }));
   };
 
   const handlePrintBarcode = (item) => {
@@ -156,28 +155,25 @@ export default function Inventario() {
     return Object.values(map);
   }, [catalog, batches]);
 
+  const handleScan = (decodedText) => {
+    if (scannerTarget === 'catalog') {
+      setCatalogForm({ ...catalogForm, barcode: decodedText });
+    } else if (scannerTarget === 'batch') {
+      setBatchForm({ ...batchForm, product_barcode: decodedText });
+    } else if (scannerTarget === 'consume') {
+      setConsumeForm({ ...consumeForm, product_barcode: decodedText });
+    }
+    setShowScanner(false);
+    setScannerTarget(null);
+  };
+
   return (
     <div className="layout print:bg-white" style={{ background: 'var(--bg-gradient)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {showScanner && (
-        <BarcodeScannerModal 
-          onClose={() => setShowScanner(false)} 
-          onScan={(code) => {
-            if (scannerTarget === 'catalog') {
-              setCatalogForm(prev => ({ ...prev, barcode: code }));
-            } else if (scannerTarget === 'batch') {
-              setBatchForm(prev => ({ ...prev, product_barcode: code }));
-            } else if (scannerTarget === 'consume') {
-              setConsumeForm(prev => ({ ...prev, product_barcode: code }));
-            }
-            setShowScanner(false);
-          }} 
-        />
-      )}
       <div className="print:hidden">
         <PageHeader 
           icon={<Package />}
-          title="AlmacÃ©n e Inventario"
-          subtitle="GestiÃ³n de Lotes y Descuento FEFO"
+          title="Almacén e Inventario"
+          subtitle="Gestión de Lotes y Descuento FEFO"
           actions={
             <>
               <button className="btn btn-outline flex items-center gap-2" onClick={fetchInventory} disabled={loading}>
@@ -211,7 +207,7 @@ export default function Inventario() {
             className={`px-4 py-2 font-semibold ${activeTab === 'catalog' ? 'border-b-2 border-[var(--primary-color)] text-[var(--primary-color)]' : 'text-[var(--text-secondary)]'}`}
             onClick={() => setActiveTab('catalog')}
           >
-            CatÃ¡logo Maestro
+            Catálogo Maestro
           </button>
         </div>
 
@@ -222,10 +218,10 @@ export default function Inventario() {
               <thead>
                 <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-color)' }}>
                   <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Producto</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">CategorÃ­a</th>
+                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Categoría</th>
                   <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Stock Actual</th>
                   <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Lotes Activos</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">PrÃ³x. Vencimiento</th>
+                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Próx. Vencimiento</th>
                   <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Estado</th>
                 </tr>
               </thead>
@@ -252,7 +248,7 @@ export default function Inventario() {
                         {isLow ? (
                           <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">ALERTA</span>
                         ) : (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">Ã“PTIMO</span>
+                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">ÓPTIMO</span>
                         )}
                       </td>
                     </tr>
@@ -338,9 +334,9 @@ export default function Inventario() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-color)' }}>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">CÃ³digo de Barras</th>
+                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Código de Barras</th>
                     <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Nombre</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">CategorÃ­a</th>
+                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Categoría</th>
                     <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">U. Medida</th>
                     <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Acciones</th>
                   </tr>
@@ -360,7 +356,7 @@ export default function Inventario() {
                     </tr>
                   ))}
                   {catalog.length === 0 && (
-                    <tr><td colSpan="5" className="p-6 text-center text-[var(--text-secondary)]">El catÃ¡logo estÃ¡ vacÃ­o.</td></tr>
+                    <tr><td colSpan="5" className="p-6 text-center text-[var(--text-secondary)]">El catálogo está vacío.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -378,15 +374,20 @@ export default function Inventario() {
               <h2 className="text-xl font-bold mb-4">Registrar Producto</h2>
               <form onSubmit={handleSaveCatalog} className="space-y-4">
                 <div>
-                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">CÃ³digo de Barras</label>
+                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">Código de Barras</label>
                   <div className="flex gap-2">
-                    <input type="text" className="input flex-1" value={catalogForm.barcode} onChange={e => setCatalogForm({...catalogForm, barcode: e.target.value})} required placeholder="Escanea o escribe el cÃ³digo" />
-                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('catalog'); setShowScanner(true); }} title="Escanear con cÃ¡mara">
+                    <input type="text" className="input flex-1" value={catalogForm.barcode} onChange={e => setCatalogForm({...catalogForm, barcode: e.target.value})} required placeholder="Escanea o escribe el código" />
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('catalog'); setShowScanner(true); }} title="Escanear con cámara">
                       <Camera size={18} />
                     </button>
-                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={generateInternalBarcode} title="Generar cÃ³digo interno para insumos sin cÃ³digo">
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={generateInternalBarcode} title="Generar código interno para insumos sin código">
                       <Barcode size={18} /> Generar
                     </button>
+                    {catalogForm.barcode && (
+                      <button type="button" className="btn btn-primary flex items-center gap-1" onClick={() => handlePrintBarcode(catalogForm)} title="Imprimir etiqueta">
+                        <Printer size={18} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -395,7 +396,7 @@ export default function Inventario() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm mb-1 text-[var(--text-secondary)]">CategorÃ­a</label>
+                    <label className="block text-sm mb-1 text-[var(--text-secondary)]">Categoría</label>
                     <input type="text" list="category-list" className="input w-full" value={catalogForm.category} onChange={e => setCatalogForm({...catalogForm, category: e.target.value})} required placeholder="Ej. Bebidas" />
                     <datalist id="category-list">
                       {Array.from(new Set(catalog.map(c => c.category))).filter(Boolean).map(cat => <option key={cat} value={cat} />)}
@@ -410,7 +411,7 @@ export default function Inventario() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">Alerta de Stock MÃ­nimo</label>
+                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">Alerta de Stock Mínimo</label>
                   <input type="number" className="input w-full" value={catalogForm.min_stock_alert} onChange={e => setCatalogForm({...catalogForm, min_stock_alert: parseInt(e.target.value)})} required min="0" />
                 </div>
                 
@@ -438,14 +439,14 @@ export default function Inventario() {
                         options={catalog.map(c => ({ value: c.barcode, label: c.name }))}
                       />
                     </div>
-                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('batch'); setShowScanner(true); }} title="Escanear con cÃ¡mara">
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('batch'); setShowScanner(true); }} title="Escanear con cámara">
                       <Camera size={18} />
                     </button>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">CÃ³digo de Lote (Opcional)</label>
-                  <input type="text" className="input w-full" value={batchForm.batch_number} onChange={e => setBatchForm({...batchForm, batch_number: e.target.value})} placeholder="Se generarÃ¡ uno automÃ¡tico si se deja en blanco" />
+                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">Código de Lote (Opcional)</label>
+                  <input type="text" className="input w-full" value={batchForm.batch_number} onChange={e => setBatchForm({...batchForm, batch_number: e.target.value})} placeholder="Se generará uno automático si se deja en blanco" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -471,7 +472,7 @@ export default function Inventario() {
           <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
             <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center', backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--border-radius)', position: 'relative' }}>
               <h2 className="text-xl font-bold mb-2">Imprimir Etiqueta Interna</h2>
-              <p className="text-sm text-[var(--text-secondary)] mb-6">Genera un cÃ³digo QR para que tu personal pueda escanear este producto durante la operaciÃ³n.</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-6">Genera un código QR para que tu personal pueda escanear este producto durante la operación.</p>
               
               <div className="bg-white p-6 rounded-xl inline-block border shadow-sm mb-6 print-section-only" id="printable-label">
                 <div className="font-bold text-black text-lg mb-2">{printData.name}</div>
@@ -510,7 +511,58 @@ export default function Inventario() {
         }
       `}</style>
 
+      {showConsumeModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--border-radius)' }}>
+            <h2 className="text-xl font-bold mb-6">Registrar Salida / Merma</h2>
+            <form onSubmit={handleConsume} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm mb-1 text-[var(--text-secondary)]">Producto</label>
+                <div className="flex gap-2">
+                  <select className="input flex-1" value={consumeForm.product_barcode} onChange={e => setConsumeForm({...consumeForm, product_barcode: e.target.value})} required>
+                    <option value="">Seleccione un producto...</option>
+                    {catalog.map(c => <option key={c.barcode} value={c.barcode}>{c.name} ({c.barcode})</option>)}
+                  </select>
+                  <button type="button" className="btn btn-outline p-0 w-12 flex items-center justify-center" onClick={() => { setScannerTarget('consume'); setShowScanner(true); }}>
+                    <ScanBarcode size={18} />
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm mb-1 text-[var(--text-secondary)]">Cantidad a retirar</label>
+                <input type="number" step="0.01" min="0.01" className="input w-full" value={consumeForm.quantity} onChange={e => setConsumeForm({...consumeForm, quantity: e.target.value})} required />
+              </div>
+              <div>
+                <label className="block text-sm mb-1 text-[var(--text-secondary)]">Motivo (Referencia)</label>
+                <input type="text" list="reason-list" className="input w-full" value={consumeForm.reason} onChange={e => setConsumeForm({...consumeForm, reason: e.target.value})} required />
+                <datalist id="reason-list">
+                  <option value="MERMA / DESPERDICIO" />
+                  <option value="TRASPASO A BARRA" />
+                  <option value="TRASPASO A COCINA" />
+                  <option value="VENCIMIENTO" />
+                  <option value="USO INTERNO" />
+                </datalist>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button type="button" className="btn btn-outline" onClick={() => setShowConsumeModal(false)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary flex items-center gap-2">
+                  <Save size={18} /> Registrar Salida
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showScanner && (
+        <BarcodeScannerModal 
+          onScan={handleScan} 
+          onClose={() => {
+            setShowScanner(false);
+            setScannerTarget(null);
+          }} 
+        />
+      )}
     </div>
   );
 }
-
