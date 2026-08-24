@@ -348,7 +348,7 @@ export default function Inventario() {
                       <p className="font-mono text-xs mt-1 truncate" title={item.barcode}>{item.barcode}</p>
                     </div>
                     <div className="text-right flex flex-col items-end">
-                      <button onClick={() => handlePrintBarcode(item)} className="mb-2 p-1 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] rounded text-[var(--text-secondary)] hover:text-white transition-colors" title="Imprimir Etiqueta">
+                      <button onClick={() => handlePrintBarcode(item)} className="btn btn-outline mb-2" style={{ padding: '0.4rem' }} title="Imprimir Etiqueta">
                          <Printer size={16} />
                       </button>
                       <p className="text-xs text-[var(--text-secondary)]">Medida</p>
