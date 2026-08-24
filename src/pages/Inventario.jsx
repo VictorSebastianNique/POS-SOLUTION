@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { useAlert } from '../context/AlertContext';
-import { Package, ScanBarcode, Barcode, Plus, Save, Printer, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Package, ScanBarcode, Barcode, Plus, Save, Printer, ArrowLeft, RefreshCw, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import CustomSelect from '../components/CustomSelect';
 import { QRCodeSVG } from 'qrcode.react';
+import BarcodeScannerModal from '../components/BarcodeScannerModal';
 
 export default function Inventario() {
   const { showAlert } = useAlert();
@@ -22,6 +23,8 @@ export default function Inventario() {
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerTarget, setScannerTarget] = useState(null);
   const [printData, setPrintData] = useState(null);
 
   const [catalogForm, setCatalogForm] = useState({ barcode: '', name: '', category: 'General', unit_of_measure: 'UNIDAD', min_stock_alert: 10, has_expiration: true });
@@ -124,6 +127,16 @@ export default function Inventario() {
     });
     return Object.values(map);
   }, [catalog, batches]);
+
+  const handleScan = (decodedText) => {
+    if (scannerTarget === 'catalog') {
+      setCatalogForm({ ...catalogForm, barcode: decodedText });
+    } else if (scannerTarget === 'batch') {
+      setBatchForm({ ...batchForm, product_barcode: decodedText });
+    }
+    setShowScanner(false);
+    setScannerTarget(null);
+  };
 
   return (
     <div className="layout print:bg-white" style={{ background: 'var(--bg-gradient)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -321,14 +334,17 @@ export default function Inventario() {
       {/* MODALS (Print Hidden) */}
       <div className="print:hidden">
         {showCatalogModal && (
-          <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: '500px' }}>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--border-radius)', position: 'relative' }}>
               <h2 className="text-xl font-bold mb-4">Registrar Producto</h2>
               <form onSubmit={handleSaveCatalog} className="space-y-4">
                 <div>
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">Código de Barras</label>
                   <div className="flex gap-2">
                     <input type="text" className="input flex-1" value={catalogForm.barcode} onChange={e => setCatalogForm({...catalogForm, barcode: e.target.value})} required placeholder="Escanea o escribe el código" />
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('catalog'); setShowScanner(true); }} title="Escanear con cámara">
+                      <Camera size={18} />
+                    </button>
                     <button type="button" className="btn btn-outline flex items-center gap-1" onClick={generateInternalBarcode} title="Generar código interno para insumos sin código">
                       <Barcode size={18} /> Generar
                     </button>
@@ -367,17 +383,24 @@ export default function Inventario() {
         )}
 
         {showBatchModal && (
-          <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: '500px' }}>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--border-radius)', position: 'relative' }}>
               <h2 className="text-xl font-bold mb-4">Recibir Lote</h2>
               <form onSubmit={handleSaveBatch} className="space-y-4">
                 <div>
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">Producto</label>
-                  <CustomSelect 
-                    value={batchForm.product_barcode}
-                    onChange={v => setBatchForm({...batchForm, product_barcode: v})}
-                    options={catalog.map(c => ({ value: c.barcode, label: c.name }))}
-                  />
+                  <div className="flex gap-2">
+                    <div style={{ flex: 1 }}>
+                      <CustomSelect 
+                        value={batchForm.product_barcode}
+                        onChange={v => setBatchForm({...batchForm, product_barcode: v})}
+                        options={catalog.map(c => ({ value: c.barcode, label: c.name }))}
+                      />
+                    </div>
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('batch'); setShowScanner(true); }} title="Escanear con cámara">
+                      <Camera size={18} />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">Código de Lote (Opcional)</label>
@@ -404,8 +427,8 @@ export default function Inventario() {
         )}
 
         {showPrintModal && printData && (
-          <div className="modal-overlay" style={{ zIndex: 9999999 }}>
-            <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center', backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--border-radius)', position: 'relative' }}>
               <h2 className="text-xl font-bold mb-2">Imprimir Etiqueta Interna</h2>
               <p className="text-sm text-[var(--text-secondary)] mb-6">Genera un código QR para que tu personal pueda escanear este producto durante la operación.</p>
               
@@ -445,6 +468,16 @@ export default function Inventario() {
           }
         }
       `}</style>
+
+      {showScanner && (
+        <BarcodeScannerModal 
+          onScan={handleScan} 
+          onClose={() => {
+            setShowScanner(false);
+            setScannerTarget(null);
+          }} 
+        />
+      )}
     </div>
   );
 }
