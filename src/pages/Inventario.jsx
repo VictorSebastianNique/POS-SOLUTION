@@ -487,7 +487,18 @@ export default function Inventario() {
 
       {/* STYLES FOR PRINTING SPECIFICALLY THE LABEL */}
       <style>{`
+        @page {
+          size: 80mm 80mm;
+          margin: 0;
+        }
         @media print {
+          body, html {
+            margin: 0;
+            padding: 0;
+            width: 80mm;
+            height: 80mm;
+            background: white !important;
+          }
           body * {
             visibility: hidden;
           }
@@ -498,10 +509,20 @@ export default function Inventario() {
             position: absolute;
             left: 0;
             top: 0;
+            width: 80mm;
+            height: 80mm;
             margin: 0;
-            padding: 0;
+            padding: 5mm;
+            box-sizing: border-box;
             box-shadow: none;
             border: none;
+            background: white !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: black !important;
           }
         }
       `}</style>
