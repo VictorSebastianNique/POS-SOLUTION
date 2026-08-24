@@ -194,23 +194,22 @@ export default function Inventario() {
       </div>
 
       <div className="flex-1 p-6 overflow-y-auto w-full max-w-7xl mx-auto print:hidden">
-        
-        {/* TABS */}
-        <div className="flex border-b mb-6 border-[var(--border-color)]">
+              {/* TABS */}
+        <div className="flex gap-2 mb-6 border-b pb-4 border-[var(--border-color)]">
           <button 
-            className={`px-4 py-2 font-semibold ${activeTab === 'stock' ? 'border-b-2 border-[var(--primary-color)] text-[var(--primary-color)]' : 'text-[var(--text-secondary)]'}`}
+            className={`btn ${activeTab === 'stock' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setActiveTab('stock')}
           >
             Stock Real (Consolidado)
           </button>
           <button 
-            className={`px-4 py-2 font-semibold ${activeTab === 'batches' ? 'border-b-2 border-[var(--primary-color)] text-[var(--primary-color)]' : 'text-[var(--text-secondary)]'}`}
+            className={`btn ${activeTab === 'batches' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setActiveTab('batches')}
           >
             Lotes y Vencimientos
           </button>
           <button 
-            className={`px-4 py-2 font-semibold ${activeTab === 'catalog' ? 'border-b-2 border-[var(--primary-color)] text-[var(--primary-color)]' : 'text-[var(--text-secondary)]'}`}
+            className={`btn ${activeTab === 'catalog' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setActiveTab('catalog')}
           >
             Catálogo Maestro
