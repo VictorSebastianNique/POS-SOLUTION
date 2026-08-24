@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { useAlert } from '../context/AlertContext';
-import { Package, ScanBarcode, Barcode, Plus, Save, Printer, ArrowLeft, RefreshCw, Camera } from 'lucide-react';
+import { Package, ScanBarcode, Barcode, Plus, Save, Printer, ArrowLeft, RefreshCw, Camera, ArrowDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import CustomSelect from '../components/CustomSelect';
@@ -10,7 +10,7 @@ import BarcodeScannerModal from '../components/BarcodeScannerModal';
 
 export default function Inventario() {
   const { showAlert } = useAlert();
-  const { getAuthHeaders, developerSettings } = useStore();
+  const { getAuthHeaders, developerSettings, currentUser } = useStore();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('stock'); // 'stock', 'catalog', 'batches'
@@ -27,33 +27,24 @@ export default function Inventario() {
   const [scannerTarget, setScannerTarget] = useState(null);
   const [printData, setPrintData] = useState(null);
 
+  const [showConsumeModal, setShowConsumeModal] = useState(false);
+  const [consumeForm, setConsumeForm] = useState({ product_barcode: '', quantity: 1, reason: 'MERMA / DESPERDICIO' });
+
   const [catalogForm, setCatalogForm] = useState({ barcode: '', name: '', category: 'General', unit_of_measure: 'UNIDAD', min_stock_alert: 10, has_expiration: true });
   const [batchForm, setBatchForm] = useState({ product_barcode: '', batch_number: '', initial_quantity: '', expiration_date: '' });
 
-    const fetchInventory = async () => {
+  const fetchInventory = async () => {
     setLoading(true);
     try {
       const [catRes, batRes] = await Promise.all([
         fetch('/api/inventory/catalog', { headers: getAuthHeaders() }),
         fetch('/api/inventory/batches', { headers: getAuthHeaders() })
       ]);
-      if (catRes.ok) {
-        setCatalog(await catRes.json());
-      } else {
-        const text = await catRes.text();
-        console.error('Catalog fetch error:', catRes.status, text);
-        throw new Error('Error ' + catRes.status);
-      }
-      if (batRes.ok) {
-        setBatches(await batRes.json());
-      } else {
-        const text = await batRes.text();
-        console.error('Batches fetch error:', batRes.status, text);
-        throw new Error('Error ' + batRes.status);
-      }
+      if (catRes.ok) setCatalog(await catRes.json());
+      if (batRes.ok) setBatches(await batRes.json());
     } catch (e) {
       console.error(e);
-      showAlert('Error al cargar el inventario: ' + e.message, 'error');
+      showAlert('Error al cargar el inventario', 'error');
     } finally {
       setLoading(false);
     }
@@ -63,7 +54,7 @@ export default function Inventario() {
     fetchInventory();
   }, []);
 
-    const handleSaveCatalog = async (e) => {
+  const handleSaveCatalog = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch('/api/inventory/catalog', {
@@ -75,13 +66,9 @@ export default function Inventario() {
         showAlert('Producto registrado correctamente', 'success');
         setShowCatalogModal(false);
         fetchInventory();
-      } else {
-        const text = await res.text();
-        console.error('Save product error:', res.status, text);
-        throw new Error('Error ' + res.status);
       }
     } catch (e) {
-      showAlert('Error al registrar producto: ' + e.message, 'error');
+      showAlert('Error al registrar producto', 'error');
     }
   };
 
@@ -106,6 +93,31 @@ export default function Inventario() {
       }
     } catch (e) {
       showAlert('Error al recibir lote', 'error');
+    }
+  };
+
+  const handleConsume = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/inventory/fefo-consume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          items: [{ barcode: consumeForm.product_barcode, qty: parseFloat(consumeForm.quantity) }],
+          trigger: 'MANUAL_OUT',
+          reference_id: consumeForm.reason,
+          user: currentUser?.username || 'Sistema'
+        })
+      });
+      if (res.ok) {
+        showAlert('Salida registrada correctamente', 'success');
+        setShowConsumeModal(false);
+        fetchInventory();
+      } else {
+        showAlert('Error al registrar salida', 'error');
+      }
+    } catch (e) {
+      showAlert('Error de conexiÃ³n', 'error');
     }
   };
 
@@ -144,18 +156,23 @@ export default function Inventario() {
     return Object.values(map);
   }, [catalog, batches]);
 
-  const handleScan = (decodedText) => {
-    if (scannerTarget === 'catalog') {
-      setCatalogForm({ ...catalogForm, barcode: decodedText });
-    } else if (scannerTarget === 'batch') {
-      setBatchForm({ ...batchForm, product_barcode: decodedText });
-    }
-    setShowScanner(false);
-    setScannerTarget(null);
-  };
-
   return (
     <div className="layout print:bg-white" style={{ background: 'var(--bg-gradient)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {showScanner && (
+        <BarcodeScannerModal 
+          onClose={() => setShowScanner(false)} 
+          onScan={(code) => {
+            if (scannerTarget === 'catalog') {
+              setCatalogForm(prev => ({ ...prev, barcode: code }));
+            } else if (scannerTarget === 'batch') {
+              setBatchForm(prev => ({ ...prev, product_barcode: code }));
+            } else if (scannerTarget === 'consume') {
+              setConsumeForm(prev => ({ ...prev, product_barcode: code }));
+            }
+            setShowScanner(false);
+          }} 
+        />
+      )}
       <div className="print:hidden">
         <PageHeader 
           icon={<Package />}
@@ -216,7 +233,7 @@ export default function Inventario() {
                 {stockMap.map(item => {
                   const isLow = item.total_stock <= item.min_stock_alert;
                   return (
-                    <tr key={item.barcode} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-black/5 dark:hover:bg-white/5">
+                    <tr key={item.barcode} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-white/5">
                       <td className="p-4">
                         <div className="font-medium text-[var(--text-primary)]">{item.name}</div>
                         <div className="text-xs text-[var(--text-secondary)]">{item.barcode}</div>
@@ -252,7 +269,13 @@ export default function Inventario() {
         {/* TAB CONTENT: BATCHES */}
         {activeTab === 'batches' && (
           <div>
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4 gap-2">
+              <button className="btn btn-outline flex items-center gap-2" onClick={() => {
+                setConsumeForm({ product_barcode: '', quantity: 1, reason: 'MERMA / DESPERDICIO' });
+                setShowConsumeModal(true);
+              }}>
+                <ArrowDown size={18} /> Registrar Salida
+              </button>
               <button className="btn btn-primary flex items-center gap-2" onClick={() => {
                 setBatchForm({ product_barcode: catalog.length > 0 ? catalog[0].barcode : '', batch_number: '', initial_quantity: '', expiration_date: '' });
                 setShowBatchModal(true);
@@ -275,7 +298,7 @@ export default function Inventario() {
                   {batches.sort((a, b) => new Date(a.expiration_date) - new Date(b.expiration_date)).map(b => {
                     const prod = catalog.find(c => c.barcode === b.product_barcode);
                     return (
-                      <tr key={b.batch_number} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-black/5 dark:hover:bg-white/5">
+                      <tr key={b.batch_number} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-white/5">
                         <td className="p-4 font-mono text-sm">{b.batch_number}</td>
                         <td className="p-4 font-medium">{prod ? prod.name : b.product_barcode}</td>
                         <td className="p-4 text-center font-bold">{b.current_quantity} <span className="text-xs font-normal">/ {b.initial_quantity}</span></td>
@@ -295,7 +318,10 @@ export default function Inventario() {
                     <tr><td colSpan="5" className="p-6 text-center text-[var(--text-secondary)]">No hay lotes registrados.</td></tr>
                   )}
                 </tbody>
-              </table></div></div>)}
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* TAB CONTENT: CATALOG */}
         {activeTab === 'catalog' && (
@@ -321,7 +347,7 @@ export default function Inventario() {
                 </thead>
                 <tbody>
                   {catalog.map(c => (
-                    <tr key={c.barcode} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-black/5 dark:hover:bg-white/5">
+                    <tr key={c.barcode} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-white/5">
                       <td className="p-4 font-mono text-sm">{c.barcode}</td>
                       <td className="p-4 font-medium">{c.name}</td>
                       <td className="p-4 text-sm">{c.category}</td>
@@ -337,7 +363,10 @@ export default function Inventario() {
                     <tr><td colSpan="5" className="p-6 text-center text-[var(--text-secondary)]">El catÃ¡logo estÃ¡ vacÃ­o.</td></tr>
                   )}
                 </tbody>
-              </table></div></div>)}
+              </table>
+            </div>
+          </div>
+        )}
 
       </div>
 
@@ -351,11 +380,11 @@ export default function Inventario() {
                 <div>
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">CÃ³digo de Barras</label>
                   <div className="flex gap-2">
-                    <input type="text" className="input flex-1" style={{ height: "42px" }} value={catalogForm.barcode} onChange={e => setCatalogForm({...catalogForm, barcode: e.target.value})} required placeholder="Escanea o escribe el cÃ³digo" />
-                    <button type="button" className="btn btn-outline flex items-center justify-center p-0 w-12" style={{ height: "42px", padding: 0 }} onClick={() => { setScannerTarget('catalog'); setShowScanner(true); }} title="Escanear con cÃ¡mara">
+                    <input type="text" className="input flex-1" value={catalogForm.barcode} onChange={e => setCatalogForm({...catalogForm, barcode: e.target.value})} required placeholder="Escanea o escribe el cÃ³digo" />
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('catalog'); setShowScanner(true); }} title="Escanear con cÃ¡mara">
                       <Camera size={18} />
                     </button>
-                    <button type="button" className="btn btn-outline flex items-center gap-1 px-3" style={{ height: "42px" }} onClick={generateInternalBarcode} title="Generar cÃ³digo interno para insumos sin cÃ³digo">
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={generateInternalBarcode} title="Generar cÃ³digo interno para insumos sin cÃ³digo">
                       <Barcode size={18} /> Generar
                     </button>
                   </div>
@@ -367,15 +396,18 @@ export default function Inventario() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm mb-1 text-[var(--text-secondary)]">CategorÃ­a</label>
-                    <input type="text" className="input w-full" value={catalogForm.category} onChange={e => setCatalogForm({...catalogForm, category: e.target.value})} required />
+                    <input type="text" list="category-list" className="input w-full" value={catalogForm.category} onChange={e => setCatalogForm({...catalogForm, category: e.target.value})} required placeholder="Ej. Bebidas" />
+                    <datalist id="category-list">
+                      {Array.from(new Set(catalog.map(c => c.category))).filter(Boolean).map(cat => <option key={cat} value={cat} />)}
+                    </datalist>
                   </div>
-                                  <div>
-                  <label className="block text-sm mb-1 text-[var(--text-secondary)]">Unidad de Medida</label>
-                  <input type="text" list="unit-list" className="input" style={{ height: "42px" }} value={catalogForm.unit_of_measure} onChange={e => setCatalogForm({...catalogForm, unit_of_measure: e.target.value})} required placeholder="Ej. UNIDAD, KG, LITRO..." />
-                  <datalist id="unit-list">
-                    {Array.from(new Set([...catalog.map(c => c.unit_of_measure), 'UNIDAD', 'KG', 'LITRO'])).filter(Boolean).map(u => <option key={u} value={u} />)}
-                  </datalist>
-                </div>
+                  <div>
+                    <label className="block text-sm mb-1 text-[var(--text-secondary)]">Unidad de Medida</label>
+                    <input type="text" list="unit-list" className="input w-full" value={catalogForm.unit_of_measure} onChange={e => setCatalogForm({...catalogForm, unit_of_measure: e.target.value})} required placeholder="Ej. UNIDAD, KG" />
+                    <datalist id="unit-list">
+                      {Array.from(new Set([...catalog.map(c => c.unit_of_measure), 'UNIDAD', 'KG', 'LITRO'])).filter(Boolean).map(u => <option key={u} value={u} />)}
+                    </datalist>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">Alerta de Stock MÃ­nimo</label>
@@ -406,7 +438,7 @@ export default function Inventario() {
                         options={catalog.map(c => ({ value: c.barcode, label: c.name }))}
                       />
                     </div>
-                    <button type="button" className="btn btn-outline flex items-center justify-center p-0 w-12" style={{ height: "42px", padding: 0 }} onClick={() => { setScannerTarget('batch'); setShowScanner(true); }} title="Escanear con cÃ¡mara">
+                    <button type="button" className="btn btn-outline flex items-center gap-1" onClick={() => { setScannerTarget('batch'); setShowScanner(true); }} title="Escanear con cÃ¡mara">
                       <Camera size={18} />
                     </button>
                   </div>
@@ -441,7 +473,7 @@ export default function Inventario() {
               <h2 className="text-xl font-bold mb-2">Imprimir Etiqueta Interna</h2>
               <p className="text-sm text-[var(--text-secondary)] mb-6">Genera un cÃ³digo QR para que tu personal pueda escanear este producto durante la operaciÃ³n.</p>
               
-              <div className="bg-white p-6 inline-block mb-6 print-section-only" id="printable-label" style={{ border: "2px dashed #ccc", borderRadius: "12px", minWidth: "250px" }}>
+              <div className="bg-white p-6 rounded-xl inline-block border shadow-sm mb-6 print-section-only" id="printable-label">
                 <div className="font-bold text-black text-lg mb-2">{printData.name}</div>
                 <QRCodeSVG value={printData.barcode} size={150} className="mx-auto" />
                 <div className="font-mono text-black text-sm mt-2">{printData.barcode}</div>
@@ -478,21 +510,7 @@ export default function Inventario() {
         }
       `}</style>
 
-      {showScanner && (
-        <BarcodeScannerModal 
-          onScan={handleScan} 
-          onClose={() => {
-            setShowScanner(false);
-            setScannerTarget(null);
-          }} 
-        />
-      )}
     </div>
   );
 }
-
-
-
-
-
 
