@@ -275,6 +275,66 @@ async function getAuditLogs() {
   }
 }
 
+// INVENTORY (FEFO) FUNCTIONS
+async function getInventoryData(collectionName, query = {}) {
+  if (db) {
+    return await db.collection(collectionName).find(query).toArray();
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, `db_${collectionName}.json`);
+    if (fs.existsSync(dbPath)) {
+      let data = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+      // Basic mock filtering for JSON
+      if (Object.keys(query).length > 0) {
+        data = data.filter(item => {
+          for (let key in query) {
+            if (item[key] !== query[key]) return false;
+          }
+          return true;
+        });
+      }
+      return data;
+    }
+    return [];
+  }
+}
+
+async function insertInventoryData(collectionName, document) {
+  if (db) {
+    await db.collection(collectionName).insertOne(document);
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, `db_${collectionName}.json`);
+    let localDb = [];
+    if (fs.existsSync(dbPath)) localDb = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+    localDb.push(document);
+    fs.writeFileSync(dbPath, JSON.stringify(localDb, null, 2));
+  }
+}
+
+async function updateInventoryData(collectionName, query, update) {
+  if (db) {
+    await db.collection(collectionName).updateMany(query, update);
+  } else {
+    const dbPath = path.resolve(ROOT_DIR, `db_${collectionName}.json`);
+    if (fs.existsSync(dbPath)) {
+      let localDb = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+      localDb = localDb.map(item => {
+        let match = true;
+        for (let key in query) {
+          if (item[key] !== query[key]) {
+            match = false;
+            break;
+          }
+        }
+        if (match && update.$set) {
+          return { ...item, ...update.$set };
+        }
+        return item;
+      });
+      fs.writeFileSync(dbPath, JSON.stringify(localDb, null, 2));
+    }
+  }
+}
+
 function getDb() {
   return db;
 }
@@ -290,5 +350,8 @@ module.exports = {
   writeSecureData,
   appendAuditLog,
   getAuditLogs,
+  getInventoryData,
+  insertInventoryData,
+  updateInventoryData,
   getDb
 };

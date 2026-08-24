@@ -7,6 +7,7 @@ import Bar from './pages/Bar';
 import Admin from './pages/Admin';
 import Caja from './pages/Caja';
 import Kardex from './pages/Kardex';
+import Inventario from './pages/Inventario';
 import DeveloperConfig from './pages/DeveloperConfig';
 import CustomerApp from './pages/CustomerApp';
 import Anfitriona from './pages/Anfitriona';
@@ -173,6 +174,7 @@ function App() {
         <Route path="/caja"            element={<Caja />} />
         <Route path="/anfitriona"      element={<Anfitriona />} />
         <Route path="/kardex"          element={<Kardex />} />
+        <Route path="/inventario"      element={<Inventario />} />
       </Routes>
       <GlobalClock />
       <ThemeToggle theme={theme} onToggle={toggleTheme} />

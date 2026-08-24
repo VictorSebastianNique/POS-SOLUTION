@@ -287,11 +287,42 @@ export const StoreProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(logData)
       });
-      if (res.status === 401) {
-        logout();
-      }
+      if (!res.ok) console.error('Error enviando audit log:', await res.text());
     } catch (e) {
-      console.error('Failed to log audit event', e);
+      console.error('Error de conexion al log de auditoria', e);
+    }
+  };
+
+  const consumeFEFO = async (cartDetails, reference_id, trigger) => {
+    try {
+      const itemsToConsume = cartDetails
+        .filter(c => c.item && c.item.barcode) // Only items that have a barcode linked
+        .map(c => ({
+          barcode: c.item.barcode,
+          qty: c.quantity
+        }));
+      
+      if (itemsToConsume.length === 0) return; // Nothing to consume
+
+      let user = currentUser;
+      if (!user) {
+        const stored = localStorage.getItem('currentUserData');
+        if (stored) user = JSON.parse(stored);
+      }
+
+      const res = await fetch('/api/inventory/fefo-consume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          items: itemsToConsume,
+          trigger: trigger || 'SALE',
+          reference_id: reference_id,
+          user: user ? user.username : 'Sistema'
+        })
+      });
+      if (!res.ok) console.error('Error al procesar consumo FEFO:', await res.text());
+    } catch (e) {
+      console.error('Error de red al procesar consumo FEFO', e);
     }
   };
 
@@ -516,6 +547,7 @@ if (barCart.length > 0) {
   const payTable = (tableKey, amount, cartDetails, waiter, zoneName, tableNum, billingInfo = {}) => {
     logAudit('COBRO_MESA', { table: tableKey, amount, waiter });
     const headcount = tableHeadcounts[tableKey] || 1;
+    const saleId = uuidv4();
     setBusinessDay(prev => {
       const nextKardex = { ...(prev.kardex || {}) };
       
@@ -536,7 +568,7 @@ if (barCart.length > 0) {
         totalSales: prev.totalSales + amount,
         kardex: nextKardex,
         sales: [...(prev.sales || []), {
-          id: uuidv4(), tableKey, waiter, zone: zoneName, table: tableNum, total: amount, timestamp: Date.now(),
+          id: saleId, tableKey, waiter, zone: zoneName, table: tableNum, total: amount, timestamp: Date.now(),
           headcount,
           items: cartDetails.map(c => ({ item: c.item.name, quantity: c.quantity, price: c.item.price })),
           cartItems: cartDetails,
@@ -544,6 +576,10 @@ if (barCart.length > 0) {
         }]
       };
     });
+    
+    // Background FEFO consumption
+    consumeFEFO(cartDetails, saleId, 'COBRO_MESA');
+
     // Auto-increment document number on the company
     if (billingInfo.companyId && billingInfo.documentType) {
       setCompanies(prev => prev.map(c => {
@@ -858,11 +894,12 @@ if (barCart.length > 0) {
   ));
 
   const registerOnlineSale = (order) => {
+    const saleId = uuidv4();
     setBusinessDay(prev => ({
       ...prev,
       totalSales: (prev.totalSales || 0) + order.total,
       sales: [...(prev.sales || []), {
-        id: uuidv4(),
+        id: saleId,
         tableKey: `online-${order.id}`,
         waiter: 'App Cliente',
         zone: order.type === 'delivery' ? 'Delivery' : 'Recojo',
@@ -884,6 +921,11 @@ if (barCart.length > 0) {
         paymentMethod: order.paymentData?.method || 'online'
       }]
     }));
+
+    // Background FEFO consumption
+    if (order.cart) {
+      consumeFEFO(order.cart, saleId, 'ONLINE_SALE');
+    }
   };
 
   const addIncome = (amount, category, details, paymentMethod) => {

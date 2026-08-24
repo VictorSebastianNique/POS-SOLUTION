@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { useStore } from '../context/StoreContext';
-import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp, ShieldAlert, FileText } from 'lucide-react';
+import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp, ShieldAlert, FileText, Package } from 'lucide-react';
 import Metrics from './Metrics';
 import KardexConfigTab from '../components/KardexConfigTab';
 import MenuRecipeModal from '../components/MenuRecipeModal';
@@ -513,6 +513,7 @@ export default function Admin() {
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => navigate('/cocina')}><Eye size={14}/> Cocina</button>
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => navigate('/bar')}><Eye size={14}/> Bar</button>
               <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => navigate('/caja')}><Eye size={14}/> Caja</button>
+              <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', borderColor: 'var(--success-color)', color: 'var(--success-color)' }} onClick={() => navigate('/inventario')}><Package size={14}/> Inventario</button>
             </div>
           )}
           {currentLoc && <p className="subtitle flex items-center gap-1" style={{ fontSize: '0.8rem', marginRight: '0.5rem' }}><MapPin size={14}/> {currentLoc.name}</p>}
@@ -617,6 +618,7 @@ export default function Admin() {
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/cocina')}><Eye size={14}/> Cocina</button>
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/bar')}><Eye size={14}/> Bar</button>
                 <button className="btn btn-outline" style={{ fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => navigate('/caja')}><Eye size={14}/> Caja</button>
+                <button className="btn btn-outline" style={{ fontSize: '0.8rem', borderColor: 'var(--success-color)', color: 'var(--success-color)' }} onClick={() => navigate('/inventario')}><Package size={14}/> Inventario</button>
               </div>
             </div>
           )}
