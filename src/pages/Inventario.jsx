@@ -219,53 +219,42 @@ export default function Inventario() {
 
         {/* TAB CONTENT: STOCK */}
         {activeTab === 'stock' && (
-          <div className="card p-0 overflow-x-auto" style={{ borderRadius: 'var(--border-radius-lg)', border: '1px solid var(--border-color)' }}>
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Producto</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Categoría</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Stock Actual</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Lotes Activos</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Próx. Vencimiento</th>
-                  <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stockMap.map(item => {
-                  const isLow = item.total_stock <= item.min_stock_alert;
-                  return (
-                    <tr key={item.barcode} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-white/5">
-                      <td className="p-4">
-                        <div className="font-medium text-[var(--text-primary)]">{item.name}</div>
-                        <div className="text-xs text-[var(--text-secondary)]">{item.barcode}</div>
-                      </td>
-                      <td className="p-4 text-sm">{item.category}</td>
-                      <td className="p-4 text-center">
-                        <span className={`text-lg font-bold ${isLow ? 'text-[var(--danger-color)]' : 'text-[var(--success-color)]'}`}>
-                          {item.total_stock}
-                        </span> <span className="text-xs">{item.unit_of_measure}</span>
-                      </td>
-                      <td className="p-4 text-center">{item.active_batches}</td>
-                      <td className="p-4 text-sm">
-                        {item.earliest_expiration ? new Date(item.earliest_expiration).toLocaleDateString() : '-'}
-                      </td>
-                      <td className="p-4 text-center">
-                        {isLow ? (
-                          <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">ALERTA</span>
-                        ) : (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">ÓPTIMO</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {stockMap.length === 0 && (
-                  <tr><td colSpan="6" className="p-6 text-center text-[var(--text-secondary)]">No hay inventario registrado.</td></tr>
-                )}
-              </tbody>
-            </table>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
+            {stockMap.map(item => {
+              const isLow = item.total_stock <= item.min_stock_alert;
+              return (
+                <div key={item.barcode} className="card relative p-4 flex flex-col gap-3" style={{ borderTop: isLow ? '3px solid var(--danger-color)' : '3px solid var(--success-color)' }}>
+                  {isLow && (
+                    <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-1 rounded" style={{ backgroundColor: 'var(--danger-color)', color: '#fff' }}>
+                      STOCK BAJO
+                    </span>
+                  )}
+                  <div>
+                    <h3 className="font-bold text-lg">{item.name}</h3>
+                    <p className="text-sm text-[var(--text-secondary)]">{item.category}</p>
+                  </div>
+                  
+                  <div className="flex justify-between items-end mt-auto pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div>
+                      <p className="text-xs text-[var(--text-secondary)] mb-1">Stock Actual</p>
+                      <p className="text-2xl font-bold" style={{ color: isLow ? 'var(--danger-color)' : 'var(--success-color)' }}>
+                        {item.total_stock} <span className="text-sm font-normal">{item.unit_of_measure}</span>
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-[var(--text-secondary)] mb-1">Lotes Activos</p>
+                      <p className="font-bold">{item.active_batches}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {stockMap.length === 0 && (
+              <div className="col-span-full p-8 text-center text-[var(--text-secondary)] card border-dashed">No hay inventario registrado.</div>
+            )}
           </div>
+
         )}
 
         {/* TAB CONTENT: BATCHES */}
@@ -285,43 +274,40 @@ export default function Inventario() {
                 <Plus size={18} /> Recibir Lote
               </button>
             </div>
-            <div className="card p-0 overflow-x-auto" style={{ borderRadius: 'var(--border-radius-lg)', border: '1px solid var(--border-color)' }}>
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-color)' }}>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Lote</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Producto</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Cant. Actual</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">F. Vencimiento</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {batches.sort((a, b) => new Date(a.expiration_date) - new Date(b.expiration_date)).map(b => {
-                    const prod = catalog.find(c => c.barcode === b.product_barcode);
-                    return (
-                      <tr key={b.batch_number} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-white/5">
-                        <td className="p-4 font-mono text-sm">{b.batch_number}</td>
-                        <td className="p-4 font-medium">{prod ? prod.name : b.product_barcode}</td>
-                        <td className="p-4 text-center font-bold">{b.current_quantity} <span className="text-xs font-normal">/ {b.initial_quantity}</span></td>
-                        <td className="p-4 text-sm">{new Date(b.expiration_date).toLocaleDateString()}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                            b.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                            b.status === 'DEPLETED' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {b.status}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {batches.length === 0 && (
-                    <tr><td colSpan="5" className="p-6 text-center text-[var(--text-secondary)]">No hay lotes registrados.</td></tr>
-                  )}
-                </tbody>
-              </table>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+              {batches.filter(b => b.status === 'ACTIVE').map(batch => {
+                const catInfo = catalog.find(c => c.barcode === batch.product_barcode);
+                const isNearExp = (new Date(batch.expiration_date) - new Date()) < 7 * 24 * 60 * 60 * 1000;
+                
+                return (
+                  <div key={batch._id || batch.batch_number} className="card p-4 relative flex flex-col" style={{ borderTop: isNearExp ? '3px solid var(--warning-color)' : '3px solid var(--primary-color)' }}>
+                    {isNearExp && (
+                      <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-1 rounded" style={{ backgroundColor: 'var(--warning-color)', color: '#000' }}>
+                        POR VENCER
+                      </span>
+                    )}
+                    <h3 className="font-bold text-lg mb-1 pr-16">{catInfo ? catInfo.name : batch.product_barcode}</h3>
+                    <p className="text-sm font-mono text-[var(--primary-color)] mb-3">{batch.batch_number}</p>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-sm mt-auto pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div>
+                        <p className="text-[var(--text-secondary)] text-xs">Vencimiento</p>
+                        <p className="font-bold">{new Date(batch.expiration_date).toLocaleDateString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[var(--text-secondary)] text-xs">Cant. Restante</p>
+                        <p className="font-bold text-lg">{batch.current_quantity}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {batches.filter(b => b.status === 'ACTIVE').length === 0 && (
+                <div className="col-span-full p-8 text-center text-[var(--text-secondary)] card border-dashed">No hay lotes registrados.</div>
+              )}
             </div>
+
           </div>
         )}
 
@@ -336,37 +322,36 @@ export default function Inventario() {
                 <Plus size={18} /> Nuevo Producto
               </button>
             </div>
-            <div className="card p-0 overflow-x-auto" style={{ borderRadius: 'var(--border-radius-lg)', border: '1px solid var(--border-color)' }}>
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-color)' }}>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Código de Barras</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Nombre</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Categoría</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">U. Medida</th>
-                    <th className="p-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] text-center">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {catalog.map(c => (
-                    <tr key={c.barcode} style={{ borderBottom: '1px solid var(--border-color)' }} className="hover:bg-white/5">
-                      <td className="p-4 font-mono text-sm">{c.barcode}</td>
-                      <td className="p-4 font-medium">{c.name}</td>
-                      <td className="p-4 text-sm">{c.category}</td>
-                      <td className="p-4 text-sm">{c.unit_of_measure}</td>
-                      <td className="p-4 text-center">
-                        <button className="btn btn-outline flex items-center gap-2 mx-auto text-xs py-1 px-2" onClick={() => handlePrintBarcode(c)}>
-                          <Printer size={14} /> Imprimir Etiqueta
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {catalog.length === 0 && (
-                    <tr><td colSpan="5" className="p-6 text-center text-[var(--text-secondary)]">El catálogo está vacío.</td></tr>
-                  )}
-                </tbody>
-              </table>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
+              {catalog.map(item => (
+                <div key={item.barcode} className="card p-4 flex flex-col relative" style={{ borderTop: '3px solid var(--text-secondary)' }}>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-lg leading-tight pr-8">{item.name}</h3>
+                    <button onClick={() => handlePrintBarcode(item)} className="p-2 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] rounded-lg text-[var(--text-secondary)] hover:text-white transition-colors absolute top-3 right-3" title="Imprimir Etiqueta">
+                       <Printer size={16} />
+                    </button>
+                  </div>
+                  
+                  <p className="text-sm text-[var(--primary-color)] mb-4">{item.category}</p>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-sm mt-auto pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div>
+                      <p className="text-xs text-[var(--text-secondary)]">Código</p>
+                      <p className="font-mono text-xs mt-1 truncate" title={item.barcode}>{item.barcode}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-[var(--text-secondary)]">Medida</p>
+                      <p className="font-bold mt-1">{item.unit_of_measure}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {catalog.length === 0 && (
+                <div className="col-span-full p-8 text-center text-[var(--text-secondary)] card border-dashed">El catálogo está vacío.</div>
+              )}
             </div>
+
           </div>
         )}
 
