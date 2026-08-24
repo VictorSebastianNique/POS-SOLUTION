@@ -5,6 +5,7 @@ import { useAlert } from '../context/AlertContext';
 import { Package, ScanBarcode, Barcode, Plus, Save, Printer, ArrowLeft, RefreshCw, Camera, ArrowDown } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import CustomSelect from '../components/CustomSelect';
+import CustomCreatableSelect from '../components/CustomCreatableSelect';
 import { QRCodeSVG } from 'qrcode.react';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
 
@@ -65,9 +66,14 @@ export default function Inventario() {
         showAlert('Producto registrado correctamente', 'success');
         setShowCatalogModal(false);
         fetchInventory();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        console.error('Server error:', errData);
+        showAlert(`Error: ${errData.message || res.statusText}`, 'error');
       }
     } catch (e) {
-      showAlert('Error al registrar producto', 'error');
+      console.error('Fetch exception:', e);
+      showAlert('Error al registrar producto: ' + e.message, 'error');
     }
   };
 
@@ -397,17 +403,11 @@ export default function Inventario() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm mb-1 text-[var(--text-secondary)]">Categoría</label>
-                    <input type="text" list="category-list" className="input w-full" value={catalogForm.category} onChange={e => setCatalogForm({...catalogForm, category: e.target.value})} required placeholder="Ej. Bebidas" />
-                    <datalist id="category-list">
-                      {Array.from(new Set(catalog.map(c => c.category))).filter(Boolean).map(cat => <option key={cat} value={cat} />)}
-                    </datalist>
+                    <CustomCreatableSelect value={catalogForm.category} onChange={v => setCatalogForm({...catalogForm, category: v})} options={Array.from(new Set(catalog.map(c => c.category))).filter(Boolean).map(c => ({value: c, label: c}))} />
                   </div>
                   <div>
                     <label className="block text-sm mb-1 text-[var(--text-secondary)]">Unidad de Medida</label>
-                    <input type="text" list="unit-list" className="input w-full" value={catalogForm.unit_of_measure} onChange={e => setCatalogForm({...catalogForm, unit_of_measure: e.target.value})} required placeholder="Ej. UNIDAD, KG" />
-                    <datalist id="unit-list">
-                      {Array.from(new Set([...catalog.map(c => c.unit_of_measure), 'UNIDAD', 'KG', 'LITRO'])).filter(Boolean).map(u => <option key={u} value={u} />)}
-                    </datalist>
+                    <CustomCreatableSelect value={catalogForm.unit_of_measure} onChange={v => setCatalogForm({...catalogForm, unit_of_measure: v})} options={Array.from(new Set([...catalog.map(c => c.unit_of_measure), 'UNIDAD', 'KG', 'LITRO', 'PRESA'])).filter(Boolean).map(u => ({value: u, label: u}))} />
                   </div>
                 </div>
                 <div>
@@ -534,14 +534,7 @@ export default function Inventario() {
               </div>
               <div>
                 <label className="block text-sm mb-1 text-[var(--text-secondary)]">Motivo (Referencia)</label>
-                <input type="text" list="reason-list" className="input w-full" value={consumeForm.reason} onChange={e => setConsumeForm({...consumeForm, reason: e.target.value})} required />
-                <datalist id="reason-list">
-                  <option value="MERMA / DESPERDICIO" />
-                  <option value="TRASPASO A BARRA" />
-                  <option value="TRASPASO A COCINA" />
-                  <option value="VENCIMIENTO" />
-                  <option value="USO INTERNO" />
-                </datalist>
+                <CustomCreatableSelect value={consumeForm.reason} onChange={v => setConsumeForm({...consumeForm, reason: v})} options={[{value: 'MERMA / DESPERDICIO', label: 'MERMA / DESPERDICIO'},{value: 'TRASPASO A BARRA', label: 'TRASPASO A BARRA'},{value: 'TRASPASO A COCINA', label: 'TRASPASO A COCINA'},{value: 'VENCIMIENTO', label: 'VENCIMIENTO'},{value: 'USO INTERNO', label: 'USO INTERNO'}]} />
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button type="button" className="btn btn-outline" onClick={() => setShowConsumeModal(false)}>Cancelar</button>

@@ -7,7 +7,11 @@ let mongoClient = null;
 const mongoUri = process.env.MONGODB_URI;
 
 // We need the root directory to find fallback local JSONs
-const ROOT_DIR = path.resolve(__dirname, '..');
+const ROOT_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+
+if (!fs.existsSync(ROOT_DIR)) {
+  fs.mkdirSync(ROOT_DIR, { recursive: true });
+}
 
 async function initMongo() {
   if (!mongoUri) {
