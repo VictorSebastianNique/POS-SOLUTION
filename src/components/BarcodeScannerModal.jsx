@@ -6,9 +6,14 @@ const BarcodeScannerModal = ({ onScan, onClose }) => {
   const scannerRef = useRef(null);
   
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner(
+        const scanner = new Html5QrcodeScanner(
       "reader",
-      { fps: 10, qrbox: {width: 250, height: 250}, rememberLastUsedCamera: true },
+      { 
+        fps: 10, 
+        qrbox: { width: 250, height: 250 }, 
+        rememberLastUsedCamera: true,
+        supportedScanTypes: [0] // Only camera
+      },
       /* verbose= */ false
     );
     
@@ -40,11 +45,14 @@ const BarcodeScannerModal = ({ onScan, onClose }) => {
           <X size={24} />
         </button>
         <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '1rem', textAlign: 'center' }}>Escanear Código</h2>
-        <div id="reader" style={{ width: '100%' }}></div>
+                <div style={{ borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--primary-color)' }}>
+          <div id="reader" style={{ width: '100%', border: 'none' }}></div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default BarcodeScannerModal;
+
 
