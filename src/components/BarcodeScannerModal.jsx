@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { X } from 'lucide-react';
 
@@ -39,7 +39,7 @@ const BarcodeScannerModal = ({ onScan, onClose }) => {
         >
           <X size={24} />
         </button>
-        <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '1rem', textAlign: 'center' }}>Escanear C�digo</h2>
+        <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '1rem', textAlign: 'center' }}>Escanear Código</h2>
         <div id="reader" style={{ width: '100%' }}></div>
       </div>
     </div>
@@ -47,3 +47,4 @@ const BarcodeScannerModal = ({ onScan, onClose }) => {
 };
 
 export default BarcodeScannerModal;
+
