@@ -1137,41 +1137,7 @@ export default function Caja() {
           <div style={{ width: '90vw', maxWidth: '580px', maxHeight: '95vh', overflowY: 'auto', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }}
             className="animate-fade-in"
           >
-            {paid && paidDoc ? (
-              /* ─ Success ─ */
-              <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-                <CheckCircle size={64} style={{ color: 'var(--success-color)', marginBottom: '1rem' }} />
-                <h2 className="title" style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>¡Cobrado!</h2>
-                <p className="subtitle" style={{ marginBottom: '0.5rem' }}>
-                  {paidDoc.documentType === 'boleta' ? 'Boleta' : paidDoc.documentType === 'factura' ? 'Factura' : 'Pedido'}: <strong>{paidDoc.docNumber}</strong>
-                </p>
-                {paidDoc.customerName && <p className="subtitle" style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>Cliente: {paidDoc.customerName}</p>}
-                <p style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary-color)', marginBottom: '0.5rem' }}>Total: S/{paidDoc.totalPagar.toFixed(2)}</p>
-                {paidDoc.change > 0 && (
-                  <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid var(--success-color)', borderRadius: 'var(--border-radius-sm)', padding: '0.75rem', marginTop: '0.75rem' }}>
-                    <p style={{ color: 'var(--success-color)', fontWeight: 700, fontSize: '1.1rem' }}>Vuelto: S/{paidDoc.change.toFixed(2)}</p>
-                  </div>
-                )}
-                
-                {/* ── BOTONES DE DESCARGA E IMPRESIÓN ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => showAlert('Descargando XML...')}>
-                    <FileText size={20} /> XML
-                  </button>
-                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => showAlert('Descargando PDF...')}>
-                    <FileDown size={20} /> PDF
-                  </button>
-                  <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => window.print()}>
-                    <Printer size={20} /> Imprimir
-                  </button>
-                </div>
-
-                <button className="btn w-full justify-center" onClick={handleClose} style={{ padding: '0.8rem', fontSize: '1rem', fontWeight: 600 }}>
-                  Cerrar
-                </button>
-              </div>
-            ) : (
-              <>
+            <>
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                   <div>
@@ -1620,7 +1586,6 @@ export default function Caja() {
                   {selectedItemIds.length === selectedTable.cart.length ? 'COBRAR TODO' : 'COBRAR SELECCIÓN'} — S/{totalPagar.toFixed(2)}
                 </button>
               </>
-            )}
           </div>
         </div>,
         document.body
@@ -1753,14 +1718,32 @@ export default function Caja() {
 
       {/* ── SUCCESS MODAL ─────────────────────────────────────────── */}
       {paid && paidDoc && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--success-color)', marginBottom: '1rem' }}>
               <CheckCircle size={32} />
             </div>
             <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>¡Cobro Exitoso!</h2>
-            <p className="subtitle mb-4">La cuenta ha sido pagada y registrada.</p>
-            
+            <p className="subtitle" style={{ marginBottom: '0.2rem' }}>La cuenta ha sido pagada y registrada.</p>
+            <p className="subtitle mb-4" style={{ fontWeight: 600, color: 'var(--primary-color)' }}>Total: S/{paidDoc.totalPagar.toFixed(2)}</p>
+
+            {paidDoc.change > 0 && (
+              <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid var(--success-color)', borderRadius: 'var(--border-radius-sm)', padding: '0.75rem', marginBottom: '1rem' }}>
+                <p style={{ color: 'var(--success-color)', fontWeight: 700, fontSize: '1.1rem' }}>Vuelto: S/{paidDoc.change.toFixed(2)}</p>
+              </div>
+            )}
+
+            {paidDoc.documentType === 'factura' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
+                <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => showAlert('Descargando XML...')}>
+                  <FileText size={20} /> XML
+                </button>
+                <button className="btn btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem', fontSize: '0.8rem', gap: '0.3rem' }} onClick={() => showAlert('Descargando PDF...')}>
+                  <FileDown size={20} /> PDF
+                </button>
+              </div>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => triggerPrintComprobante(paidDoc)}>
                 <Receipt size={20} style={{ display: 'inline', marginRight: '0.5rem' }} /> Imprimir Comprobante
@@ -1772,7 +1755,7 @@ export default function Caja() {
               <button className="btn btn-outline" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => {
                 setPaid(false);
                 setPaidDoc(null);
-                setSelectedTableKey(null);
+                if (selectedTableKey === 'direct') setSelectedTableKey(null);
               }}>
                 Continuar
               </button>
