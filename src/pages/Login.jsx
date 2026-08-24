@@ -52,7 +52,10 @@ export default function Login({ isSuperAdminRoute }) {
 
     const result = await login(username, password, locationId);
     if (result.success) {
-      const targetPath = (result.user.role === 'superadmin' || result.user.role === 'admin') ? '/admin' : (result.user.role === 'cajera' ? '/caja' : `/${result.user.role}`);
+      let targetPath = `/${result.user.role}`;
+      if (result.user.role === 'superadmin' || result.user.role === 'admin') targetPath = '/admin';
+      else if (result.user.role === 'cajera') targetPath = '/caja';
+      else if (result.user.role === 'almacen') targetPath = '/inventario';
       
       if (result.needsReload) {
         window.location.href = targetPath;

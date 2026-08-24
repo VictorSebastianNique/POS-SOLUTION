@@ -14,6 +14,17 @@ export default function Inventario() {
   const { getAuthHeaders, developerSettings, currentUser } = useStore();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/');
+      return;
+    }
+    const allowed = ['superadmin', 'admin', 'cajera', 'cocina', 'almacen'];
+    if (!allowed.includes(currentUser.role)) {
+      navigate('/');
+    }
+  }, [currentUser, navigate]);
+
   const [activeTab, setActiveTab] = useState('stock'); // 'stock', 'catalog', 'batches'
   
   const [catalog, setCatalog] = useState([]);
@@ -326,10 +337,7 @@ export default function Inventario() {
               {catalog.map(item => (
                 <div key={item.barcode} className="card p-4 flex flex-col relative" style={{ borderTop: '3px solid var(--text-secondary)' }}>
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg leading-tight pr-8">{item.name}</h3>
-                    <button onClick={() => handlePrintBarcode(item)} className="p-2 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] rounded-lg text-[var(--text-secondary)] hover:text-white transition-colors absolute top-3 right-3" title="Imprimir Etiqueta">
-                       <Printer size={16} />
-                    </button>
+                    <h3 className="font-bold text-lg leading-tight">{item.name}</h3>
                   </div>
                   
                   <p className="text-sm text-[var(--primary-color)] mb-4">{item.category}</p>
@@ -339,7 +347,10 @@ export default function Inventario() {
                       <p className="text-xs text-[var(--text-secondary)]">Código</p>
                       <p className="font-mono text-xs mt-1 truncate" title={item.barcode}>{item.barcode}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end">
+                      <button onClick={() => handlePrintBarcode(item)} className="mb-2 p-1 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] rounded text-[var(--text-secondary)] hover:text-white transition-colors" title="Imprimir Etiqueta">
+                         <Printer size={16} />
+                      </button>
                       <p className="text-xs text-[var(--text-secondary)]">Medida</p>
                       <p className="font-bold mt-1">{item.unit_of_measure}</p>
                     </div>
@@ -518,7 +529,7 @@ export default function Inventario() {
               </div>
               <div>
                 <label className="block text-sm mb-1 text-[var(--text-secondary)]">Motivo (Referencia)</label>
-                <CustomCreatableSelect value={consumeForm.reason} onChange={v => setConsumeForm({...consumeForm, reason: v})} options={[{value: 'MERMA / DESPERDICIO', label: 'MERMA / DESPERDICIO'},{value: 'TRASPASO A BARRA', label: 'TRASPASO A BARRA'},{value: 'TRASPASO A COCINA', label: 'TRASPASO A COCINA'},{value: 'VENCIMIENTO', label: 'VENCIMIENTO'},{value: 'USO INTERNO', label: 'USO INTERNO'}]} />
+                <input type="text" className="input w-full" value={consumeForm.reason} onChange={e => setConsumeForm({...consumeForm, reason: e.target.value})} required placeholder="Ej. MERMA / DESPERDICIO" />
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button type="button" className="btn btn-outline" onClick={() => setShowConsumeModal(false)}>Cancelar</button>

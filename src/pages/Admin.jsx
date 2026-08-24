@@ -807,6 +807,7 @@ export default function Admin() {
                         { value: 'anfitriona', label: 'Anfitriona' },
                         { value: 'cajera', label: 'Cajera' },
                         { value: 'cocina', label: 'Cocina' },
+                        { value: 'almacen', label: 'Almacén' },
                         { value: 'bar', label: 'Bar' },
                         { value: 'admin', label: 'Admin' },
                         ...(isSuperAdmin ? [{ value: 'superadmin', label: 'Super Admin' }] : [])
@@ -856,6 +857,7 @@ export default function Admin() {
                                   { value: 'anfitriona', label: 'Anfitriona' },
                                   { value: 'cajera', label: 'Cajera' },
                                   { value: 'cocina', label: 'Cocina' },
+                        { value: 'almacen', label: 'Almacén' },
                                   { value: 'bar', label: 'Bar' },
                                   { value: 'admin', label: 'Admin' },
                                   ...(isSuperAdmin ? [{ value: 'superadmin', label: 'Super Admin' }] : [])
@@ -926,6 +928,7 @@ export default function Admin() {
                       onChange={val => setNewCat({...newCat, station: val})}
                       options={[
                         { value: 'cocina', label: 'Cocina' },
+                        { value: 'almacen', label: 'Almacén' },
                         { value: 'bar', label: 'Bar' }
                       ]}
                     />
@@ -946,6 +949,7 @@ export default function Admin() {
                           onChange={val => setEditCat({ ...editCat, data: { ...editCat.data, station: val } })}
                           options={[
                             { value: 'cocina', label: 'Cocina' },
+                        { value: 'almacen', label: 'Almacén' },
                             { value: 'bar', label: 'Bar' }
                           ]}
                         />
