@@ -998,7 +998,7 @@ if (barCart.length > 0) {
 
   return (
     <StoreContext.Provider value={{
-      currentUser, setCurrentUser,
+      currentUser, setCurrentUser, getAuthHeaders,
       login, logout, logAudit,
       users, addUser: addItem(setUsers), updateUser: updateItem(setUsers), deleteUser: deleteItem(setUsers),
       customers, addCustomer: addItem(setCustomers), updateCustomer: updateItem(setCustomers), deleteCustomer: deleteItem(setCustomers), updateCustomerPoints,
