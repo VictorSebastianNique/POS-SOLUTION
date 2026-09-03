@@ -250,7 +250,7 @@ export default function DeveloperConfig() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md-grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           {/* Card 1: Seguridad y Enrutamiento */}
           <div className="card" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
@@ -458,7 +458,7 @@ export default function DeveloperConfig() {
               <LayoutDashboard size={18} style={{ color: '#ff44ff' }} /> Control de Módulos del Administrador (Feature Flags)
             </h2>
             <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem' }}>Desactiva los módulos que no uses. Se ocultarán para todos los roles (incluyendo SuperAdmin).</p>
-            <div className="grid grid-cols-1 md-grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {Object.entries(adminModuleLabels).map(([key, label]) => {
                 const isActive = developerSettings.adminModules?.[key] !== false; // Default true
                 return (
@@ -511,7 +511,7 @@ export default function DeveloperConfig() {
                   />
                 </div>
                 
-                <div className="grid grid-cols-1 md-grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-3 rounded" style={{ backgroundColor: '#000', border: '1px solid #222' }}>
                     <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#00ffcc' }}>Caja (Pre-cuentas)</p>
                     <input 

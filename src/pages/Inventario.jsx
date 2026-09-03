@@ -395,7 +395,7 @@ export default function Inventario() {
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">Nombre del Producto</label>
                   <input type="text" className="input w-full" value={catalogForm.name} onChange={e => setCatalogForm({...catalogForm, name: e.target.value})} required placeholder="Ej. Pepsi 500ml, Lomo de Res" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm mb-1 text-[var(--text-secondary)]">Categoría</label>
                     <CustomCreatableSelect value={catalogForm.category} onChange={v => setCatalogForm({...catalogForm, category: v})} options={Array.from(new Set(catalog.map(c => c.category))).filter(Boolean).map(c => ({value: c, label: c}))} />
@@ -443,7 +443,7 @@ export default function Inventario() {
                   <label className="block text-sm mb-1 text-[var(--text-secondary)]">Código de Lote (Opcional)</label>
                   <input type="text" className="input w-full" value={batchForm.batch_number} onChange={e => setBatchForm({...batchForm, batch_number: e.target.value})} placeholder="Se generará uno automático si se deja en blanco" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm mb-1 text-[var(--text-secondary)]">Cantidad a Recibir</label>
                     <input type="number" step="0.01" className="input w-full" value={batchForm.initial_quantity} onChange={e => setBatchForm({...batchForm, initial_quantity: e.target.value})} required min="0.01" />

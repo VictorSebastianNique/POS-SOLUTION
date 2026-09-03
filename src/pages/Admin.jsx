@@ -1690,7 +1690,7 @@ export default function Admin() {
                 <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Nombre Interno (Sede)</label>
                 <input name="name" className="input w-full" placeholder="Ej. Local Norte" required />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Marca (Para Ticket)</label>
                   <input name="brandName" className="input w-full" placeholder="Ej. MI CAFE" />
@@ -1704,7 +1704,7 @@ export default function Admin() {
                 <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Dirección de la Sede</label>
                 <input name="address" className="input w-full" placeholder="Ej. Av. Sol 123" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Hora Apertura</label>
                   <input type="time" name="openTime" className="input w-full" defaultValue="08:00" />
