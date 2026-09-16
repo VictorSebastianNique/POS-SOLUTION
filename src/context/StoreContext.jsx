@@ -977,7 +977,7 @@ if (barCart.length > 0) {
     }));
   };
 
-  const addItem = (setter) => (item) => setter(prev => [...prev, { ...item, id: uuidv4(), active: true }]);
+  const addItem = (setter) => (item) => setter(prev => [...prev, { id: uuidv4(), ...item, active: true }]);
   const updateItem = (setter) => (id, updated) => setter(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
   const deleteItem = (setter) => (id) => setter(prev => prev.filter(item => item.id !== id));
   

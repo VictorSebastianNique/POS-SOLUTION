@@ -30,6 +30,16 @@ export default function Admin() {
     locations, addLocation, updateLocation, deleteLocation, 
     developerSettings, setDeveloperSettings } = useStore();
   
+    const formatTableKey = (tKey) => {
+    if (!tKey) return 'Desconocida';
+    for (const z of zones) {
+      if (tKey.startsWith(z.id + '-')) {
+        return z.name + ' - ' + tKey.substring(z.id.length + 1);
+      }
+    }
+    return tKey;
+  };
+
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const currentLoc = locations?.find(l => l.id === localStorage.getItem('currentLocationId'));
   
@@ -720,7 +730,7 @@ export default function Admin() {
                       {businessDay.voids.map((v, i) => (
                         <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
                           <td className="py-3 text-secondary">{new Date(v.timestamp).toLocaleTimeString()}</td>
-                          <td className="py-3">{v.tableKey}</td>
+                          <td className="py-3">{formatTableKey(v.tableKey)}</td>
                           <td className="py-3" style={{ fontWeight: 500 }}>{v.quantity}x {v.item}</td>
                           <td className="py-3 text-secondary">{v.admin}</td>
                           <td className="py-3" style={{ color: 'var(--danger-color)' }}>{v.reason}</td>
