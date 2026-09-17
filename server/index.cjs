@@ -15,12 +15,29 @@ const DIST_DIR = path.resolve(__dirname, '../dist');
 
 const app = express();
 
+// Allowed origins — production domain + local development
+const allowedOrigins = [
+  'https://pos-solution-q2d5.onrender.com',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
 // Middlewares globales
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Render health checks)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS: origen no permitido'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb', strict: false }));
 
 // Rutas Públicas (Autenticación)
@@ -51,7 +68,8 @@ app.post('/api/audit/log', requireAuth, async (req, res, next) => {
   }
 });
 
-app.post('/api/anular', (req, res) => {
+// Stub de anulación — protegido (solo cajeras o admin pueden anular)
+app.post('/api/anular', requireAuth, (req, res) => {
   res.json({
     success: true,
     message: 'Simulación de anulación exitosa. (Stub)',

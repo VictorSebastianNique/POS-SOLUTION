@@ -1,11 +1,22 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const { getGlobalData, getLocalData } = require('../db.cjs');
 const { JWT_SECRET } = require('../middleware/auth.cjs');
 
 const router = express.Router();
 
-router.post('/login', async (req, res, next) => {
+// Rate limiter: máximo 10 intentos de login por IP cada 15 minutos
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Demasiados intentos fallidos. Intenta de nuevo en 15 minutos.' },
+  skipSuccessfulRequests: true, // No contar logins exitosos
+});
+
+router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { username, password, locId } = req.body;
     
@@ -67,10 +78,13 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+// Solo exponer sedes activas públicamente
 router.get('/locations', async (req, res, next) => {
   try {
     const globalData = await getGlobalData();
-    const locations = globalData.locations || [];
+    const locations = (globalData.locations || [])
+      .filter(l => l.active !== false)
+      .map(({ id, name, brandName }) => ({ id, name, brandName })); // No exponer datos internos
     res.json({ success: true, locations });
   } catch (e) {
     next(e);
@@ -78,3 +92,4 @@ router.get('/locations', async (req, res, next) => {
 });
 
 module.exports = router;
+

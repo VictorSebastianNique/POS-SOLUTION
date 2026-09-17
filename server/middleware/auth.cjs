@@ -1,13 +1,12 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'cafeteria-pos-secret-2024';
+if (!process.env.JWT_SECRET) {
+  console.warn('[SECURITY WARNING] JWT_SECRET env variable not set. Set a strong random secret in Render environment variables.');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || 'cafeteria-pos-secret-2024-fallback';
 
 const requireAuth = (req, res, next) => {
-  if (req.headers['x-dev-password'] === 'devmaster2026') {
-    req.user = { role: 'developer', name: 'Developer' };
-    return next();
-  }
-
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -25,7 +24,16 @@ const requireAuth = (req, res, next) => {
   }
 };
 
+// Middleware para verificar roles específicos
+const requireRole = (...roles) => (req, res, next) => {
+  if (!req.user || !roles.includes(req.user.role)) {
+    return res.status(403).json({ success: false, error: 'Acceso denegado: permisos insuficientes' });
+  }
+  next();
+};
+
 module.exports = {
   requireAuth,
+  requireRole,
   JWT_SECRET
 };
