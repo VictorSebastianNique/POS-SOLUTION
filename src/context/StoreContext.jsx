@@ -7,6 +7,7 @@ export const useStore = () => useContext(StoreContext);
 
 export const StoreProvider = ({ children }) => {
   const [loading, setLoading] = React.useState(true);
+  const [loadingMessage, setLoadingMessage] = React.useState('Conectando al servidor...');
   const lastSaveTime = React.useRef(0);
 
   const [currentUser, setCurrentUser] = React.useState(null);
@@ -105,7 +106,7 @@ export const StoreProvider = ({ children }) => {
         let localUsers = [];
 
         if (currentLocId) {
-          const resLocal = await fetch(`/api/store/local/${currentLocId}`, { headers: getAuthHeaders() });
+          const resLocal = await fetchWithRetry(`/api/store/local/${currentLocId}`, { headers: getAuthHeaders() });
           if (resLocal.ok) {
              const dataLocal = await resLocal.json();
              localUsers = dataLocal.users || [];
@@ -263,7 +264,7 @@ export const StoreProvider = ({ children }) => {
   React.useEffect(() => { if (!loading) saveState('tableFamilies', tableFamilies); }, [tableFamilies, loading]);
 
   if (loading) {
-    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white' }}>Cargando sistema...</div>;
+    return <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white', gap: '1rem', padding: '2rem', textAlign: 'center' }}><div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--primary-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div><p>{loadingMessage}</p></div>;
   }
   const logAudit = async (action, details = {}) => {
     try {
