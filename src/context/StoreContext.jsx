@@ -50,13 +50,31 @@ export const StoreProvider = ({ children }) => {
   };
 
   React.useEffect(() => {
+    const fetchWithRetry = async (url, options, maxRetries = 15, delayMs = 4000) => {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const res = await fetch(url, options);
+          if (res.ok || res.status === 401 || res.status === 400 || res.status === 403) return res;
+          if (res.status === 502 || res.status === 503 || res.status === 504) {
+            setLoadingMessage(`Despertando servidor (intento ${i+1}/${maxRetries})... Puede demorar hasta 50s.`);
+            await new Promise(r => setTimeout(r, delayMs));
+            continue;
+          }
+          return res;
+        } catch (e) {
+          setLoadingMessage(`Conectando... (intento ${i+1}/${maxRetries})`);
+          await new Promise(r => setTimeout(r, delayMs));
+        }
+      }
+      throw new Error("El servidor no responde");
+    };
+
     const fetchData = async () => {
       try {
-        const resGlobal = await fetch('/api/store/global', { headers: getAuthHeaders() });
+        const resGlobal = await fetchWithRetry('/api/store/global', { headers: getAuthHeaders() });
         let dataGlobal = {};
-        if (resGlobal.status === 401) {
-          // If not logged in, just fetch the public locations for the login screen
-          const resLoc = await fetch('/api/auth/locations');
+        if (resGlobal.status === 401 || resGlobal.status === 403) {
+          const resLoc = await fetchWithRetry('/api/auth/locations', {});
           if (resLoc.ok) {
             const dataLoc = await resLoc.json();
             dataGlobal = { locations: dataLoc.locations };
