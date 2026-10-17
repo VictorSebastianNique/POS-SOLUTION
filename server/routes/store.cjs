@@ -8,10 +8,6 @@ const router = express.Router();
 router.get('/global', async (req, res, next) => {
   try {
     const data = await getGlobalData();
-    // No exponer contraseñas de usuarios en respuestas globales
-    if (data.users) {
-      data.users = data.users.map(u => { const s = { ...u }; delete s.password; return s; });
-    }
     res.json(data);
   } catch (e) {
     next(e);
@@ -35,10 +31,16 @@ router.get('/local/:locId', async (req, res, next) => {
   }
 });
 
-// POST GLOBAL — solo superadmin y admin pueden modificar datos globales
-router.post('/global/:key', requireRole('superadmin', 'admin'), async (req, res, next) => {
+// POST GLOBAL — superadmin y admin pueden modificar todo; otros roles autenticados solo customers y kardexItems
+router.post('/global/:key', async (req, res, next) => {
   try {
-    await writeGlobalData(req.params.key, req.body);
+    const { role } = req.user;
+    const key = req.params.key;
+    const allowedForAllRoles = ['customers', 'kardexItems', 'currentUser'];
+    if (role !== 'superadmin' && role !== 'admin' && !allowedForAllRoles.includes(key)) {
+      return res.status(403).json({ success: false, error: 'Acceso denegado: permisos insuficientes' });
+    }
+    await writeGlobalData(key, req.body);
     res.json({ success: true });
   } catch (e) {
     next(e);

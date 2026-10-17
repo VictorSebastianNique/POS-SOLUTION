@@ -20,19 +20,22 @@ router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { username, password, locId } = req.body;
     
-    if (!username || !password || !locId) {
-      return res.status(400).json({ success: false, error: 'Faltan credenciales o sucursal' });
+    if (!username || !password) {
+      return res.status(400).json({ success: false, error: 'Faltan credenciales' });
     }
 
     const globalData = await getGlobalData();
     const globalUsers = globalData.users || [];
+    const defaultLocId = locId || (globalData.locations && globalData.locations[0] ? globalData.locations[0].id : 'San Andres');
     
     let localUsers = [];
-    try {
-      const localData = await getLocalData(locId);
-      localUsers = localData.users || [];
-    } catch (err) {
-      console.error('Error fetching local users for login:', err);
+    if (defaultLocId) {
+      try {
+        const localData = await getLocalData(defaultLocId);
+        localUsers = localData.users || [];
+      } catch (err) {
+        console.error('Error fetching local users for login:', err);
+      }
     }
     
     const allUsers = [...globalUsers, ...localUsers];
@@ -47,7 +50,7 @@ router.post('/login', loginLimiter, async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Usuario desactivado' });
     }
     
-    if (user.role !== 'superadmin' && user.locationId !== locId) {
+    if (user.role !== 'superadmin' && user.locationId !== defaultLocId) {
       return res.status(401).json({ success: false, error: 'Usuario no pertenece a esta sucursal' });
     }
     
@@ -57,7 +60,7 @@ router.post('/login', loginLimiter, async (req, res, next) => {
         id: user.id, 
         username: user.username, 
         role: user.role, 
-        locationId: locId 
+        locationId: defaultLocId 
       }, 
       JWT_SECRET, 
       { expiresIn: '24h' }

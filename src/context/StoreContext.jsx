@@ -49,116 +49,128 @@ export const StoreProvider = ({ children }) => {
     return headers;
   };
 
-  React.useEffect(() => {
-    const fetchWithRetry = async (url, options, maxRetries = 15, delayMs = 4000) => {
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          const res = await fetch(url, options);
-          if (res.ok || res.status === 401 || res.status === 400 || res.status === 403) return res;
-          if (res.status === 502 || res.status === 503 || res.status === 504) {
-            setLoadingMessage(`Despertando servidor (intento ${i+1}/${maxRetries})... Puede demorar hasta 50s.`);
-            await new Promise(r => setTimeout(r, delayMs));
-            continue;
-          }
-          return res;
-        } catch (e) {
-          setLoadingMessage(`Conectando... (intento ${i+1}/${maxRetries})`);
-          await new Promise(r => setTimeout(r, delayMs));
-        }
-      }
-      throw new Error("El servidor no responde");
-    };
+  const isHydrated = React.useRef(false);
 
-    const fetchData = async () => {
+  const fetchWithRetry = async (url, options, maxRetries = 15, delayMs = 4000) => {
+    for (let i = 0; i < maxRetries; i++) {
       try {
-        const resGlobal = await fetchWithRetry('/api/store/global', { headers: getAuthHeaders() });
-        let dataGlobal = {};
-        if (resGlobal.status === 401 || resGlobal.status === 403) {
-          const resLoc = await fetchWithRetry('/api/auth/locations', {});
-          if (resLoc.ok) {
-            const dataLoc = await resLoc.json();
-            dataGlobal = { locations: dataLoc.locations };
-          }
-        } else {
-          dataGlobal = await resGlobal.json();
+        const res = await fetch(url, options);
+        if (res.ok || res.status === 401 || res.status === 400 || res.status === 403) return res;
+        if (res.status === 502 || res.status === 503 || res.status === 504) {
+          setLoadingMessage(`Despertando servidor (intento ${i+1}/${maxRetries})... Puede demorar hasta 50s.`);
+          await new Promise(r => setTimeout(r, delayMs));
+          continue;
         }
-        
-        let loadedLocations = dataGlobal.locations || [];
-        let loadedSuperadmins = dataGlobal.users || [];
-
-        // Fallback si no hay currentLocationId
-        if (!localStorage.getItem('currentLocationId') && loadedLocations.length > 0) {
-          localStorage.setItem('currentLocationId', loadedLocations[0].id);
-        }
-
-        setLocations(loadedLocations);
-        if (dataGlobal.categories) setCategories(dataGlobal.categories);
-        if (dataGlobal.subcategories) setSubcategories(dataGlobal.subcategories);
-        
-        // Load catalogs, or migrate existing menu to catalogs
-        if (dataGlobal.catalogs && dataGlobal.catalogs.length > 0) {
-          setCatalogs(dataGlobal.catalogs);
-        } else if (dataGlobal.menu && dataGlobal.menu.length > 0) {
-          setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: dataGlobal.menu }]);
-        } else {
-          setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: [] }]);
-        }
-        if (dataGlobal.developerSettings) {
-          // Merge fetched settings with defaults to ensure new keys exist
-          const mergedAdminModules = { ...defaultDevSettings.adminModules, ...(dataGlobal.developerSettings.adminModules || {}) };
-          
-          // Migración de IPs antiguas a IDs si es necesario, o mantener printerIds
-          let mergedPrinterIds = dataGlobal.developerSettings.printerIds || {};
-          // Si existía printerIPs pero no printerIds, lo convertimos al primer local o lo ignoramos
-          if (dataGlobal.developerSettings.printerIPs && Object.keys(mergedPrinterIds).length === 0 && loadedLocations.length > 0) {
-            mergedPrinterIds[loadedLocations[0].id] = dataGlobal.developerSettings.printerIPs;
-          }
-
-          setDeveloperSettings({ ...defaultDevSettings, ...dataGlobal.developerSettings, adminModules: mergedAdminModules, printerIds: mergedPrinterIds });
-        }
-        if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
-        if (dataGlobal.customers) setCustomers(dataGlobal.customers);
-        if (dataGlobal.promotions) setPromotions(dataGlobal.promotions);
-
-        const currentLocId = localStorage.getItem('currentLocationId');
-        let localUsers = [];
-
-        if (currentLocId) {
-          const resLocal = await fetchWithRetry(`/api/store/local/${currentLocId}`, { headers: getAuthHeaders() });
-          if (resLocal.ok) {
-             const dataLocal = await resLocal.json();
-             localUsers = dataLocal.users || [];
-             setZones(Array.isArray(dataLocal.zones) ? dataLocal.zones : []);
-             setOrders(Array.isArray(dataLocal.orders) ? dataLocal.orders : []);
-             setIsBarActive(dataLocal.isBarActive !== undefined ? dataLocal.isBarActive : true);
-             setBusinessDay(dataLocal.businessDay || { isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [], cajaDetails: { isOpen: false, fondoInicial: 0, efectivoDeclarado: 0, diferencia: 0, justificacion: '', status: 'closed' } });
-             setPastDays(Array.isArray(dataLocal.pastDays) ? dataLocal.pastDays : []);
-             setActiveTables(dataLocal.activeTables || {});
-             setTableHeadcounts(dataLocal.tableHeadcounts || {});
-             setCompanies(Array.isArray(dataLocal.companies) ? dataLocal.companies : []);
-             setMenuStatus(dataLocal.menuStatus || {});
-             setTableFamilies(dataLocal.tableFamilies || {});
-          } else {
-             setZones([]); setOrders([]); setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] }); setPastDays([]); setActiveTables({}); setCompanies([]); setMenuStatus({}); setTableFamilies({});
-          }
-        }
-        
-        setUsers([...loadedSuperadmins, ...localUsers]);
-        
-        // Restore currentUser from memory if it matches
-        const savedUserStr = localStorage.getItem('currentUserData');
-        if (savedUserStr) {
-          const u = JSON.parse(savedUserStr);
-          const found = [...loadedSuperadmins, ...localUsers].find(x => x.id === u.id);
-          if (found) setCurrentUser(found);
-        }
-
+        return res;
       } catch (e) {
-        console.error('Error loading data from API:', e);
-      } finally {
-        setLoading(false);
+        setLoadingMessage(`Conectando... (intento ${i+1}/${maxRetries})`);
+        await new Promise(r => setTimeout(r, delayMs));
       }
-    };
+    }
+    throw new Error("El servidor no responde");
+  };
+
+  const fetchData = async () => {
+    isHydrated.current = false;
+    try {
+      const resGlobal = await fetchWithRetry('/api/store/global', { headers: getAuthHeaders() });
+      let dataGlobal = {};
+      if (resGlobal.status === 401 || resGlobal.status === 403) {
+        if (resGlobal.status === 401) {
+          localStorage.removeItem('jwtToken');
+          localStorage.removeItem('currentUserData');
+          setCurrentUser(null);
+        }
+        const resLoc = await fetchWithRetry('/api/auth/locations', {});
+        if (resLoc.ok) {
+          const dataLoc = await resLoc.json();
+          dataGlobal = { locations: dataLoc.locations };
+        }
+      } else {
+        dataGlobal = await resGlobal.json();
+      }
+      
+      let loadedLocations = dataGlobal.locations || [];
+      let loadedSuperadmins = dataGlobal.users || [];
+
+      // Fallback si no hay currentLocationId
+      if (!localStorage.getItem('currentLocationId') && loadedLocations.length > 0) {
+        localStorage.setItem('currentLocationId', loadedLocations[0].id);
+      }
+
+      setLocations(loadedLocations);
+      if (dataGlobal.categories) setCategories(dataGlobal.categories);
+      if (dataGlobal.subcategories) setSubcategories(dataGlobal.subcategories);
+      
+      // Load catalogs, or migrate existing menu to catalogs
+      if (dataGlobal.catalogs && dataGlobal.catalogs.length > 0) {
+        setCatalogs(dataGlobal.catalogs);
+      } else if (dataGlobal.menu && dataGlobal.menu.length > 0) {
+        setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: dataGlobal.menu }]);
+      } else {
+        setCatalogs([{ id: 'default', name: 'Lista Principal', active: true, items: [] }]);
+      }
+      if (dataGlobal.developerSettings) {
+        // Merge fetched settings with defaults to ensure new keys exist
+        const mergedAdminModules = { ...defaultDevSettings.adminModules, ...(dataGlobal.developerSettings.adminModules || {}) };
+        
+        // Migración de IPs antiguas a IDs si es necesario, o mantener printerIds
+        let mergedPrinterIds = dataGlobal.developerSettings.printerIds || {};
+        // Si existía printerIPs pero no printerIds, lo convertimos al primer local o lo ignoramos
+        if (dataGlobal.developerSettings.printerIPs && Object.keys(mergedPrinterIds).length === 0 && loadedLocations.length > 0) {
+          mergedPrinterIds[loadedLocations[0].id] = dataGlobal.developerSettings.printerIPs;
+        }
+
+        setDeveloperSettings({ ...defaultDevSettings, ...dataGlobal.developerSettings, adminModules: mergedAdminModules, printerIds: mergedPrinterIds });
+      }
+      if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
+      if (dataGlobal.customers) setCustomers(dataGlobal.customers);
+      if (dataGlobal.promotions) setPromotions(dataGlobal.promotions);
+
+      const currentLocId = localStorage.getItem('currentLocationId');
+      let localUsers = [];
+
+      if (currentLocId && resGlobal.ok) {
+        const resLocal = await fetchWithRetry(`/api/store/local/${encodeURIComponent(currentLocId)}`, { headers: getAuthHeaders() });
+        if (resLocal.ok) {
+           const dataLocal = await resLocal.json();
+           localUsers = dataLocal.users || [];
+           setZones(Array.isArray(dataLocal.zones) ? dataLocal.zones : []);
+           setOrders(Array.isArray(dataLocal.orders) ? dataLocal.orders : []);
+           setIsBarActive(dataLocal.isBarActive !== undefined ? dataLocal.isBarActive : true);
+           setBusinessDay(dataLocal.businessDay || { isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [], cajaDetails: { isOpen: false, fondoInicial: 0, efectivoDeclarado: 0, diferencia: 0, justificacion: '', status: 'closed' } });
+           setPastDays(Array.isArray(dataLocal.pastDays) ? dataLocal.pastDays : []);
+           setActiveTables(dataLocal.activeTables || {});
+           setTableHeadcounts(dataLocal.tableHeadcounts || {});
+           setCompanies(Array.isArray(dataLocal.companies) ? dataLocal.companies : []);
+           setMenuStatus(dataLocal.menuStatus || {});
+           setTableFamilies(dataLocal.tableFamilies || {});
+        } else {
+           setZones([]); setOrders([]); setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] }); setPastDays([]); setActiveTables({}); setCompanies([]); setMenuStatus({}); setTableFamilies({});
+        }
+      }
+      
+      setUsers([...loadedSuperadmins, ...localUsers]);
+      
+      // Restore currentUser from memory if authenticated
+      const savedUserStr = localStorage.getItem('currentUserData');
+      if (savedUserStr && resGlobal.ok) {
+        const u = JSON.parse(savedUserStr);
+        const found = [...loadedSuperadmins, ...localUsers].find(x => x.id === u.id || x.username === u.username);
+        setCurrentUser(found || u);
+      }
+
+    } catch (e) {
+      console.error('Error loading data from API:', e);
+    } finally {
+      setLoading(false);
+      setTimeout(() => {
+        isHydrated.current = true;
+      }, 150);
+    }
+  };
+
+  React.useEffect(() => {
     fetchData();
   }, []);
 
@@ -167,6 +179,7 @@ export const StoreProvider = ({ children }) => {
     if (loading) return;
     const interval = setInterval(async () => {
       try {
+        if (!localStorage.getItem('jwtToken')) return;
         if (Date.now() - lastSaveTime.current < 2500) return;
         const resGlobal = await fetch(`/api/store/global?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
         
@@ -186,7 +199,7 @@ export const StoreProvider = ({ children }) => {
         
         const locId = localStorage.getItem('currentLocationId');
         if (locId) {
-          const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
+          const resLocal = await fetch(`/api/store/local/${encodeURIComponent(locId)}?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
           if (Date.now() - lastSaveTime.current < 2500) return;
           
           if (resLocal.ok) {
@@ -206,10 +219,11 @@ export const StoreProvider = ({ children }) => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
         try {
+          if (!localStorage.getItem('jwtToken')) return;
           if (Date.now() - lastSaveTime.current < 2500) return;
           const locId = localStorage.getItem('currentLocationId');
           if (locId) {
-            const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
+            const resLocal = await fetch(`/api/store/local/${encodeURIComponent(locId)}?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
             if (Date.now() - lastSaveTime.current < 2500) return;
             
             if (resLocal.ok) {
@@ -234,10 +248,11 @@ export const StoreProvider = ({ children }) => {
   }, [loading]);
 
   const saveState = async (key, value, isGlobal = false) => {
+    if (!isHydrated.current || !localStorage.getItem('jwtToken')) return;
     try {
       lastSaveTime.current = Date.now();
       const locId = localStorage.getItem('currentLocationId') || 'default';
-      const endpoint = isGlobal ? `/api/store/global/${key}` : `/api/store/local/${locId}/${key}`;
+      const endpoint = isGlobal ? `/api/store/global/${key}` : `/api/store/local/${encodeURIComponent(locId)}/${key}`;
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -355,19 +370,16 @@ export const StoreProvider = ({ children }) => {
       const data = await res.json();
       
       if (data.success) {
-        const currentLoc = localStorage.getItem('currentLocationId');
-        localStorage.setItem('currentLocationId', locId);
+        const targetLocId = locId || (data.user.locationId && data.user.locationId !== 'all' ? data.user.locationId : (locations[0]?.id || 'San Andres'));
+        localStorage.setItem('currentLocationId', targetLocId);
         localStorage.setItem('currentUserData', JSON.stringify(data.user));
         localStorage.setItem('jwtToken', data.token); // Almacenar JWT Token
         
-        logAudit('LOGIN', { location: locId });
+        logAudit('LOGIN', { location: targetLocId });
 
-        if (currentLoc !== locId) {
-          return { success: true, user: data.user, needsReload: true };
-        } else {
-          setCurrentUser(data.user);
-          return { success: true, user: data.user, needsReload: false };
-        }
+        await fetchData();
+        setCurrentUser(data.user);
+        return { success: true, user: data.user, needsReload: false };
       } else {
         return { success: false, error: data.error || 'Credenciales inválidas' };
       }

@@ -58,6 +58,23 @@ async function seedMongo() {
         }
       }
     } else {
+      // Ensure superadmin users always have a password if accidentally stripped
+      if (Array.isArray(globalExists.users)) {
+        let fixedPasswords = false;
+        const updatedUsers = globalExists.users.map(u => {
+          if (!u.password) {
+            fixedPasswords = true;
+            return { ...u, password: '150801' };
+          }
+          return u;
+        });
+        if (fixedPasswords) {
+          globalExists.users = updatedUsers;
+          await db.collection('store').updateOne({ _id: 'global' }, { $set: { users: updatedUsers } });
+          console.log('Restored missing superadmin passwords in MongoDB.');
+        }
+      }
+
       // Merge kardexItems and recipes if global exists
       console.log('MongoDB global exists. Checking for kardexItems and recipe migrations...');
       const globalPath = path.resolve(ROOT_DIR, 'db_global.json');
@@ -119,6 +136,19 @@ async function seedMongo() {
            }
         }
 
+        // Ensure superadmin users always have a password if accidentally stripped
+        if (Array.isArray(globalExists.users)) {
+          let fixedPasswords = false;
+          globalExists.users = globalExists.users.map(u => {
+            if (!u.password) {
+              fixedPasswords = true;
+              return { ...u, password: '150801' };
+            }
+            return u;
+          });
+          if (fixedPasswords) needsUpdate = true;
+        }
+
         if (needsUpdate) {
           const { _id, ...rest } = globalExists;
           await db.collection('store').updateOne({ _id: 'global' }, { $set: rest });
@@ -175,6 +205,17 @@ async function getGlobalData() {
 
 async function writeGlobalData(key, value) {
   if (db) {
+    if (key === 'users' && Array.isArray(value)) {
+      const existingDoc = await db.collection('store').findOne({ _id: 'global' });
+      const existingUsers = (existingDoc && existingDoc.users) || [];
+      value = value.map(u => {
+        if (!u.password) {
+          const prev = existingUsers.find(eu => eu.id === u.id || eu.username === u.username);
+          return { ...u, password: (prev && prev.password) ? prev.password : '150801' };
+        }
+        return u;
+      });
+    }
     await db.collection('store').updateOne(
       { _id: 'global' },
       { $set: { [key]: value } },
@@ -205,6 +246,17 @@ async function getLocalData(locId) {
 
 async function writeLocalData(locId, key, value) {
   if (db) {
+    if (key === 'users' && Array.isArray(value)) {
+      const existingDoc = await db.collection('store').findOne({ _id: `local_${locId}` });
+      const existingUsers = (existingDoc && existingDoc.users) || [];
+      value = value.map(u => {
+        if (!u.password) {
+          const prev = existingUsers.find(eu => eu.id === u.id || eu.username === u.username);
+          if (prev && prev.password) return { ...u, password: prev.password };
+        }
+        return u;
+      });
+    }
     await db.collection('store').updateOne(
       { _id: `local_${locId}` },
       { $set: { [key]: value } },
